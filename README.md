@@ -50,7 +50,7 @@
 ![상대경로](https://github.com/YTAK99/MBC_TEAM/blob/main/PHOTO/%EC%9B%94%EB%A0%88%EC%8A%A4%EC%99%80%EA%B7%B8%EB%A1%9C%EB%B0%8B2.jpg)
 ← 이건 이미지 조절이 되지 않는다
 
-![절대경로](./PHOTO/월레스와그로밋1)
+![절대경로](./PHOTO/월레스와그로밋1.jpg)
 
 ---
 
