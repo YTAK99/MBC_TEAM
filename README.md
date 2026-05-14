@@ -16,10 +16,6 @@
 
 ![](test.png)
 
-<img width="100" height="100" alt="Image" src="https://github.com/user-attachments/assets/b1f56d4a-adda-4b17-b71c-05872f4b0817" />
-
-![테스트](https://github.com/YTAK99/MBC_TEAM/blob/main/PHOTO/%EC%9B%94%EB%A0%88%EC%8A%A4%EC%99%80%EA%B7%B8%EB%A1%9C%EB%B0%8B2.jpg)
-
 
 # 📑 마크다운(Markdown) 실전 가이드라인
 
@@ -47,6 +43,11 @@
 *   **이미지 삽입:** `![이미지 설명](이미지 주소나 경로)`
     > **꿀팁:** 깃허브 Issue나 Pull Request 작성 창에 이미지를 드래그 앤 드롭하면 자동으로 이미지 링크 주소가 생성된다.
     > 그걸 복사해서 `.md` 파일에 붙여넣으면 편하다.
+
+<img width="200" height="200" alt="Image" src="https://github.com/user-attachments/assets/b1f56d4a-adda-4b17-b71c-05872f4b0817" />
+
+![테스트](https://github.com/YTAK99/MBC_TEAM/blob/main/PHOTO/%EC%9B%94%EB%A0%88%EC%8A%A4%EC%99%80%EA%B7%B8%EB%A1%9C%EB%B0%8B2.jpg)
+↑ 이건 이미지 조절이 되지 않는다
 
 ---
 
