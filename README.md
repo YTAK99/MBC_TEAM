@@ -1,7 +1,11 @@
 # HELLO WORLD!
 - test
 - test2
-$\color{orange}{오렌지색 텍스트}$
+    *   $\color{orange}{오렌지색 텍스트}$ : `$\color{orange}{오렌지색 텍스트}$`
+    *   $\color{cyan}{하늘색 강조}$ : `$\color{cyan}{하늘색 강조}$`
+    *   $\color{#FF5733}{HEX 코드도 가능}$ : `$\color{#FF5733}{HEX 코드도 가능}$`
+
+
 # 표
 
 | 테스트         | 파일 이름                                | 파일 미리보기                                                                                                                              | 다운로드 링크                                                                                  |
