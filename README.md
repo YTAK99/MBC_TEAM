@@ -45,9 +45,10 @@
     > 그걸 복사해서 `.md` 파일에 붙여넣으면 편하다.
 
 <img width="200" height="200" alt="Image" src="https://github.com/user-attachments/assets/b1f56d4a-adda-4b17-b71c-05872f4b0817" />
+← 이건 이미지 조절이 된다
 
 ![테스트](https://github.com/YTAK99/MBC_TEAM/blob/main/PHOTO/%EC%9B%94%EB%A0%88%EC%8A%A4%EC%99%80%EA%B7%B8%EB%A1%9C%EB%B0%8B2.jpg)
-↑ 이건 이미지 조절이 되지 않는다
+← 이건 이미지 조절이 되지 않는다
 
 ---
 
