@@ -16,7 +16,7 @@
 
 ![](test.png)
 
-<img width="551" height="502" alt="Image" src="https://github.com/user-attachments/assets/b1f56d4a-adda-4b17-b71c-05872f4b0817" />
+<img width="100" height="100" alt="Image" src="https://github.com/user-attachments/assets/b1f56d4a-adda-4b17-b71c-05872f4b0817" />
 
 
 # 📑 마크다운(Markdown) 실전 가이드라인
