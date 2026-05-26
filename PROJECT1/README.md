@@ -8,6 +8,8 @@
 - py manage.py runserver
 
 
+# 깃허브 변경 사항 당겨오려면 (커서 터미널에서)
+- git pull
 
 # 모듈 추가 후 깃 커밋할때
 - pip freeze > requirements.txt
