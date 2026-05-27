@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}질문 상세 - ClassQ{% endblock %}
+{% block page_title %}질문 상세{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/classq-detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container page-container-narrow detail-page">
+  <a href="{% url 'questions:board' %}" class="classq-link detail-back-link">게시판으로</a>
+
+  <article class="classq-card detail-question">
+    <div class="detail-meta">
+      <span class="tag-badge">예시 태그</span>
+      <span class="muted-text">질문 번호 {{ question_id }}</span>
+    </div>
+    <h1>질문 제목이 표시될 영역입니다</h1>
+    <p class="detail-body">
+      질문 본문이 들어갈 자리입니다. 현재 상세 페이지는 데이터 조회 없이도 화면 구조를 확인할 수 있도록
+      HTML/CSS 껍데기만 남겨둔 상태입니다.
+    </p>
+  </article>
+
+  <section class="detail-section">
+    <div class="section-heading">
+      <h2>Response</h2>
+      <span class="muted-text">후속 글 목록 영역</span>
+    </div>
+    {# 추후 구현: {% for response in question.responses.all %} 반복문으로 Response를 출력한다. #}
+    <article class="classq-card response-card">
+      <strong>Response 작성자</strong>
+      <p class="muted-text">후속 글 내용이 들어갈 자리입니다.</p>
+    </article>
+  </section>
+
+  <section class="classq-card response-form-card">
+    <h2>Response 작성</h2>
+    <form method="post" class="classq-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="response-content" class="form-label">내용</label>
+        <textarea id="response-content" name="content" class="input-field form-textarea" rows="4" placeholder="후속 글 내용을 입력하세요"></textarea>
+      </div>
+      <button type="submit" class="classq-button classq-button-primary">Response 등록</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

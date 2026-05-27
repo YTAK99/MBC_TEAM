@@ -1,0 +1,53 @@
+.detail-page {
+  padding: 28px 0 56px;
+}
+
+.detail-back-link {
+  display: inline-flex;
+  margin-bottom: 18px;
+}
+
+.detail-question {
+  margin-bottom: 28px;
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.detail-question h1 {
+  margin: 0 0 16px;
+  font-size: 24px;
+  line-height: 1.35;
+}
+
+.detail-body {
+  margin: 0;
+  color: rgba(26, 26, 46, 0.82);
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.detail-section {
+  margin-bottom: 28px;
+}
+
+.response-card {
+  display: grid;
+  gap: 10px;
+}
+
+.response-card p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.response-form-card h2 {
+  margin: 0 0 18px;
+  font-size: 18px;
+}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}질문 등록 - ClassQ{% endblock %}
+{% block page_title %}질문 등록{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container form-page">
+  <section class="classq-card form-card">
+    <h1>질문 등록</h1>
+    <p class="muted-text">제목과 내용을 입력하는 기본 폼입니다.</p>
+
+    <form method="post" class="classq-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.title.id_for_label }}" class="form-label">제목</label>
+        {{ form.title }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.content.id_for_label }}" class="form-label">내용</label>
+        {{ form.content }}
+      </div>
+      <div class="form-actions">
+        <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary">취소</a>
+        <button type="submit" class="classq-button classq-button-primary">등록</button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

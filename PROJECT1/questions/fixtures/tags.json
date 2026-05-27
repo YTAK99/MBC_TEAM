@@ -1,0 +1,8 @@
+[
+  {"model": "questions.tag", "pk": 1, "fields": {"name": "Python",      "color": "#3B82F6"}},
+  {"model": "questions.tag", "pk": 2, "fields": {"name": "알고리즘",    "color": "#8B5CF6"}},
+  {"model": "questions.tag", "pk": 3, "fields": {"name": "Django",      "color": "#10B981"}},
+  {"model": "questions.tag", "pk": 4, "fields": {"name": "데이터베이스","color": "#F59E0B"}},
+  {"model": "questions.tag", "pk": 5, "fields": {"name": "Git",         "color": "#EF4444"}},
+  {"model": "questions.tag", "pk": 6, "fields": {"name": "개념",        "color": "#6B7280"}}
+]

@@ -1,0 +1,38 @@
+# 프로젝트 전체 점검 요약
+치명적인 버그는 거의 없고, 대부분은 README/환경 설정·성능·사소한 불일치 수준입니다.
+
+# 잘 되어 있는 부분
+Django 앱 구조(accounts / questions), URL, 뷰 흐름이 README와 맞음
+CSRF, 로그인 필요(LoginRequiredMixin), 해결 처리는 작성자만 가능
+태그 fixture, 폼에서 태그 최대 3개 검증
+home.html의 {{ tag.color }}18 패턴은 런타임에는 정상 (에디터 빨간 줄만 무시해도 됨)
+
+
+# 알아두면 좋은 이슈
+
+로그인 후 이동
+detail.html은 ?next=...를 넘기는데, CustomLoginView가 항상 게시판으로 보냄 → 상세 페이지로 돌아가지 않음
+
+게시판 태그 필터
+M2M 필터 시 같은 질문이 중복 행으로 나올 수 있음 → .distinct() 권장
+
+성능
+게시판에서 q.like_count가 질문마다 쿼리 1번씩 (N+1). annotate로 합치면 개선
+
+의존성
+Pillow는 이미지 필드가 없어 미사용
+
+base.html
+{% with nav_items=nav_items %}는 변수를 정의하지 않아 의미 없음
+
+home.html
+{% for step in "123" %}로 3단계 표시 — 동작은 하지만 다소 우회적
+
+보안(로컬)
+.env에 SECRET_KEY가 아직 예시 문구면 개발은 되지만, 배포 전에는 반드시 교체
+
+
+
+# 템플릿 / UI (이상 아님)
+tag-badge 빨간 줄: HTML/CSS 린터가 Django {{ }}·8자리 hex를 못 읽는 것
+home.html 102–122줄: 이상한 문법이 아니라 문자열 "123"을 3번 도는 패턴
