@@ -12,6 +12,62 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <aside class="classq-sidebar" aria-label="사이드바 메뉴">
+    <a href="{% url 'questions:home' %}" class="classq-sidebar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5C35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <path d="M8 10h.01"></path>
+        <path d="M12 10h.01"></path>
+        <path d="M16 10h.01"></path>
+      </svg>
+      <span class="classq-sidebar-title">ClassQ</span>
+    </a>
+
+    <nav class="classq-sidebar-nav" aria-label="사이드바 네비게이션">
+      <a href="{% url 'questions:home' %}" class="classq-sidebar-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+        메인
+      </a>
+
+      <a href="{% url 'questions:board' %}" class="classq-sidebar-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+        질문 게시판
+      </a>
+
+      <a href="{% url 'questions:ask' %}" class="classq-sidebar-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="M12 5v14"></path>
+        </svg>
+        질문하기
+      </a>
+
+      <a href="{% url 'questions:board' %}?sort=likes" class="classq-sidebar-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+          <polyline points="16 7 22 7 22 13"></polyline>
+        </svg>
+        인기 질문
+      </a>
+    </nav>
+
+    <div class="classq-sidebar-footer">
+      {% if user.is_authenticated %}
+        <div class="classq-sidebar-user">
+          <p class="classq-sidebar-user-label">로그인됨</p>
+          <p class="classq-sidebar-user-name">{{ user.username }}</p>
+        </div>
+      {% else %}
+        <a href="{% url 'questions:login' %}" class="classq-sidebar-login">로그인</a>
+      {% endif %}
+    </div>
+  </aside>
+
   <header class="topbar">
     <a href="{% url 'questions:home' %}" class="topbar-brand">
       <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

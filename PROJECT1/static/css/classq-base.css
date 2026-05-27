@@ -7,6 +7,7 @@
   --classq-accent: #ff5c35;
   --classq-border: rgba(26, 26, 46, 0.1);
   --classq-radius: 16px;
+  --classq-sidebar-width: 256px;
 }
 
 * {
@@ -19,6 +20,7 @@ body {
   background: var(--classq-background);
   color: var(--classq-foreground);
   font-family: "Noto Sans KR", "DM Sans", sans-serif;
+  padding-left: var(--classq-sidebar-width);
 }
 
 a {
@@ -233,5 +235,108 @@ button {
 
   .classq-card {
     padding: 20px;
+  }
+}
+
+/* ===== Fixed Sidebar (classq_fixed 방식 적용) ===== */
+.classq-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: var(--classq-sidebar-width);
+  background: var(--classq-foreground);
+  color: var(--classq-background);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 14px 16px;
+  z-index: 30;
+}
+
+.classq-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  padding: 10px 8px;
+  border-radius: 12px;
+}
+
+.classq-sidebar-brand:hover {
+  background: rgba(245, 243, 238, 0.08);
+}
+
+.classq-sidebar-title {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.classq-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 6px 10px 6px;
+}
+
+.classq-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(245, 243, 238, 0.85);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.classq-sidebar-link:hover {
+  background: rgba(245, 243, 238, 0.08);
+  color: var(--classq-background);
+}
+
+.classq-sidebar-footer {
+  margin-top: auto;
+  padding: 12px 6px;
+  border-top: 1px solid rgba(245, 243, 238, 0.08);
+}
+
+.classq-sidebar-user {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.classq-sidebar-user-label {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.classq-sidebar-user-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.classq-sidebar-login {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--classq-accent);
+  border: 1px solid rgba(255, 92, 53, 0.35);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --classq-sidebar-width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --classq-sidebar-width: 200px;
   }
 }
