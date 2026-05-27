@@ -219,3 +219,6 @@ __marimo__/
 
 migrations/
 _media/
+
+# VSCode
+.vscode/
