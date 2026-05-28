@@ -67,7 +67,9 @@ button {
   padding: 0 18px;
   font-size: 14px;
   font-weight: 600;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .classq-button-primary {
@@ -93,6 +95,10 @@ button {
 
 .muted-text {
   color: var(--classq-muted-text);
+}
+
+.form-group .muted-text {
+  font-size: 12px;
 }
 
 .eyebrow {
@@ -234,4 +240,18 @@ button {
   .classq-card {
     padding: 20px;
   }
+}
+
+.form-group .muted-text {
+  font-size: 12px;
+  margin-top: -2px;
+  margin-bottom: 0;
+}
+
+#username-message {
+  margin: 0;
+}
+
+#username-message:empty {
+  display: none;
 }
