@@ -7,32 +7,40 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
 {% endblock %}
-
+   
 {% block content %}
 <div class="page-container page-container-narrow board-page">
+   <!-- 검색어 입력 필드 추가 -->
   <div class="board-toolbar">
-    <form method="get" class="board-search">
-      <label for="question-search" class="screen-reader-text">질문 검색</label>
-      <input id="question-search" name="q" type="search" class="input-field" placeholder="질문 검색" value="{{ query }}">
-    </form>
-    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">질문하기</a>
-  </div>
-
-  <div class="board-filter-row">
-  <a href="{% url 'questions:board' %}"
+  <form method="get" class="board-search">
+    <label for="question-search" class="screen-reader-text">질문 검색</label>
+    <input id="question-search" name="q" type="search" class="input-field" placeholder="질문 검색" value="{{ query }}">
+    <button type="submit" class="classq-button classq-button-primary">검색</button>
+  </form>
+</div>
+<!-- 정렬과 태그 필터를 위한 UI 추가 -->
+  <div class="board-filter-row">              
+  <a href="?sort=latest{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}"
     class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
     최신순
   </a>
 
-  <a href="?sort=popular"
+  <a href="?sort=popular{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}"
     class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
     공감순
   </a>
 
   {% for tag in tags %}
-  <a href="?tag={{ tag.id }}"
-     class="filter-chip {% if selected_tag_id == tag.id|stringformat:'s' %}is-active{% endif %}"
-     style="border-color: {{ tag.color }}; color: {{ tag.color }};">
+  <a href="?tag={{ tag.id }}&sort={{ current_sort }}"
+     class="filter-chip {% if selected_tag_id == tag.id|stringformat:'s' %}is-active{% endif %}" 
+     style="border-color: {{ tag.color }}; color: {{ tag.color }};
+     {% if selected_tag_id == tag.id|stringformat:'s' %}
+       background-color: {{ tag.color }};
+       color: #ffffff;
+     {% else %}
+       color: {{ tag.color }};
+     {% endif %}
+     "> 
     {{ tag.name }}
   </a>
 {% endfor %}
@@ -40,8 +48,13 @@
 
   <div class="board-heading">
     <h1>질문 목록</h1>
-    <span class="muted-text">정렬과 검색 기능은 추후 구현 예정</span>
+
+    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">
+    나도 질문하기
+  </a>
   </div>
+
+  
 
   <section class="question-list" aria-label="질문 목록">
     {% for question in questions %}
@@ -49,13 +62,13 @@
       <div class="question-card-main">
         <div class="question-meta">
           {% for tag in question.tags.all %}
-  <span class="tag-badge"
-        style="background-color: {{ tag.color }};">
-    {{ tag.name }}
-  </span>
-    {% empty %}
-  <span class="tag-badge">태그 없음</span>
-    {% endfor %}
+            <span class="tag-badge"
+                  style="background-color: {{ tag.color }};">
+              {{ tag.name }}
+            </span>
+          {% empty %}
+            <span class="tag-badge">태그 없음</span>
+          {% endfor %}
 
           <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
         </div>
@@ -71,7 +84,7 @@
 
       <div class="question-card-side">
         <span>{{ question.get_status_display }}</span>
-        <strong>{{ question.agree_count}}</strong>
+        <strong>공감 {{ question.agree_count}}명</strong>
       </div>
     </article>
     {% empty %}
@@ -80,5 +93,26 @@
     </div>
     {% endfor %}
   </section>
+  {% if page_obj.has_other_pages %}
+  <nav class="pagination-row" aria-label="질문 페이지 이동">
+    {% if page_obj.has_previous %}
+      <a class="filter-chip"
+         href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+        이전
+      </a>
+    {% endif %}
+
+    <span class="pagination-current">
+      {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+      <a class="filter-chip"
+         href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+        다음
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}
 </div>
 {% endblock %}
