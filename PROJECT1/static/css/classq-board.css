@@ -78,6 +78,13 @@
   font-size: 22px;
 }
 
+.board-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .question-list {
   display: grid;
   gap: 12px;

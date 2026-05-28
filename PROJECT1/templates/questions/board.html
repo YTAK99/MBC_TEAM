@@ -20,16 +20,8 @@
 </div>
 <!-- 정렬과 태그 필터를 위한 UI 추가 -->
   <div class="board-filter-row">              
-  <a href="?sort=latest{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
-   class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
-  최신순
-</a>
-
-  <a href="?sort=popular{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
-   class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
-  공감순
-</a>
   
+  <!-- 태그 필터 UI -->
   {% for item in tag_filters %}
   <a href="{{ item.url }}"
      class="filter-chip {% if item.is_selected %}is-active{% endif %}"
@@ -45,14 +37,25 @@
     {{ item.tag.name }}
   </a>
 {% endfor %}
+<!-- 정렬 UI -->
 </div>
   <div class="board-heading">
     <h1>질문 목록</h1>
+    <div class="board-heading-actions">
+    <a href="?sort=latest{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+      class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
+      최신순
+    </a>
 
+    <a href="?sort=popular{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+      class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
+      공감순
+    </a>
     <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">
     나도 질문하기
   </a>
   </div>
+</div>
 
   
  <!-- 질문 목록 섹션 -->
