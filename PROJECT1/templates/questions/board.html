@@ -20,32 +20,32 @@
 </div>
 <!-- 정렬과 태그 필터를 위한 UI 추가 -->
   <div class="board-filter-row">              
-  <a href="?sort=latest{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}"
-    class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
-    최신순
-  </a>
+  <a href="?sort=latest{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+   class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
+  최신순
+</a>
 
-  <a href="?sort=popular{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}"
-    class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
-    공감순
-  </a>
+  <a href="?sort=popular{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+   class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
+  공감순
+</a>
 
-  {% for tag in tags %}
-  <a href="?tag={{ tag.id }}&sort={{ current_sort }}"
-     class="filter-chip {% if selected_tag_id == tag.id|stringformat:'s' %}is-active{% endif %}" 
-     style="border-color: {{ tag.color }}; color: {{ tag.color }};
-     {% if selected_tag_id == tag.id|stringformat:'s' %}
-       background-color: {{ tag.color }};
-       color: #ffffff;
-     {% else %}
-       color: {{ tag.color }};
-     {% endif %}
-     "> 
-    {{ tag.name }}
+  {% for item in tag_filters %}
+  <a href="{{ item.url }}"
+     class="filter-chip {% if item.is_selected %}is-active{% endif %}"
+     style="
+       border-color: {{ item.tag.color }};
+       {% if item.is_selected %}
+         background-color: {{ item.tag.color }};
+         color: #ffffff;
+       {% else %}
+         color: {{ item.tag.color }};
+       {% endif %}
+     ">
+    {{ item.tag.name }}
   </a>
 {% endfor %}
 </div>
-
   <div class="board-heading">
     <h1>질문 목록</h1>
 
@@ -67,7 +67,7 @@
               {{ tag.name }}
             </span>
           {% empty %}
-            <span class="tag-badge">태그 없음</span>
+            <span class="tag-badge is-empty">태그 없음</span>
           {% endfor %}
 
           <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
@@ -83,8 +83,12 @@
       </div>
 
       <div class="question-card-side">
-        <span>{{ question.get_status_display }}</span>
-        <strong>공감 {{ question.agree_count}}명</strong>
+        <div class="question-card-side">
+        <span class="status-badge status-{{ question.status|lower }}">
+        {{ question.get_status_display }}
+        </span>
+
+        <strong>{{ question.agree_count }}명이 궁금해요</strong>
       </div>
     </article>
     {% empty %}
@@ -97,7 +101,7 @@
   <nav class="pagination-row" aria-label="질문 페이지 이동">
     {% if page_obj.has_previous %}
       <a class="filter-chip"
-         href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+         href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
         이전
       </a>
     {% endif %}
@@ -108,7 +112,7 @@
 
     {% if page_obj.has_next %}
       <a class="filter-chip"
-         href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_id %}&tag={{ selected_tag_id }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+         href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
         다음
       </a>
     {% endif %}
