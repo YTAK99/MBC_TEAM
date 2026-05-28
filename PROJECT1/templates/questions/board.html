@@ -13,17 +13,30 @@
   <div class="board-toolbar">
     <form method="get" class="board-search">
       <label for="question-search" class="screen-reader-text">질문 검색</label>
-      <input id="question-search" name="q" type="search" class="input-field" placeholder="질문 검색">
+      <input id="question-search" name="q" type="search" class="input-field" placeholder="질문 검색" value="{{ query }}">
     </form>
     <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">질문하기</a>
   </div>
 
   <div class="board-filter-row">
-    <a href="{% url 'questions:board' %}" class="filter-chip is-active">전체</a>
-    <span class="filter-chip">태그</span>
-    <span class="filter-chip">수업</span>
-    <span class="filter-chip">과제</span>
-  </div>
+  <a href="{% url 'questions:board' %}"
+    class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
+    최신순
+  </a>
+
+  <a href="?sort=popular"
+    class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
+    공감순
+  </a>
+
+  {% for tag in tags %}
+  <a href="?tag={{ tag.id }}"
+     class="filter-chip {% if selected_tag_id == tag.id|stringformat:'s' %}is-active{% endif %}"
+     style="border-color: {{ tag.color }}; color: {{ tag.color }};">
+    {{ tag.name }}
+  </a>
+{% endfor %}
+</div>
 
   <div class="board-heading">
     <h1>질문 목록</h1>
@@ -31,37 +44,41 @@
   </div>
 
   <section class="question-list" aria-label="질문 목록">
-    {# 추후 구현: {% for question in questions %} 반복문으로 실제 질문을 출력한다. #}
-    {# 추후 구현: QuestionAgree 수는 question.agrees.count 기준으로 표시한다. #}
+    {% for question in questions %}
     <article class="classq-card question-card">
       <div class="question-card-main">
         <div class="question-meta">
-          <span class="tag-badge">예시</span>
-          <span class="muted-text">익명 학생</span>
-        </div>
-        <h2><a href="{% url 'questions:detail' 1 %}">질문 제목이 들어갈 자리입니다</a></h2>
-        <p class="muted-text">질문 내용 일부를 보여주는 영역입니다.</p>
-      </div>
-      <div class="question-card-side">
-        <span>Response</span>
-        <strong>-</strong>
-      </div>
-    </article>
+          {% for tag in question.tags.all %}
+  <span class="tag-badge"
+        style="background-color: {{ tag.color }};">
+    {{ tag.name }}
+  </span>
+    {% empty %}
+  <span class="tag-badge">태그 없음</span>
+    {% endfor %}
 
-    <article class="classq-card question-card">
-      <div class="question-card-main">
-        <div class="question-meta">
-          <span class="tag-badge">수업</span>
-          <span class="muted-text">익명</span>
+          <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
         </div>
-        <h2><a href="{% url 'questions:detail' 2 %}">두 번째 질문 카드 자리</a></h2>
-        <p class="muted-text">현재 카드는 데이터베이스와 연결되지 않은 HTML 예시입니다.</p>
+
+        <h2>
+          <a href="{% url 'questions:detail' question.pk %}">
+            {{ question.title }}
+          </a>
+        </h2>
+
+        <p class="muted-text">{{ question.content|truncatechars:50 }}</p>
       </div>
+
       <div class="question-card-side">
-        <span>Response</span>
-        <strong>-</strong>
+        <span>{{ question.get_status_display }}</span>
+        <strong>{{ question.agree_count}}</strong>
       </div>
     </article>
+    {% empty %}
+    <div class="classq-card question-card">
+      <p class="muted-text">아직 등록된 질문이 없습니다.</p>
+    </div>
+    {% endfor %}
   </section>
 </div>
 {% endblock %}
