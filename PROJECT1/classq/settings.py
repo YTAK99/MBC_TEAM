@@ -103,5 +103,8 @@ STATICFILES_DIRS = [
 
 # 로그인 설정
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/accounts/login/"
-LOGIN_URL = "/accounts/login/"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/login/"
+
+# 기본 PK 타입
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

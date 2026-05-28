@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import logout
 
 from .forms import QuestionForm, SignupForm
 
@@ -24,5 +25,7 @@ def signup(request):            # 회원가입
     form = SignupForm()
     return render(request, "registration/signup.html", {"form": form})
 
-def login(request):             # 로그인
-    return render(request, "registration/login.html")
+
+def logout_view(request):       # 로그아웃
+    logout(request)
+    return redirect('/')
