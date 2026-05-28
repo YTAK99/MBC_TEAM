@@ -29,7 +29,7 @@
    class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
   공감순
 </a>
-
+  
   {% for item in tag_filters %}
   <a href="{{ item.url }}"
      class="filter-chip {% if item.is_selected %}is-active{% endif %}"
@@ -55,7 +55,7 @@
   </div>
 
   
-
+ <!-- 질문 목록 섹션 -->
   <section class="question-list" aria-label="질문 목록">
     {% for question in questions %}
     <article class="classq-card question-card">
@@ -91,6 +91,7 @@
         <strong>{{ question.agree_count }}명이 궁금해요</strong>
       </div>
     </article>
+    <!-- 질문이 하나도 없는 경우 -->
     {% empty %}
     <div class="classq-card question-card">
       <p class="muted-text">아직 등록된 질문이 없습니다.</p>
@@ -105,7 +106,7 @@
         이전
       </a>
     {% endif %}
-
+    <!-- 페이지 번호 표시 -->
     <span class="pagination-current">
       {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
     </span>

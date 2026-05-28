@@ -19,7 +19,7 @@ def board(request):             # 질문 목록 페이지
         .prefetch_related("tags")       # 질문과 관련된 태그 정보를 미리 가져와서 DB 쿼리 수를 줄임
         .annotate(agree_count=Count("agrees"))  # 각 질문에 대한 공감 수를 계산하여 agree_count 필드로 추가
     )
-    
+    # 검색어가 있는 경우 제목과 내용에서 검색어가 포함된 질문을 필터링
     if query:
         questions = questions.filter(
             Q(title__icontains=query) |
@@ -37,17 +37,17 @@ def board(request):             # 질문 목록 페이지
     tags = Tag.objects.all()
 
     tag_filters = []
-
+    
     for tag in tags:
         tag_id = str(tag.id)
         next_tag_ids = selected_tag_ids.copy()
-
-        if tag_id in next_tag_ids:
-            next_tag_ids.remove(tag_id)
+        
+        if tag_id in next_tag_ids:          
+            next_tag_ids.remove(tag_id)     # 현재 태그가 선택된 상태라면, 클릭 시 선택 해제되도록 다음 태그 ID 목록에서 제거
         else:
             next_tag_ids.append(tag_id)
 
-        params = []
+        params = []                     # URL에 현재 정렬 방식과 검색어, 선택된 태그들을 유지하기 위한 파라미터 목록
 
         if sort:
             params.append(("sort", sort))
@@ -63,7 +63,7 @@ def board(request):             # 질문 목록 페이지
             "is_selected": tag_id in selected_tag_ids,
             "url": "?" + urlencode(params),
         })
-
+    # 페이지네이션
     paginator = Paginator(questions, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
