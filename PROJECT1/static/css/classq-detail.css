@@ -16,25 +16,95 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 4px;
+}
+
+.detail-number {
+  margin-bottom: 12px;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.resolve-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
 }
 
 .detail-question h1 {
-  margin: 0 0 16px;
+  margin: 10px 0 10px;
   font-size: 24px;
   line-height: 1.35;
 }
 
+.detail-info {
+  font-size: 12px;
+}
+
 .detail-body {
-  margin: 0;
+  margin: 0 0 0 -4px;
   color: rgba(26, 26, 46, 0.82);
   font-size: 15px;
   line-height: 1.8;
   white-space: pre-wrap;
 }
 
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #e6e6ea;
+}
+
+.button-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.button-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.detail-actions .classq-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-actions .classq-button-primary {
+  background: #f97316;
+  border-color: #f97316;
+}
+
+.detail-actions .classq-button-primary:hover {
+  background: #ea580c;
+  border-color: #ea580c;
+}
+
 .detail-section {
   margin-bottom: 28px;
+}
+
+.answer-count {
+  color: #ff5c35;
 }
 
 .response-card {
@@ -42,12 +112,79 @@
   gap: 10px;
 }
 
+.response-card + .response-card {
+  margin-top: 14px;
+}
+
+.response-meta-line {
+  margin: 0;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.response-meta-line strong {
+  font-weight: 700;
+}
+
+.response-time {
+  color: rgba(26, 26, 46, 0.55);
+  font-size: 12px;
+}
+
+.response-author-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.response-author-badge-student {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.28);
+}
+
+.response-author-badge-staff {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.14);
+  border: 1px solid rgba(217, 119, 6, 0.32);
+}
+
 .response-card p {
   margin: 0;
   line-height: 1.7;
 }
 
+.response-empty-message {
+  margin: 18px 0 0;
+  text-align: center;
+  color: rgba(26, 26, 46, 0.56);
+  line-height: 1.75;
+}
+
+.response-form-card {
+  background: #f3f3f6;
+}
+
+.response-form-card textarea {
+  background: #ececf7;
+  min-height: 96px;
+}
+
 .response-form-card h2 {
   margin: 0 0 18px;
   font-size: 18px;
+}
+
+.form-error {
+  margin-top: 8px;
+  color: #d14343;
+  font-size: 13px;
+  line-height: 1.5;
 }

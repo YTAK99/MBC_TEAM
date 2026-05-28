@@ -24,16 +24,33 @@ class Question(models.Model):
     )
     title = models.CharField(max_length=100)
     content = models.TextField()
+    # 질문 작성자가 이름을 숨기고 싶을 때 사용하는 익명 여부
+    is_anonymous = models.BooleanField(default=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
     tags = models.ManyToManyField(Tag, related_name="questions", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_resolved(self):
+        """
+        템플릿에서 상태 비교 코드를 매번 쓰지 않도록
+        '해결됨' 여부를 불리언 값으로 제공한다.
+        """
+        return self.status == self.Status.RESOLVED
+
+    def display_author(self):
+        """
+        익명 질문이면 작성자명을 숨기고,
+        아니면 실제 username 을 보여준다.
+        """
+        return "익명" if self.is_anonymous else self.author.username
 
 
 class Response(models.Model):
