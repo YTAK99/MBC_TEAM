@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 
 from .forms import QuestionForm, SignupForm
 
@@ -31,7 +33,6 @@ def signup(request):
 
             user = form.save()
 
-            # 회원가입 후 자동 로그인
             login(request, user)
 
             return redirect("/")
@@ -49,3 +50,16 @@ def signup(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+def check_username(request):
+
+    username = request.GET.get("username")
+
+    exists = User.objects.filter(
+        username=username
+    ).exists()
+
+    return JsonResponse({
+        "exists": exists
+    })
