@@ -26,7 +26,7 @@
 .detail-tag {
   --tag-color: #6b7280;
   color: var(--tag-color);
-  background: transparent;
+  background: color-mix(in srgb, var(--tag-color) 12%, white);
   border-color: var(--tag-color);
 }
 
