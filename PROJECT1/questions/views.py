@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from .forms import QuestionForm, SignupForm
 from .models import Question, Tag
 from urllib.parse import urlencode
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 def home(request):              # 홈 페이지
     return render(request, "questions/home.html")
@@ -94,3 +95,112 @@ def signup(request):            # 회원가입
 
 def login(request):             # 로그인
     return render(request, "registration/login.html")
+
+# 강사 구별용 함수
+def is_teacher(user):
+    return user.is_authenticated and user.is_staff
+
+@login_required                 # 로그인한 사용자만 접근 가능하도록 데코레이터 추가
+@user_passes_test(is_teacher)   # 강사만 접근 가능
+# 강사용 홈 페이지 뷰 함수
+def teacher_home(request):
+    sort = request.GET.get("sort", "latest")
+
+    waiting_questions = (
+        Question.objects
+        .filter(status__in=["OPEN", "FOLLOW_UP"])
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if sort == "popular":
+        waiting_questions = waiting_questions.order_by("-agree_count", "-created_at")
+    else:
+        waiting_questions = waiting_questions.order_by("-created_at")
+
+    waiting_questions = waiting_questions[:5]
+
+    context = {
+        "waiting_questions": waiting_questions,
+        "open_count": Question.objects.filter(status="OPEN").count(),
+        "follow_up_count": Question.objects.filter(status="FOLLOW_UP").count(),
+        "answered_count": Question.objects.filter(status="ANSWERED").count(),
+        "current_sort": sort,
+    }
+
+    return render(request, "questions/teacher_home.html", context)
+
+@login_required
+@user_passes_test(is_teacher)
+# 강사용 질문 목록 페이지 뷰 함수
+def teacher_question_list(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
+    
+    questions = (
+        Question.objects
+        .filter(status__in=["OPEN", "FOLLOW_UP"]) # 강사용 페이지에서는 OPEN과 FOLLOW_UP 상태의 질문만 보여줌
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+    )
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    tags = Tag.objects.all()
+
+    tag_filters = []
+    
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+        
+        if tag_id in next_tag_ids:          
+            next_tag_ids.remove(tag_id)     # 현재 태그가 선택된 상태라면, 클릭 시 선택 해제되도록 다음 태그 ID 목록에서 제거
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []                     # URL에 현재 정렬 방식과 검색어, 선택된 태그들을 유지하기 위한 파라미터 목록
+
+        if sort:
+            params.append(("sort", sort))
+
+        if query:
+            params.append(("q", query))
+
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    # 페이지네이션
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    }
+
+    return render(request, "questions/teacher_board.html", context)
