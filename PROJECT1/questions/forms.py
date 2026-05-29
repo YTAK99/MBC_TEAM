@@ -47,11 +47,11 @@ class QuestionForm(forms.ModelForm):
 
 
 
-    def clean_tags(self):
-        tags = self.cleaned_data.get("tags")
-        if tags and tags.count() > 3:
-            raise forms.ValidationError("태그는 최대 3개까지 선택할 수 있습니다.")
-        return tags
+def clean_tags(self):
+    tags = self.cleaned_data.get("tags")
+    if tags and tags.count() > 3:
+        raise forms.ValidationError("태그는 최대 3개까지 선택할 수 있습니다.")
+    return tags
 
 
 class SignupForm(UserCreationForm):
