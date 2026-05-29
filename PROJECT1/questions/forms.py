@@ -33,7 +33,6 @@ class SignupForm(UserCreationForm):
 
     ROLE_CHOICES = [
         ("student", "학생"),
-        ("assistant", "조교"),
         ("teacher", "강사"),
     ]
 
@@ -43,17 +42,6 @@ class SignupForm(UserCreationForm):
             attrs={
                 "class": "input-field",
                 "placeholder": "아이디 입력",
-            }
-        ),
-    )
-
-    email = forms.EmailField(
-        label="이메일",
-        required=False,
-        widget=forms.EmailInput(
-            attrs={
-                "class": "input-field",
-                "placeholder": "이메일 주소",
             }
         ),
     )
@@ -89,7 +77,6 @@ class SignupForm(UserCreationForm):
         model = User
         fields = (
             "username",
-            "email",
             "password1",
             "password2",
         )
