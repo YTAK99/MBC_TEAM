@@ -20,18 +20,18 @@
     <a href="{% url 'questions:teacher_board' %}" class="classq-button classq-button-secondary">전체 게시판</a>
   </div>
 </section>
-
+<!-- 요약 카드 섹션 -->
 <section class="home-summary page-container">
   <div class="summary-grid">
     <article class="classq-card summary-card">
       <span class="summary-label">답변이 필요한 질문</span>
       <strong class="summary-value">{{ open_count }}</strong>
-      <p class="muted-text">질문 수 표시 영역</p>
+      <p class="muted-text">Open 수 표시 영역</p>
     </article>
     <article class="classq-card summary-card">
       <span class="summary-label">추가 질문</span>
       <strong class="summary-value">{{ follow_up_count }}</strong>
-      <p class="muted-text">Response 수 표시 영역</p>
+      <p class="muted-text">학생의 후속 Response 수 표시 영역</p>
     </article>
     <article class="classq-card summary-card">
       <span class="summary-label">답변 완료된 질문</span>
@@ -40,7 +40,7 @@
     </article>
   </div>
 </section>
-
+<!-- 최근 질문 목록 -->
 <section class="page-container home-section">
   <div class="home-question-list">
   {% include "questions/components/question_card_heading.html" with section_title="최근 질문" show_ask_button=False %}
@@ -53,7 +53,7 @@
   {% endfor %}
   </div>
 </section>
-
+<!-- 하단부 설명 -->
 <section class="page-container home-section">
   <h2>사용 흐름</h2>
   <div class="step-grid">

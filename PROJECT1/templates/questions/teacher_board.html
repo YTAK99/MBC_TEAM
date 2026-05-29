@@ -53,6 +53,7 @@
     </div>
     {% endfor %}
   </section>
+  <!-- 페이지네이션 UI -->
   {% if page_obj.has_other_pages %}
   <nav class="pagination-row" aria-label="질문 페이지 이동">
     {% if page_obj.has_previous %}
@@ -61,11 +62,9 @@
         이전
       </a>
     {% endif %}
-    <!-- 페이지 번호 표시 -->
     <span class="pagination-current">
       {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
     </span>
-
     {% if page_obj.has_next %}
       <a class="filter-chip"
          href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">

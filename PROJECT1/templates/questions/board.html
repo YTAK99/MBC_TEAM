@@ -51,6 +51,7 @@
     </div>
     {% endfor %}
   </section>
+  <!-- 페이지네이션 UI -->
   {% if page_obj.has_other_pages %}
   <nav class="pagination-row" aria-label="질문 페이지 이동">
     {% if page_obj.has_previous %}
@@ -59,7 +60,6 @@
         이전
       </a>
     {% endif %}
-    <!-- 페이지 번호 표시 -->
     <span class="pagination-current">
       {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
     </span>
