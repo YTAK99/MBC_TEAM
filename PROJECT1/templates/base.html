@@ -1,21 +1,29 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="ko">
 
 <head>
 
+  <!-- 문자 인코딩 -->
   <meta charset="UTF-8">
 
+  <!-- 모바일 화면 대응 -->
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
 
+  <!-- 브라우저 탭 제목 -->
   <title>
-    {% block title %}ClassQ{% endblock %}
+
+    {% block title %}
+      ClassQ
+    {% endblock %}
+
   </title>
 
-  <!-- 폰트 -->
+  <!-- 구글 폰트 연결 -->
   <link
     rel="preconnect"
     href="https://fonts.googleapis.com"
@@ -27,6 +35,7 @@
     crossorigin
   >
 
+  <!-- 사용할 폰트 -->
   <link
     href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
     rel="stylesheet"
@@ -38,13 +47,17 @@
     href="{% static 'css/classq-base.css' %}"
   >
 
-  {% block extra_head %}{% endblock %}
+  <!-- 추가 CSS -->
+  {% block extra_head %}
+  {% endblock %}
 
 </head>
 
 <body>
 
+  <!-- ========================= -->
   <!-- 사이드바 -->
+  <!-- ========================= -->
   <aside
     class="classq-sidebar"
     aria-label="사이드바 메뉴"
@@ -56,6 +69,7 @@
       class="classq-sidebar-brand"
     >
 
+      <!-- 로고 아이콘 -->
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20"
@@ -79,41 +93,60 @@
 
       </svg>
 
+      <!-- 로고 이름 -->
       <span class="classq-sidebar-title">
+
         ClassQ
+
       </span>
 
     </a>
 
-    <!-- 유저 정보 -->
+
+    <!-- ========================= -->
+    <!-- 로그인 사용자 정보 -->
+    <!-- ========================= -->
     <div class="classq-sidebar-user">
 
       {% if user.is_authenticated %}
 
+        <!-- 로그인 상태 -->
         <p class="classq-sidebar-user-label">
+
           로그인됨
+
         </p>
 
+        <!-- 사용자 이름 -->
         <p class="classq-sidebar-user-name">
+
           {{ user.username }}
+
         </p>
 
       {% else %}
 
+        <!-- 비회원 상태 -->
         <p class="classq-sidebar-user-label">
+
           비회원 상태
+
         </p>
 
       {% endif %}
 
     </div>
 
+
+    <!-- ========================= -->
     <!-- 메뉴 -->
+    <!-- ========================= -->
     <nav
       class="classq-sidebar-nav"
       aria-label="사이드바 네비게이션"
     >
 
+      <!-- 메인 -->
       <a
         href="{% url 'questions:home' %}"
         class="classq-sidebar-link"
@@ -140,6 +173,8 @@
 
       </a>
 
+
+      <!-- 질문 게시판 -->
       <a
         href="{% url 'questions:board' %}"
         class="classq-sidebar-link"
@@ -168,6 +203,8 @@
 
       </a>
 
+
+      <!-- 질문하기 -->
       <a
         href="{% url 'questions:ask' %}"
         class="classq-sidebar-link"
@@ -196,6 +233,8 @@
 
       </a>
 
+
+      <!-- 인기 질문 -->
       <a
         href="{% url 'questions:board' %}?sort=likes"
         class="classq-sidebar-link"
@@ -226,25 +265,34 @@
 
     </nav>
 
+
+    <!-- ========================= -->
     <!-- 하단 버튼 -->
+    <!-- ========================= -->
     <div class="classq-sidebar-footer">
 
       {% if user.is_authenticated %}
 
+        <!-- 로그아웃 -->
         <a
           href="{% url 'questions:logout' %}"
           class="classq-sidebar-login"
         >
+
           로그아웃
+
         </a>
 
       {% else %}
 
+        <!-- 로그인 -->
         <a
           href="{% url 'questions:login' %}"
           class="classq-sidebar-login"
         >
+
           로그인
+
         </a>
 
       {% endif %}
@@ -253,16 +301,21 @@
 
   </aside>
 
- 
 
-  <!-- 메인 -->
+  <!-- ========================= -->
+  <!-- 메인 콘텐츠 -->
+  <!-- ========================= -->
   <main class="site-main">
 
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 
   </main>
 
-  {% block extra_js %}{% endblock %}
+
+  <!-- 추가 JavaScript -->
+  {% block extra_js %}
+  {% endblock %}
 
 </body>
 

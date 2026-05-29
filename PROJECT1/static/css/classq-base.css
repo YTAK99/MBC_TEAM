@@ -1,221 +1,398 @@
 :root {
+
+  /* 배경색 */
   --classq-background: #f5f3ee;
+
+  /* 기본 글자색 */
   --classq-foreground: #1a1a2e;
+
+  /* 카드 배경 */
   --classq-card: #ffffff;
+
+  /* 연한 배경 */
   --classq-muted: #edeae3;
+
+  /* 연한 글자색 */
   --classq-muted-text: #7a7a8c;
+
+  /* 포인트 색상 */
   --classq-accent: #ff5c35;
+
+  /* 테두리 색상 */
   --classq-border: rgba(26, 26, 46, 0.1);
+
+  /* 기본 둥글기 */
   --classq-radius: 16px;
 
+  /* 사이드바 너비 */
   --classq-sidebar-width: 260px;
 }
 
+
+/* =========================
+   전체 요소 기본 설정
+========================= */
 * {
   box-sizing: border-box;
 }
 
+
+/* =========================
+   body 설정
+========================= */
 body {
+
   margin: 0;
+
   min-height: 100vh;
+
   background: var(--classq-background);
+
   color: var(--classq-foreground);
+
   font-family: "Noto Sans KR", "DM Sans", sans-serif;
 }
 
+
+/* 사이드바 있을 때 왼쪽 여백 */
 body:has(.classq-sidebar) {
   padding-left: var(--classq-sidebar-width);
 }
 
+
+/* 사이드바 없을 때 */
 body:not(:has(.classq-sidebar)) {
   padding-left: 0;
 }
 
+
+/* 링크 기본 스타일 제거 */
 a {
   color: inherit;
   text-decoration: none;
 }
 
+
+/* 버튼 / 입력창 폰트 통일 */
 button,
 input,
 textarea {
   font: inherit;
 }
 
+
+/* 버튼 마우스 포인터 */
 button {
   cursor: pointer;
 }
 
+
+/* 메인 영역 최소 높이 */
 .site-main {
   min-height: 100vh;
 }
 
+
+/* 페이지 최대 너비 */
 .page-container {
+
   width: min(100% - 40px, 960px);
+
   margin: 0 auto;
 }
 
+
+/* 좁은 페이지 */
 .page-container-narrow {
   max-width: 760px;
 }
 
+
+/* =========================
+   카드 UI
+========================= */
 .classq-card {
+
   background: var(--classq-card);
+
   border: 1px solid var(--classq-border);
+
   border-radius: var(--classq-radius);
+
   padding: 24px;
 }
 
+
+/* =========================
+   버튼 공통 스타일
+========================= */
 .classq-button {
+
   display: inline-flex;
+
   align-items: center;
+
   justify-content: center;
+
   gap: 8px;
+
   min-height: 44px;
+
   border: 1px solid transparent;
+
   border-radius: 12px;
+
   padding: 0 18px;
+
   font-size: 14px;
+
   font-weight: 600;
+
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
     color 0.15s ease;
 }
 
+
+/* 기본 버튼 */
 .classq-button-primary {
+
   background: var(--classq-foreground);
+
   color: var(--classq-background);
 }
 
+
+/* 보조 버튼 */
 .classq-button-secondary {
+
   background: transparent;
+
   border-color: var(--classq-border);
+
   color: var(--classq-foreground);
 }
 
+
+/* 보조 버튼 hover */
 .classq-button-secondary:hover {
   background: var(--classq-muted);
 }
 
+
+/* 링크 스타일 */
 .classq-link {
+
   color: var(--classq-accent);
+
   font-size: 14px;
+
   font-weight: 600;
 }
 
+
+/* 흐린 텍스트 */
 .muted-text {
   color: var(--classq-muted-text);
 }
 
+
+/* =========================
+   폼 스타일
+========================= */
 .form-group {
+
   display: grid;
+
   gap: 8px;
 }
 
+
+/* 폼 설명 텍스트 */
 .form-group .muted-text {
+
   font-size: 12px;
+
   margin-top: -2px;
+
   margin-bottom: 0;
 }
 
+
+/* 라벨 */
 .form-label {
+
   font-size: 14px;
+
   font-weight: 600;
 }
 
+
+/* 입력창 */
 .input-field {
+
   width: 100%;
+
   min-height: 44px;
+
   border: 1px solid var(--classq-border);
+
   border-radius: 12px;
+
   background: #fff;
+
   color: var(--classq-foreground);
+
   padding: 11px 14px;
+
   font-size: 14px;
+
   outline: none;
 }
 
+
+/* 입력창 클릭 시 */
 .input-field:focus {
+
   border-color: rgba(26, 26, 46, 0.28);
+
   box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.08);
 }
 
+
+/* textarea */
 .form-textarea {
+
   min-height: 150px;
+
   resize: vertical;
 }
 
+
+/* 에러 메시지 */
 .error-text {
+
   border-radius: 12px;
+
   background: rgba(212, 24, 61, 0.08);
+
   color: #d4183d;
+
   padding: 10px 12px;
+
   font-size: 14px;
 }
 
+
+/* =========================
+   배지 스타일
+========================= */
 .eyebrow {
+
   display: inline-flex;
+
   align-items: center;
+
   border-radius: 999px;
+
   background: rgba(255, 92, 53, 0.1);
+
   color: var(--classq-accent);
+
   padding: 6px 12px;
+
   font-size: 12px;
+
   font-weight: 700;
+
   letter-spacing: 0.08em;
+
   text-transform: uppercase;
 }
 
+
+/* 태그 배지 */
 .tag-badge {
+
   display: inline-flex;
+
   align-items: center;
+
   border: 1px solid rgba(255, 92, 53, 0.22);
+
   border-radius: 8px;
+
   background: rgba(255, 92, 53, 0.08);
+
   color: var(--classq-accent);
+
   padding: 4px 9px;
+
   font-size: 12px;
+
   font-weight: 600;
 }
 
+
+/* 제목 영역 */
 .section-heading {
+
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
+
   gap: 16px;
+
   margin-bottom: 16px;
 }
 
+
+/* 제목 */
 .section-heading h2 {
+
   margin: 0;
+
   font-size: 18px;
 }
 
+
+/* 아이디 중복 메시지 */
 #username-message {
   margin: 0;
 }
 
+
+/* 비어있으면 숨김 */
 #username-message:empty {
   display: none;
 }
 
 
-/* ===== Sidebar ===== */
-
+/* =========================
+   Sidebar
+========================= */
 .classq-sidebar {
+
   position: fixed;
+
   top: 0;
   left: 0;
 
   width: var(--classq-sidebar-width);
+
   height: 100vh;
 
   background: #17172f;
+
   color: #f5f3ee;
 
   display: flex;
+
   flex-direction: column;
+
   justify-content: space-between;
 
   border-right: 1px solid rgba(255,255,255,0.06);
@@ -223,30 +400,49 @@ button {
   z-index: 100;
 }
 
+
+/* 로고 */
 .classq-sidebar-brand {
+
   display: flex;
+
   align-items: center;
+
   gap: 10px;
 
   padding: 22px 24px;
 
   font-size: 20px;
+
   font-weight: 700;
 }
 
+
+/* 로고 아이콘 */
 .brand-mark {
+
   width: 22px;
+
   height: 22px;
+
   color: var(--classq-accent);
 }
 
+
+/* 로고 글씨 */
 .classq-sidebar-title {
+
   font-size: 28px;
+
   font-weight: 700;
 }
 
+
+/* 메뉴 영역 */
 .classq-sidebar-nav {
+
   display: flex;
+
   flex-direction: column;
 
   gap: 8px;
@@ -254,8 +450,12 @@ button {
   padding: 12px 16px;
 }
 
+
+/* 메뉴 버튼 */
 .classq-sidebar-link {
+
   display: flex;
+
   align-items: center;
 
   min-height: 48px;
@@ -267,6 +467,7 @@ button {
   color: rgba(255,255,255,0.82);
 
   font-size: 15px;
+
   font-weight: 600;
 
   transition:
@@ -274,24 +475,37 @@ button {
     color 0.15s ease;
 }
 
+
+/* 메뉴 hover */
 .classq-sidebar-link:hover {
+
   background: rgba(255,255,255,0.08);
 
   color: #ffffff;
 }
 
+
+/* 하단 영역 */
 .classq-sidebar-footer {
+
   padding: 20px 16px;
 
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
+
+/* 사용자 영역 */
 .classq-sidebar-user {
+
   margin-bottom: 18px;
+
   padding: 0 24px;
 }
 
+
+/* 로그인 상태 텍스트 */
 .classq-sidebar-user-label {
+
   display: block;
 
   margin-bottom: 6px;
@@ -301,17 +515,27 @@ button {
   opacity: 0.6;
 }
 
+
+/* 사용자 이름 */
 .classq-sidebar-user-name {
+
   font-size: 24px;
+
   font-weight: 700;
 }
 
+
+/* 로그인 버튼 */
 .classq-sidebar-login {
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   width: 100%;
+
   height: 44px;
 
   border-radius: 12px;
@@ -319,18 +543,24 @@ button {
   background: rgba(255,255,255,0.06);
 
   font-size: 14px;
+
   font-weight: 700;
 
   transition: background-color 0.15s ease;
 }
 
+
+/* 로그인 버튼 hover */
 .classq-sidebar-login:hover {
   background: rgba(255,255,255,0.12);
 }
 
 
-/* ===== Responsive ===== */
+/* =========================
+   반응형
+========================= */
 
+/* 태블릿 */
 @media (max-width: 768px) {
 
   :root {
@@ -339,6 +569,8 @@ button {
 
 }
 
+
+/* 모바일 */
 @media (max-width: 640px) {
 
   body {
@@ -346,8 +578,11 @@ button {
   }
 
   .classq-sidebar {
+
     position: relative;
+
     width: 100%;
+
     height: auto;
   }
 
@@ -360,4 +595,3 @@ button {
   }
 
 }
-
