@@ -135,9 +135,12 @@ def detail(request, pk):
             response.author = request.user
             if request.user.is_staff:
                 response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
             else:
                 response.response_type = Response.ResponseType.FOLLOW_UP
+                question.status = Question.Status.FOLLOW_UP
             response.save()
+            question.save(update_fields=["status"])
             return redirect("questions:detail", pk=pk)
     else:
         form = ResponseForm()
