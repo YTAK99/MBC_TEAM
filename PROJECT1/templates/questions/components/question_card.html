@@ -29,12 +29,5 @@
     </span>
 
     <strong>{{ question.agree_count }}명이 궁금해요</strong>
-
-    {% if card_button_text %}
-      <a href="{% url 'questions:detail' question.pk %}"
-         class="classq-button classq-button-{{ card_button_style|default:'secondary' }}">
-        {{ card_button_text }}
-      </a>
-    {% endif %}
   </div>
 </article>

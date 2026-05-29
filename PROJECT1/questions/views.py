@@ -39,6 +39,23 @@ def home(request):
     })
 
 
+def hall_of_fame(request):
+    """
+    명예의 전당 — 추후 구현 예정.
+
+    top_questioners: 질문을 많이 작성한 사용자 순위
+      예) [{"user": user, "count": 12}, ...]
+    top_responders: 답변을 많이 작성한 사용자 순위
+      예) [{"user": user, "count": 8}, ...]
+    """
+    # TODO: Question·Response 를 author 기준으로 집계해 순위 데이터를 채운다.
+    context = {
+        "top_questioners": [],
+        "top_responders": [],
+    }
+    return render(request, "questions/hall_of_fame.html", context)
+
+
 def board(request):
     sort = request.GET.get("sort", "latest")
     selected_tag_ids = request.GET.getlist("tag")

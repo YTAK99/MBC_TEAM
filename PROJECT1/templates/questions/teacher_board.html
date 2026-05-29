@@ -45,7 +45,7 @@
  <!-- 질문 목록 섹션 -->
   <section class="question-list" aria-label="질문 목록">
     {% for question in questions %}
-      {% include "questions/components/question_card.html" with card_button_text="답변하기" card_button_style="primary" %}
+      {% include "questions/components/question_card.html" %}
     <!-- 질문이 하나도 없는 경우 -->
     {% empty %}
     <div class="classq-card question-card">

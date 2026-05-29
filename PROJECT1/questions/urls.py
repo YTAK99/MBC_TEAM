@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("home/", views.home, name="home_page"),
     path("board/", views.board, name="board"),
+    path("hall-of-fame/", views.hall_of_fame, name="hall_of_fame"),
     path("ask/", views.AskView.as_view(), name="ask"),  # 클래스 기반 코드는 반드시 뒤에 .as_view()를 붙여야함
     path("questions/<int:pk>/", views.detail, name="detail"),   # GET·POST(답변 작성)
     # 질문 상세 및 상세 페이지에서 호출하는 POST 전용 액션
