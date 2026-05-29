@@ -41,100 +41,23 @@
 </head>
 
 <body>
-
-  {% if user.is_authenticated %}
-
-  <aside class="classq-sidebar">
-
-    <div>
-
-      <a
-        href="{% url 'questions:home' %}"
-        class="classq-sidebar-brand"
-      >
-
-        <svg
-          class="brand-mark"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          width="22"
-          height="22"
-        >
-
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-
-          <path d="M8 10h.01"></path>
-
-          <path d="M12 10h.01"></path>
-
-          <path d="M16 10h.01"></path>
-
-        </svg>
-
-        <span class="classq-sidebar-title">
-          ClassQ
-        </span>
-
-      </a>
-
-      <div class="classq-sidebar-user">
-
-        <span class="classq-sidebar-user-label">
-          로그인됨
-        </span>
-
-        <span class="classq-sidebar-user-name">
-          {{ user.username }}
-        </span>
-
-      </div>
-
-      <nav class="classq-sidebar-nav">
-
-        <a
-          href="{% url 'questions:home' %}"
-          class="classq-sidebar-link"
-        >
-          메인
-        </a>
-
-        <a
-          href="{% url 'questions:board' %}"
-          class="classq-sidebar-link"
-        >
-          질문 게시판
-        </a>
-
-        <a
-          href="{% url 'questions:ask' %}"
-          class="classq-sidebar-link"
-        >
-          질문하기
-        </a>
-
-        <a
-          href="#"
-          class="classq-sidebar-link"
-        >
-          인기 질문
-        </a>
-
-      </nav>
-
-    </div>
-
-    <div class="classq-sidebar-footer">
-
-      <a
-        href="{% url 'questions:logout' %}"
-        class="classq-sidebar-login"
-      >
-        로그아웃
-      </a>
-
+  <header class="topbar">
+    <a href="{% url 'questions:home' %}" class="topbar-brand">
+      <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <path d="M8 10h.01"></path>
+        <path d="M12 10h.01"></path>
+        <path d="M16 10h.01"></path>
+      </svg>
+      <span>ClassQ</span>
+    </a>
+    <span class="page-name">/ {% block page_title %}{% endblock %}</span>
+    <div class="topbar-actions">
+      {% if user.is_authenticated %}
+      <span class="muted-text">{{ user.username }}</span>
+      {% else %}
+      <a href="{% url 'questions:login' %}" class="topbar-login">로그인</a>
+      {% endif %}
     </div>
 
   </aside>
