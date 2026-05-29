@@ -39,15 +39,17 @@
 {% endfor %}
 </div>
 <!-- 정렬 UI -->
-{% include "questions/components/question_card_heading.html" with section_title="질문 목록" show_ask_button=True %}  
+  {% include "questions/components/question_card_heading.html" with section_title="질문 목록" show_ask_button=False %}
+
+  
  <!-- 질문 목록 섹션 -->
   <section class="question-list" aria-label="질문 목록">
     {% for question in questions %}
-       {% include "questions/components/question_card.html" with card_button_text="질문 보기" card_button_style="secondary" %}
+      {% include "questions/components/question_card.html" with card_button_text="답변하기" card_button_style="primary" %}
     <!-- 질문이 하나도 없는 경우 -->
     {% empty %}
     <div class="classq-card question-card">
-      <p class="muted-text">아직 등록된 질문이 없습니다.</p>
+      <p class="muted-text">현재 답변이 필요한 질문이 없습니다.</p>
     </div>
     {% endfor %}
   </section>
@@ -63,7 +65,6 @@
     <span class="pagination-current">
       {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
     </span>
-
     {% if page_obj.has_next %}
       <a class="filter-chip"
          href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
