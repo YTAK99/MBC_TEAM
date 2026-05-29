@@ -22,8 +22,9 @@ class QuestionForm(forms.ModelForm):
             # 제목(title) 창 꾸미기
             "title": forms.TextInput(
                 attrs={ #속성 
-                    "placedholder": "제목은 간결하게 입력해주세요",  #placeholder;html에서 사용하는 용어. 입력창이 비어있을때 사용자에게 알려주는 임시 안내 텍스트
+                    "placeholder": "제목은 간결하게 입력해주세요",  #placeholder;html에서 사용하는 용어. 입력창이 비어있을때 사용자에게 알려주는 임시 안내 텍스트
                     "class": "input-field",
+                    "style": "width: 100%; background-color: #F5F3EE; border: none; border-radius: 12px; padding: 14px 16px; font-size: 14px; outline: none;",
                 }
             ),
             #내용(content) 창 꾸미기
@@ -32,7 +33,7 @@ class QuestionForm(forms.ModelForm):
                     "placeholder": "어떤부분이 어려운지 구체적으로 설명해주세요",
                     "rows": 5,   # 글상자의 세로 높이는 5줄크기로 고정
                     "class": "input-field resize-none", # 사용자가 임의로 입력상자의 크기를 조정할수없게 고정 
-                    "style": "resize: none",
+                    "style": "width: 100%; background-color: #F5F3EE; border: none; border-radius: 12px; padding: 14px 16px; font-size: 14px; outline: none; resize: none;",
                 }
             ),
             #태그(tags) 창 꾸미기

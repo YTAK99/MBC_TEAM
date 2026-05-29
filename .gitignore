@@ -222,3 +222,4 @@ _media/
 
 # VSCode
 .vscode/
+node_modules/tailwindcss/LICENSE

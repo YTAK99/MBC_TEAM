@@ -22,19 +22,19 @@ class AskView(LoginRequiredMixin, CreateView): # LoginRequiredMixin, CreateView�
     template_name = "questions/ask.html"    # 사용자에게 보여줄 디자인은 ask.html 파일 안에서 가져와 !
     login_url = "login" # 로그인 안된 사람이 글을 작성하려 할 때는 login으로 넘어가 !
     
-def get_context_data(self, **kwargs):
-    ctx = super().get_context_data(**kwargs)
-    ctx["all_tags"] = Tag.objects.all()    
-    return ctx
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["all_tags"] = Tag.objects.all()    
+        return ctx
     # ctx ; context의 축약어.views.py가 ask.html에게 데이터를 보낼때 사용하는 상자 같은 의미의 단어
 
 # 등록 버튼을 누르면 글이 저장
-def form_valid(self, form):
-    question = form.save(commit=False)
-    question.author = self.request.user
-    question.save()
-    form.save_m2m()
-    return redirect("questions:detail", pk=question.pk)
+    def form_valid(self, form):
+        question = form.save(commit=False)
+        question.author = self.request.user
+        question.save()
+        form.save_m2m()
+        return redirect("questions:detail", pk=question.pk)
 
 def detail(request, pk):        # 질문 상세 페이지
     return render(request, "questions/detail.html", {"question_id": pk})
