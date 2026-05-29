@@ -117,3 +117,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+.section-title {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--classq-foreground);
+}
+
+.summary-number {
+    display: inline-block;
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-decoration: none;
+    line-height: 1;
+    margin: 8px 0;
+}
+
+.summary-open {
+    color: #ff0000;
+}
+
+.summary-followup {
+    color: #b700ff;
+}
+
+.summary-answered {
+    color: #01a00f;
+}

@@ -1,195 +1,367 @@
-# 화면 이동(render, redirect) 기능
-from django.shortcuts import render, redirect
+from urllib.parse import urlencode
 
-# 로그인 / 로그아웃 기능
-from django.contrib.auth import logout, login
-
-# 사용자(User) 모델
+from django.conf import settings
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-
-# 로그인한 사용자만 접근 가능하게 하는 기능
-from django.contrib.auth.decorators import login_required
-
-# JSON 형태 응답 기능
+from django.contrib.auth.views import redirect_to_login
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
-# 직접 만든 폼 가져오기
-from .forms import QuestionForm, SignupForm
-
-# Question 모델 가져오기
-from .models import Question
+from .forms import QuestionForm, ResponseForm, SignupForm
+from .models import Question, QuestionAgree, Response, Tag
 
 
-# =========================
-# 메인 페이지
-# =========================
+def _login_redirect(request):
+    """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
+    return redirect_to_login(request.get_full_path())
+
+
 def home(request):
-
-    # 최신 질문 5개 가져오기
-    questions = Question.objects.all()[:5]
-
-    # 전체 질문 개수
-    question_count = Question.objects.count()
-
-    # home.html 화면에 데이터 전달
-    return render(
-        request,
-        "questions/home.html",
-        {
-            "questions": questions,
-            "question_count": question_count,
-        },
-    )
+    return render(request, "questions/home.html")
 
 
-# =========================
-# 질문 게시판 페이지
-# =========================
 def board(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
 
-    # 모든 질문 가져오기
-    questions = Question.objects.all()
-
-    # board.html 화면 출력
-    return render(
-        request,
-        "questions/board.html",
-        {
-            "questions": questions,
-        },
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
     )
 
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+        )
 
-# =========================
-# 질문 작성 페이지
-# 로그인한 사용자만 접근 가능
-# =========================
-@login_required
-def ask(request):
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
 
-    # 사용자가 폼 제출했을 때
-    if request.method == "POST":
-
-        # 입력 데이터 저장
-        form = QuestionForm(request.POST)
-
-        # 입력값 검증 성공 시
-        if form.is_valid():
-
-            # 질문 생성
-            Question.objects.create(
-
-                # 작성자
-                author=request.user,
-
-                # 제목
-                title=form.cleaned_data["title"],
-
-                # 내용
-                content=form.cleaned_data["content"],
-            )
-
-            # 게시판 페이지로 이동
-            return redirect("questions:board")
-
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
     else:
+        questions = questions.order_by("-created_at")
 
-        # GET 요청 시 빈 폼 생성
+    tags = Tag.objects.all()
+
+    tag_filters = []
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+
+        if tag_id in next_tag_ids:
+            next_tag_ids.remove(tag_id)
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []
+        if sort:
+            params.append(("sort", sort))
+        if query:
+            params.append(("q", query))
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "questions/board.html", {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    })
+
+
+def ask(request):
+    if not request.user.is_authenticated:
+        return _login_redirect(request)
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.author = request.user
+            question.save()
+            form.save_m2m()
+            return redirect("questions:detail", pk=question.pk)
+    else:
         form = QuestionForm()
 
-    # ask.html 화면 출력
-    return render(
-        request,
-        "questions/ask.html",
-        {
-            "form": form,
-        },
-    )
+    return render(request, "questions/ask.html", {"form": form})
 
 
-# =========================
-# 질문 상세 페이지
-# =========================
 def detail(request, pk):
-
-    # pk 번호에 해당하는 질문 가져오기
-    question = Question.objects.get(pk=pk)
-
-    # detail.html 화면 출력
-    return render(
-        request,
-        "questions/detail.html",
-        {
-            "question": question,
-        },
+    """
+    질문 상세 페이지.
+    - GET: 질문·답변 목록·답변 폼 표시
+    - POST: 같은 URL 에서 Response 저장 (PRG 패턴으로 redirect)
+    """
+    question = get_object_or_404(
+        Question.objects.select_related("author")
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees", distinct=True)),
+        pk=pk,
     )
 
-
-# =========================
-# 회원가입 기능
-# =========================
-def signup(request):
-
-    # 회원가입 버튼 눌렀을 때
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return _login_redirect(request)
 
-        # 입력 데이터 저장
-        form = SignupForm(request.POST)
+        if question.is_resolved:
+            return redirect("questions:detail", pk=pk)
 
-        # 입력값 검증 성공 시
+        form = ResponseForm(request.POST)
         if form.is_valid():
-
-            # 사용자 생성
-            user = form.save()
-
-            # 회원가입 후 자동 로그인
-            login(request, user)
-
-            # 메인 페이지 이동
-            return redirect("questions:home")
-
+            response = form.save(commit=False)
+            response.question = question
+            response.author = request.user
+            if request.user.is_staff:
+                response.response_type = Response.ResponseType.ANSWER
+            else:
+                response.response_type = Response.ResponseType.FOLLOW_UP
+            response.save()
+            return redirect("questions:detail", pk=pk)
     else:
+        form = ResponseForm()
 
-        # GET 요청 시 빈 회원가입 폼 생성
+    responses = question.responses.select_related("author").all()
+
+    user_agreed = False
+    if request.user.is_authenticated:
+        user_agreed = QuestionAgree.objects.filter(
+            question=question,
+            user=request.user,
+        ).exists()
+
+    context = {
+        "question": question,
+        "form": form,
+        "responses": responses,
+        "user_agreed": user_agreed,
+        "agree_count": question.agree_count,
+    }
+    return render(request, "questions/detail.html", context)
+
+
+def resolve(request, pk):
+    """질문 작성자 본인만 상태를 RESOLVED 로 변경할 수 있다."""
+    if request.method != "POST":
+        return redirect("questions:detail", pk=pk)
+
+    question = get_object_or_404(Question, pk=pk)
+    if not request.user.is_authenticated:
+        return _login_redirect(request)
+
+    if question.author_id == request.user.id:
+        question.status = Question.Status.RESOLVED
+        question.save(update_fields=["status"])
+
+    return redirect("questions:detail", pk=pk)
+
+
+def agree_toggle(request, pk):
+    """로그인 사용자의 '도움돼요' 공감 토글."""
+    if request.method != "POST":
+        return redirect("questions:detail", pk=pk)
+
+    if not request.user.is_authenticated:
+        return _login_redirect(request)
+
+    question = get_object_or_404(Question, pk=pk)
+    agree, created = QuestionAgree.objects.get_or_create(
+        question=question,
+        user=request.user,
+    )
+    if not created:
+        agree.delete()
+
+    return redirect("questions:detail", pk=pk)
+
+
+def signup(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect("questions:home")
+    else:
         form = SignupForm()
 
-    # signup.html 화면 출력
+    return render(request, "registration/signup.html", {"form": form})
+
+
+def login(request):
+    next_url = request.POST.get("next") or request.GET.get("next", "")
+
+    if request.user.is_authenticated:
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
+        return redirect(settings.LOGIN_REDIRECT_URL)
+
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+            ):
+                return redirect(next_url)
+            return redirect(settings.LOGIN_REDIRECT_URL)
+    else:
+        form = AuthenticationForm(request)
+
     return render(
         request,
-        "registration/signup.html",
-        {
-            "form": form,
-        },
+        "registration/login.html",
+        {"form": form, "next": next_url},
     )
 
 
-# =========================
-# 로그아웃 기능
-# =========================
 def logout_view(request):
-
-    # 현재 사용자 로그아웃
     logout(request)
-
-    # 메인 페이지 이동
     return redirect("questions:home")
 
 
-# =========================
-# 아이디 중복 확인 기능
-# =========================
 def check_username(request):
-
-    # 입력한 username 값 가져오기
     username = request.GET.get("username")
+    exists = User.objects.filter(username=username).exists()
+    return JsonResponse({"exists": exists})
 
-    # 이미 존재하는 아이디인지 검사
-    exists = User.objects.filter(
-        username=username
-    ).exists()
 
-    # JSON 형태로 결과 반환
-    return JsonResponse({
-        "exists": exists
-    })
+def is_teacher(user):
+    return user.is_authenticated and user.is_staff
 
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_home(request):
+    sort = request.GET.get("sort", "latest")
+
+    waiting_questions = (
+        Question.objects
+        .filter(status__in=["OPEN", "FOLLOW_UP"])
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if sort == "popular":
+        waiting_questions = waiting_questions.order_by("-agree_count", "-created_at")
+    else:
+        waiting_questions = waiting_questions.order_by("-created_at")
+
+    waiting_questions = waiting_questions[:5]
+
+    context = {
+        "waiting_questions": waiting_questions,
+        "open_count": Question.objects.filter(status="OPEN").count(),
+        "follow_up_count": Question.objects.filter(status="FOLLOW_UP").count(),
+        "answered_count": Question.objects.filter(status="ANSWERED").count(),
+        "current_sort": sort,
+    }
+
+    return render(request, "questions/teacher_home.html", context)
+
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_question_list(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
+    status_filter = request.GET.get("status")
+
+    questions = (
+        Question.objects
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if status_filter in ["OPEN", "FOLLOW_UP", "ANSWERED"]:
+        questions = questions.filter(status=status_filter)
+    else:
+        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP"])
+
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+        )
+
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    tags = Tag.objects.all()
+    tag_filters = []
+
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+
+        if tag_id in next_tag_ids:
+            next_tag_ids.remove(tag_id)
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []
+        if status_filter:
+            params.append(("status", status_filter))
+        if sort:
+            params.append(("sort", sort))
+        if query:
+            params.append(("q", query))
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    }
+
+    return render(request, "questions/teacher_board.html", context)

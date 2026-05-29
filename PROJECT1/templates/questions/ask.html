@@ -24,6 +24,10 @@
         <label for="{{ form.content.id_for_label }}" class="form-label">내용</label>
         {{ form.content }}
       </div>
+      <div class="form-group">
+        <label for="{{ form.is_anonymous.id_for_label }}" class="form-label">공개 설정</label>
+        <label class="muted-text">{{ form.is_anonymous }} 익명으로 작성하기</label>
+      </div>
       <div class="form-actions">
         <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary">취소</a>
         <button type="submit" class="classq-button classq-button-primary">등록</button>

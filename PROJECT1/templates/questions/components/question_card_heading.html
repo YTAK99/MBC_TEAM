@@ -1,0 +1,20 @@
+<!-- 정렬 UI -->
+  <div class="board-heading">
+    <h1>{{ section_title|default:"질문 목록" }}</h1>
+    <div class="board-heading-actions">
+    <a href="?sort=latest{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+      class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
+      최신순
+    </a>
+
+    <a href="?sort=popular{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+      class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
+      공감순
+    </a>
+    {% if show_ask_button %}
+    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">
+    나도 질문하기
+  </a>
+    {% endif %}
+    </div>
+  </div>
