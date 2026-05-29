@@ -26,6 +26,7 @@ class Question(models.Model):
     content = models.TextField()
     # 질문 작성자가 이름을 숨기고 싶을 때 사용하는 익명 여부
     is_anonymous = models.BooleanField(default=True)
+    # 상세 페이지 상태 박스에 표시 (get_status_display)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
     tags = models.ManyToManyField(Tag, related_name="questions", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -54,6 +55,8 @@ class Question(models.Model):
 
 
 class Response(models.Model):
+    """질문 상세 페이지에 표시되는 답변·댓글."""
+
     class ResponseType(models.TextChoices):
         ANSWER = "ANSWER", "강사/조교 답변"
         FOLLOW_UP = "FOLLOW_UP", "학생 추가 질문"
@@ -81,6 +84,8 @@ class Response(models.Model):
 
 
 class QuestionAgree(models.Model):
+    """질문 상세 '나도 궁금해요' 공감. 사용자·질문당 1건만 허용."""
+
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,

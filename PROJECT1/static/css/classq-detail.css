@@ -1,3 +1,5 @@
+/* 질문 상세 페이지 전용 스타일 (detail.html) */
+
 .detail-page {
   padding: 28px 0 56px;
 }
@@ -11,12 +13,47 @@
   margin-bottom: 28px;
 }
 
-.detail-meta {
+/* 질문 상세: Question.status 값별 상태 표시 박스 (텍스트만 가운데 정렬) */
+.question-status-box {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 14px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #d1d5db;
+  box-shadow: 0 1px 6px rgba(26, 26, 46, 0.06);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  color: #374151;
+  background: #f9fafb;
+}
+
+.question-status-box--open {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.question-status-box--answered {
+  color: #047857;
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+}
+
+.question-status-box--follow_up {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.question-status-box--resolved {
+  color: #047857;
+  background: #f0fdf4;
+  border-color: #86efac;
 }
 
 .detail-number {
@@ -37,17 +74,6 @@
   margin-bottom: 16px;
 }
 
-.resolve-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.12);
-}
-
 .detail-question h1 {
   margin: 10px 0 10px;
   font-size: 24px;
@@ -66,6 +92,7 @@
   white-space: pre-wrap;
 }
 
+/* 공감(나도 궁금해요) · 해결됨 버튼 영역 */
 .detail-actions {
   display: flex;
   align-items: center;
@@ -106,6 +133,7 @@
   border-color: #ea580c;
 }
 
+/* 답변 목록 섹션 */
 .detail-section {
   margin-bottom: 28px;
 }
@@ -175,6 +203,7 @@
   line-height: 1.75;
 }
 
+/* 하단 답변 작성 폼 카드 */
 .response-form-card {
   background: #f3f3f6;
 }

@@ -35,8 +35,11 @@ class SignupForm(UserCreationForm):
         model = User
         fields = ("username",)
     
-# 답변 작성 폼
 class ResponseForm(forms.ModelForm):
+    """
+    질문 상세 페이지 하단 '답변 남기기' 폼.
+    question/author/response_type 은 views.detail POST 처리에서 저장한다.
+    """
 
     class Meta:
         model = Response
