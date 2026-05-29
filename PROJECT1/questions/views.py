@@ -2,9 +2,12 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
+from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,7 +23,18 @@ def _login_redirect(request):
 
 
 def home(request):
-    return render(request, "questions/home.html")
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
+        .order_by("-created_at")[:5]
+    )
+    return render(request, "questions/home.html", {
+        "questions": questions,
+        "question_count": Question.objects.count(),
+        "response_count": Response.objects.count(),
+        "tag_count": Tag.objects.count(),
+    })
 
 
 def board(request):
@@ -197,8 +211,27 @@ def agree_toggle(request, pk):
 
 
 def signup(request):
-    form = SignupForm()
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect("questions:home")
+    else:
+        form = SignupForm()
+
     return render(request, "registration/signup.html", {"form": form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("questions:home")
+
+
+def check_username(request):
+    username = request.GET.get("username", "").strip()
+    exists = User.objects.filter(username=username).exists() if username else False
+    return JsonResponse({"exists": exists})
 
 
 def login(request):

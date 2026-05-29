@@ -6,10 +6,6 @@
   margin-bottom: 16px;
 }
 
-.board-search {
-  flex: 1;
-}
-
 .board-filter-row {
   display: flex;
   flex-wrap: wrap;

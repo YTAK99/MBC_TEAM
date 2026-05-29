@@ -13,7 +13,7 @@
   <p class="eyebrow">익명 질문 게시판</p>
   <h1>수업 중 막힌 부분을 질문하는 공간</h1>
   <p class="home-lead muted-text">
-    ClassQ는 수업 중 생긴 질문을 게시판 형태로 모아두기 위한 기본 화면입니다.
+    ClassQ는 수업 중 생긴 질문을 게시판 형태로 모아두는 공간입니다.
   </p>
   <div class="hero-actions">
     <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">질문 등록</a>
@@ -25,18 +25,18 @@
   <div class="summary-grid">
     <article class="classq-card summary-card">
       <span class="summary-label">질문</span>
-      <strong class="summary-value">-</strong>
-      <p class="muted-text">질문 수 표시 영역</p>
+      <strong class="summary-value">{{ question_count }}</strong>
+      <p class="muted-text">등록된 질문 수</p>
     </article>
     <article class="classq-card summary-card">
       <span class="summary-label">Response</span>
-      <strong class="summary-value">-</strong>
-      <p class="muted-text">Response 수 표시 영역</p>
+      <strong class="summary-value">{{ response_count }}</strong>
+      <p class="muted-text">등록된 답변·댓글 수</p>
     </article>
     <article class="classq-card summary-card">
       <span class="summary-label">태그</span>
-      <strong class="summary-value">-</strong>
-      <p class="muted-text">태그 수 표시 영역</p>
+      <strong class="summary-value">{{ tag_count }}</strong>
+      <p class="muted-text">사용 중인 태그 수</p>
     </article>
   </div>
 </section>
@@ -48,17 +48,26 @@
   </div>
 
   <div class="home-question-list">
-    {# 추후 구현: {% for question in questions %} 구조로 실제 질문 목록을 연결한다. #}
-    <article class="classq-card home-question-card">
-      <span class="tag-badge">예시 태그</span>
-      <h3>질문 제목이 들어갈 자리입니다</h3>
-      <p class="muted-text">질문 내용 요약이나 작성 시간은 이후 팀원이 직접 연결합니다.</p>
-    </article>
-    <article class="classq-card home-question-card">
-      <span class="tag-badge">수업</span>
-      <h3>두 번째 질문 카드 자리</h3>
-      <p class="muted-text">현재는 HTML/CSS 템플릿만 남겨둔 상태입니다.</p>
-    </article>
+    {% for question in questions %}
+      <article class="classq-card home-question-card">
+        <div class="question-meta">
+          {% for tag in question.tags.all %}
+            <span class="tag-badge"{% if tag.color %} style="border-color: {{ tag.color }}; color: {{ tag.color }};"{% endif %}>{{ tag.name }}</span>
+          {% empty %}
+            <span class="tag-badge">태그 없음</span>
+          {% endfor %}
+          <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        <h3>
+          <a href="{% url 'questions:detail' question.pk %}">{{ question.title }}</a>
+        </h3>
+        <p class="muted-text">{{ question.content|truncatechars:80 }}</p>
+      </article>
+    {% empty %}
+      <article class="classq-card home-question-card">
+        <p class="muted-text">아직 등록된 질문이 없습니다. 첫 질문을 남겨보세요.</p>
+      </article>
+    {% endfor %}
   </div>
 </section>
 
@@ -68,17 +77,17 @@
     <article class="classq-card step-card">
       <span class="step-number">1</span>
       <h3>질문 작성</h3>
-      <p class="muted-text">제목과 내용을 입력하는 화면을 준비합니다.</p>
+      <p class="muted-text">제목과 내용을 입력해 질문을 등록합니다.</p>
     </article>
     <article class="classq-card step-card">
       <span class="step-number">2</span>
       <h3>게시판 확인</h3>
-      <p class="muted-text">질문 목록을 확인하는 화면을 준비합니다.</p>
+      <p class="muted-text">태그·검색으로 질문 목록을 살펴봅니다.</p>
     </article>
     <article class="classq-card step-card">
       <span class="step-number">3</span>
-      <h3>Response 연결</h3>
-      <p class="muted-text">후속 글 기능은 이후 직접 구현합니다.</p>
+      <h3>답변·공감</h3>
+      <p class="muted-text">상세 페이지에서 답변과 공감을 남깁니다.</p>
     </article>
   </div>
 </section>

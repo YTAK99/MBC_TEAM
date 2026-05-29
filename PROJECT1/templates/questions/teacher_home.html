@@ -25,26 +25,17 @@
   <div class="summary-grid">
     <article class="classq-card summary-card">
       <span class="summary-label">답변이 필요한 질문</span>
-      <a href="{% url 'questions:teacher_board' %}?status=OPEN"
-      class="summary-number summary-open">
-    {{ open_count }}
-      </a>
+      <a href="{% url 'questions:teacher_board' %}?status=OPEN" class="summary-number summary-open">{{ open_count }}</a>
       <p class="muted-text">Open 수 표시 영역</p>
     </article>
     <article class="classq-card summary-card">
       <span class="summary-label">추가 질문</span>
-      <a href="{% url 'questions:teacher_board' %}?status=FOLLOW_UP"
-      class="summary-number summary-followup">
-      {{ follow_up_count }}
-      </a>
+      <a href="{% url 'questions:teacher_board' %}?status=FOLLOW_UP" class="summary-number summary-followup">{{ follow_up_count }}</a>
       <p class="muted-text">학생의 후속 Response 수 표시 영역</p>
     </article>
     <article class="classq-card summary-card">
       <span class="summary-label">답변 완료된 질문</span>
-      <a href="{% url 'questions:teacher_board' %}?status=ANSWERED"
-      class="summary-number summary-answered">
-      {{ answered_count }}
-      </a>
+      <a href="{% url 'questions:teacher_board' %}?status=ANSWERED" class="summary-number summary-answered">{{ answered_count }}</a>
       <p class="muted-text">ANSWERED 표시 영역</p>
     </article>
   </div>
