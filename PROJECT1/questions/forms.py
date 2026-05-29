@@ -31,8 +31,14 @@ class QuestionForm(forms.Form):
 
 class SignupForm(UserCreationForm):
 
+    ROLE_CHOICES = [
+        ("student", "학생"),
+        ("assistant", "조교"),
+        ("teacher", "강사"),
+    ]
 
     username = forms.CharField(
+        label="아이디",
         widget=forms.TextInput(
             attrs={
                 "class": "input-field",
@@ -41,7 +47,19 @@ class SignupForm(UserCreationForm):
         ),
     )
 
+    email = forms.EmailField(
+        label="이메일",
+        required=False,
+        widget=forms.EmailInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "이메일 주소",
+            }
+        ),
+    )
+
     password1 = forms.CharField(
+        label="비밀번호",
         widget=forms.PasswordInput(
             attrs={
                 "class": "input-field",
@@ -52,6 +70,7 @@ class SignupForm(UserCreationForm):
     )
 
     password2 = forms.CharField(
+        label="비밀번호 확인",
         widget=forms.PasswordInput(
             attrs={
                 "class": "input-field",
@@ -60,10 +79,17 @@ class SignupForm(UserCreationForm):
         ),
     )
 
+    role = forms.ChoiceField(
+        label="역할",
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+    )
+
     class Meta:
         model = User
         fields = (
             "username",
+            "email",
             "password1",
             "password2",
         )
@@ -71,6 +97,9 @@ class SignupForm(UserCreationForm):
     def clean_password1(self):
 
         password = self.cleaned_data.get("password1")
+
+        if not password:
+            return password
 
         if len(password) < 8:
             raise forms.ValidationError(

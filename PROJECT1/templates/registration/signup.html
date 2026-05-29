@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}회원가입 - ClassQ{% endblock %}
-{% block page_title %}회원가입{% endblock %}
+{% block title %}
+회원가입 - ClassQ
+{% endblock title %}
+
+{% block page_title %}
+회원가입
+{% endblock page_title %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
-{% endblock %}
+{% endblock extra_head %}
 
 {% block content %}
+
 <div class="auth-page">
 
   <section class="classq-card auth-card">
@@ -20,6 +26,7 @@
       {% csrf_token %}
 
       {% if form.errors %}
+
       <div class="error-text">
 
         {% for field in form %}
@@ -28,10 +35,16 @@
           {% endfor %}
         {% endfor %}
 
+        {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+
       </div>
+
       {% endif %}
 
       <div class="form-group">
+
         <label for="id_username" class="form-label">
           아이디
         </label>
@@ -39,10 +52,21 @@
         {{ form.username }}
 
         <p id="username-message"></p>
+
       </div>
 
-  
       <div class="form-group">
+
+        <label for="id_email" class="form-label">
+          이메일
+        </label>
+
+        {{ form.email }}
+
+      </div>
+
+      <div class="form-group">
+
         <label for="id_password1" class="form-label">
           비밀번호
         </label>
@@ -52,14 +76,43 @@
         <p class="muted-text">
           영문 대소문자, 숫자를 포함한 8자 이상
         </p>
+
       </div>
 
       <div class="form-group">
+
         <label for="id_password2" class="form-label">
           비밀번호 확인
         </label>
 
         {{ form.password2 }}
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="form-label">
+          역할 선택
+        </label>
+
+        <div class="role-selector">
+
+          {% for radio in form.role %}
+
+          <label class="role-option">
+
+            {{ radio.tag }}
+
+            <span>
+              {{ radio.choice_label }}
+            </span>
+
+          </label>
+
+          {% endfor %}
+
+        </div>
+
       </div>
 
       <button
@@ -72,10 +125,16 @@
     </form>
 
     <p class="auth-switch muted-text">
+
       이미 계정이 있다면
-      <a href="{% url 'questions:login' %}" class="classq-link">
+
+      <a
+        href="{% url 'questions:login' %}"
+        class="classq-link"
+      >
         로그인
       </a>
+
     </p>
 
   </section>
@@ -112,7 +171,7 @@ usernameInput.addEventListener("input", async () => {
         message.textContent =
             "이미 사용 중인 아이디입니다.";
 
-        message.style.color = "red";
+        message.style.color = "#d4183d";
 
     } else {
 
@@ -125,4 +184,5 @@ usernameInput.addEventListener("input", async () => {
 
 </script>
 
-{% endblock %}
+{% endblock content %}
+```

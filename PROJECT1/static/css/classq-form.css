@@ -61,3 +61,60 @@
     width: 100%;
   }
 }
+
+.role-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.role-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  border: 1px solid var(--classq-border);
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.role-option:hover {
+  border-color: rgba(255, 92, 53, 0.35);
+  background: rgba(255, 92, 53, 0.04);
+}
+
+.role-option input[type="radio"] {
+  accent-color: var(--classq-accent);
+}
+
+.role-option:has(input:checked) {
+  border-color: var(--classq-accent);
+  background: rgba(255, 92, 53, 0.08);
+}
+
+#username-message {
+  margin: 4px 2px 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.auth-card {
+  padding: 32px;
+}
+
+.auth-card h1 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.classq-form {
+  gap: 20px;
+}
+

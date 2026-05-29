@@ -9,7 +9,7 @@ SECRET_KEY = "django-insecure-your-secret-key"
 # 개발 모드
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # 설치 앱
 INSTALLED_APPS = [

@@ -1,78 +1,155 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}ClassQ{% endblock %}</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>
+    {% block title %}ClassQ{% endblock %}
+  </title>
 
-  <link rel="stylesheet" href="{% static 'css/classq-base.css' %}">
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{% static 'css/classq-base.css' %}"
+  >
 
   {% block extra_head %}{% endblock %}
+
 </head>
 
 <body>
 
-  <header class="topbar">
+  {% if user.is_authenticated %}
 
-    <a href="{% url 'questions:home' %}" class="topbar-brand">
-      <svg class="brand-mark"
-           xmlns="http://www.w3.org/2000/svg"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2">
+  <aside class="classq-sidebar">
 
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        <path d="M8 10h.01"></path>
-        <path d="M12 10h.01"></path>
-        <path d="M16 10h.01"></path>
+    <div>
 
-      </svg>
+      <a
+        href="{% url 'questions:home' %}"
+        class="classq-sidebar-brand"
+      >
 
-      <span>ClassQ</span>
-    </a>
+        <svg
+          class="brand-mark"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          width="22"
+          height="22"
+        >
 
-    <span class="page-name">
-      / {% block page_title %}{% endblock %}
-    </span>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
 
-    <div class="topbar-actions">
+          <path d="M8 10h.01"></path>
 
-      {% if user.is_authenticated %}
+          <path d="M12 10h.01"></path>
 
-      <span class="muted-text">
-        {{ user.username }}
-      </span>
+          <path d="M16 10h.01"></path>
 
-      <a href="{% url 'questions:logout' %}"
-         class="topbar-login">
-         로그아웃
+        </svg>
+
+        <span class="classq-sidebar-title">
+          ClassQ
+        </span>
+
       </a>
 
-      {% else %}
+      <div class="classq-sidebar-user">
 
-      <a href="{% url 'questions:login' %}"
-         class="topbar-login">
-         로그인
-      </a>
+        <span class="classq-sidebar-user-label">
+          로그인됨
+        </span>
 
-      {% endif %}
+        <span class="classq-sidebar-user-name">
+          {{ user.username }}
+        </span>
+
+      </div>
+
+      <nav class="classq-sidebar-nav">
+
+        <a
+          href="{% url 'questions:home' %}"
+          class="classq-sidebar-link"
+        >
+          메인
+        </a>
+
+        <a
+          href="{% url 'questions:board' %}"
+          class="classq-sidebar-link"
+        >
+          질문 게시판
+        </a>
+
+        <a
+          href="{% url 'questions:ask' %}"
+          class="classq-sidebar-link"
+        >
+          질문하기
+        </a>
+
+        <a
+          href="#"
+          class="classq-sidebar-link"
+        >
+          인기 질문
+        </a>
+
+      </nav>
 
     </div>
 
-  </header>
+    <div class="classq-sidebar-footer">
+
+      <a
+        href="{% url 'questions:logout' %}"
+        class="classq-sidebar-login"
+      >
+        로그아웃
+      </a>
+
+    </div>
+
+  </aside>
+
+  {% endif %}
 
   <main class="site-main">
+
     {% block content %}{% endblock %}
+
   </main>
 
   {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>
+
