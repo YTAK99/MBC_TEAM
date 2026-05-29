@@ -138,12 +138,18 @@ def teacher_question_list(request):
     selected_tag_ids = request.GET.getlist("tag")
     query = request.GET.get("q", "")
     
+    status_filter = request.GET.get("status")
+
     questions = (
         Question.objects
-        .filter(status__in=["OPEN", "FOLLOW_UP"]) # 강사용 페이지에서는 OPEN과 FOLLOW_UP 상태의 질문만 보여줌
         .annotate(agree_count=Count("agrees"))
         .prefetch_related("tags")
     )
+
+    if status_filter in ["OPEN", "FOLLOW_UP", "ANSWERED"]:
+        questions = questions.filter(status=status_filter)
+    else:
+        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP"])
     if query:
         questions = questions.filter(
             Q(title__icontains=query) |
@@ -161,7 +167,7 @@ def teacher_question_list(request):
     tags = Tag.objects.all()
 
     tag_filters = []
-    
+
     for tag in tags:
         tag_id = str(tag.id)
         next_tag_ids = selected_tag_ids.copy()
@@ -173,6 +179,9 @@ def teacher_question_list(request):
 
         params = []                     # URL에 현재 정렬 방식과 검색어, 선택된 태그들을 유지하기 위한 파라미터 목록
 
+        if status_filter:
+            params.append(("status", status_filter))
+            
         if sort:
             params.append(("sort", sort))
 

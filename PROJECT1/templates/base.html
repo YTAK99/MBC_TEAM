@@ -12,8 +12,13 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <!-- Topbar -->
   <header class="topbar">
+    {% if user.is_authenticated and user.is_staff %}  <!-- 강사용 홈으로 이동 -->
+    <a href="{% url 'questions:teacher_home' %}" class="topbar-brand">
+    {% else %}                                      <!-- 일반 사용자 홈으로 이동 -->                
     <a href="{% url 'questions:home' %}" class="topbar-brand">
+    {% endif %}
       <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         <path d="M8 10h.01"></path>
