@@ -15,4 +15,8 @@ urlpatterns = [
     path("questions/<int:pk>/agree/", views.agree_toggle, name="agree"),  # POST: 공감 토글
     path("login/", views.login, name="login"),
     path("signup/", views.signup, name="signup"),
+    
+    # 강사용 페이지 추가
+    path("teacher/", views.teacher_home, name="teacher_home"),
+    path("teacher/board/", views.teacher_question_list, name="teacher_board"),
 ]

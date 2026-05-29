@@ -1,29 +1,96 @@
+from urllib.parse import urlencode
+
 from django.conf import settings
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import redirect_to_login
-from django.db.models import Count
-from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from .forms import QuestionForm, SignupForm, ResponseForm
-from .models import Question, QuestionAgree, Response
+from .forms import QuestionForm, ResponseForm, SignupForm
+from .models import Question, QuestionAgree, Response, Tag
 
 
 def _login_redirect(request):
     """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
     return redirect_to_login(request.get_full_path())
 
-def home(request):              # 홈 페이지
+
+def home(request):
     return render(request, "questions/home.html")
 
 
-def board(request):             # 질문 목록 페이지
-    return render(request, "questions/board.html")
+def board(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
+
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
+    )
+
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+        )
+
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    tags = Tag.objects.all()
+
+    tag_filters = []
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+
+        if tag_id in next_tag_ids:
+            next_tag_ids.remove(tag_id)
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []
+        if sort:
+            params.append(("sort", sort))
+        if query:
+            params.append(("q", query))
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "questions/board.html", {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    })
 
 
-def ask(request):               # 질문/추가답변 생성 페이지
-    # 질문 작성은 로그인 사용자만 허용
+def ask(request):
     if not request.user.is_authenticated:
         return _login_redirect(request)
 
@@ -31,7 +98,7 @@ def ask(request):               # 질문/추가답변 생성 페이지
         form = QuestionForm(request.POST)
         if form.is_valid():
             question = form.save(commit=False)
-            question.author = request.user  # 현재 로그인 사용자를 작성자로 저장
+            question.author = request.user
             question.save()
             form.save_m2m()
             return redirect("questions:detail", pk=question.pk)
@@ -47,7 +114,6 @@ def detail(request, pk):
     - GET: 질문·답변 목록·답변 폼 표시
     - POST: 같은 URL 에서 Response 저장 (PRG 패턴으로 redirect)
     """
-    # author/tags/agree_count 를 한 번에 조회해 N+1 방지
     question = get_object_or_404(
         Question.objects.select_related("author")
         .prefetch_related("tags")
@@ -59,7 +125,6 @@ def detail(request, pk):
         if not request.user.is_authenticated:
             return _login_redirect(request)
 
-        # 해결됨(RESOLVED) 질문에는 답변 작성 불가
         if question.is_resolved:
             return redirect("questions:detail", pk=pk)
 
@@ -68,7 +133,6 @@ def detail(request, pk):
             response = form.save(commit=False)
             response.question = question
             response.author = request.user
-            # 강사 계정은 ANSWER, 일반 사용자는 FOLLOW_UP 으로 구분 저장
             if request.user.is_staff:
                 response.response_type = Response.ResponseType.ANSWER
             else:
@@ -80,7 +144,6 @@ def detail(request, pk):
 
     responses = question.responses.select_related("author").all()
 
-    # 현재 사용자가 이미 '나도 궁금해요'를 눌렀는지 (버튼 스타일용)
     user_agreed = False
     if request.user.is_authenticated:
         user_agreed = QuestionAgree.objects.filter(
@@ -98,11 +161,8 @@ def detail(request, pk):
     return render(request, "questions/detail.html", context)
 
 
-def resolve(request, pk):       # 질문 해결 처리
-    """
-    질문 작성자 본인만 상태를 RESOLVED 로 변경할 수 있다.
-    버튼 오동작 방지를 위해 POST 요청만 허용한다.
-    """
+def resolve(request, pk):
+    """질문 작성자 본인만 상태를 RESOLVED 로 변경할 수 있다."""
     if request.method != "POST":
         return redirect("questions:detail", pk=pk)
 
@@ -110,7 +170,6 @@ def resolve(request, pk):       # 질문 해결 처리
     if not request.user.is_authenticated:
         return _login_redirect(request)
 
-    # 작성자 본인일 때만 해결됨 처리
     if question.author_id == request.user.id:
         question.status = Question.Status.RESOLVED
         question.save(update_fields=["status"])
@@ -118,11 +177,8 @@ def resolve(request, pk):       # 질문 해결 처리
     return redirect("questions:detail", pk=pk)
 
 
-def agree_toggle(request, pk):  # 질문 도움돼요(공감) 토글
-    """
-    로그인 사용자가 질문에 '도움돼요'를 누르면 공감이 추가되고,
-    이미 누른 상태에서 다시 누르면 취소된다.
-    """
+def agree_toggle(request, pk):
+    """로그인 사용자의 '도움돼요' 공감 토글."""
     if request.method != "POST":
         return redirect("questions:detail", pk=pk)
 
@@ -140,11 +196,12 @@ def agree_toggle(request, pk):  # 질문 도움돼요(공감) 토글
     return redirect("questions:detail", pk=pk)
 
 
-def signup(request):            # 회원가입
+def signup(request):
     form = SignupForm()
     return render(request, "registration/signup.html", {"form": form})
 
-def login(request):             # 로그인
+
+def login(request):
     next_url = request.POST.get("next") or request.GET.get("next", "")
 
     if request.user.is_authenticated:
@@ -173,3 +230,116 @@ def login(request):             # 로그인
         "registration/login.html",
         {"form": form, "next": next_url},
     )
+
+
+def is_teacher(user):
+    return user.is_authenticated and user.is_staff
+
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_home(request):
+    sort = request.GET.get("sort", "latest")
+
+    waiting_questions = (
+        Question.objects
+        .filter(status__in=["OPEN", "FOLLOW_UP"])
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if sort == "popular":
+        waiting_questions = waiting_questions.order_by("-agree_count", "-created_at")
+    else:
+        waiting_questions = waiting_questions.order_by("-created_at")
+
+    waiting_questions = waiting_questions[:5]
+
+    context = {
+        "waiting_questions": waiting_questions,
+        "open_count": Question.objects.filter(status="OPEN").count(),
+        "follow_up_count": Question.objects.filter(status="FOLLOW_UP").count(),
+        "answered_count": Question.objects.filter(status="ANSWERED").count(),
+        "current_sort": sort,
+    }
+
+    return render(request, "questions/teacher_home.html", context)
+
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_question_list(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
+    status_filter = request.GET.get("status")
+
+    questions = (
+        Question.objects
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if status_filter in ["OPEN", "FOLLOW_UP", "ANSWERED"]:
+        questions = questions.filter(status=status_filter)
+    else:
+        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP"])
+
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+        )
+
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    tags = Tag.objects.all()
+    tag_filters = []
+
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+
+        if tag_id in next_tag_ids:
+            next_tag_ids.remove(tag_id)
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []
+        if status_filter:
+            params.append(("status", status_filter))
+        if sort:
+            params.append(("sort", sort))
+        if query:
+            params.append(("q", query))
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    }
+
+    return render(request, "questions/teacher_board.html", context)
