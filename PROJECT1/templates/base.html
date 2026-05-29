@@ -15,6 +15,7 @@
     {% block title %}ClassQ{% endblock %}
   </title>
 
+  <!-- 폰트 -->
   <link
     rel="preconnect"
     href="https://fonts.googleapis.com"
@@ -27,10 +28,11 @@
   >
 
   <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
     rel="stylesheet"
   >
 
+  <!-- 기본 CSS -->
   <link
     rel="stylesheet"
     href="{% static 'css/classq-base.css' %}"
@@ -42,105 +44,218 @@
 
 <body>
 
-  {% if user.is_authenticated %}
+  <!-- 사이드바 -->
+  <aside
+    class="classq-sidebar"
+    aria-label="사이드바 메뉴"
+  >
 
-  <aside class="classq-sidebar">
+    <!-- 로고 -->
+    <a
+      href="{% url 'questions:home' %}"
+      class="classq-sidebar-brand"
+    >
 
-    <div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#FF5C35"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+
+        <path d="M8 10h.01"></path>
+
+        <path d="M12 10h.01"></path>
+
+        <path d="M16 10h.01"></path>
+
+      </svg>
+
+      <span class="classq-sidebar-title">
+        ClassQ
+      </span>
+
+    </a>
+
+    <!-- 유저 정보 -->
+    <div class="classq-sidebar-user">
+
+      {% if user.is_authenticated %}
+
+        <p class="classq-sidebar-user-label">
+          로그인됨
+        </p>
+
+        <p class="classq-sidebar-user-name">
+          {{ user.username }}
+        </p>
+
+      {% else %}
+
+        <p class="classq-sidebar-user-label">
+          비회원 상태
+        </p>
+
+      {% endif %}
+
+    </div>
+
+    <!-- 메뉴 -->
+    <nav
+      class="classq-sidebar-nav"
+      aria-label="사이드바 네비게이션"
+    >
 
       <a
         href="{% url 'questions:home' %}"
-        class="classq-sidebar-brand"
+        class="classq-sidebar-link"
       >
 
         <svg
-          class="brand-mark"
           xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           stroke-width="2"
-          width="22"
-          height="22"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
         >
 
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-
-          <path d="M8 10h.01"></path>
-
-          <path d="M12 10h.01"></path>
-
-          <path d="M16 10h.01"></path>
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
 
         </svg>
 
-        <span class="classq-sidebar-title">
-          ClassQ
-        </span>
+        메인
 
       </a>
-
-      <div class="classq-sidebar-user">
-
-        <span class="classq-sidebar-user-label">
-          로그인됨
-        </span>
-
-        <span class="classq-sidebar-user-name">
-          {{ user.username }}
-        </span>
-
-      </div>
-
-      <nav class="classq-sidebar-nav">
-
-        <a
-          href="{% url 'questions:home' %}"
-          class="classq-sidebar-link"
-        >
-          메인
-        </a>
-
-        <a
-          href="{% url 'questions:board' %}"
-          class="classq-sidebar-link"
-        >
-          질문 게시판
-        </a>
-
-        <a
-          href="{% url 'questions:ask' %}"
-          class="classq-sidebar-link"
-        >
-          질문하기
-        </a>
-
-        <a
-          href="#"
-          class="classq-sidebar-link"
-        >
-          인기 질문
-        </a>
-
-      </nav>
-
-    </div>
-
-    <div class="classq-sidebar-footer">
 
       <a
-        href="{% url 'questions:logout' %}"
-        class="classq-sidebar-login"
+        href="{% url 'questions:board' %}"
+        class="classq-sidebar-link"
       >
-        로그아웃
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+
+        </svg>
+
+        질문 게시판
+
       </a>
+
+      <a
+        href="{% url 'questions:ask' %}"
+        class="classq-sidebar-link"
+      >
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+
+          <path d="M5 12h14"></path>
+
+          <path d="M12 5v14"></path>
+
+        </svg>
+
+        질문하기
+
+      </a>
+
+      <a
+        href="{% url 'questions:board' %}?sort=likes"
+        class="classq-sidebar-link"
+      >
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+
+          <polyline points="16 7 22 7 22 13"></polyline>
+
+        </svg>
+
+        인기 질문
+
+      </a>
+
+    </nav>
+
+    <!-- 하단 버튼 -->
+    <div class="classq-sidebar-footer">
+
+      {% if user.is_authenticated %}
+
+        <a
+          href="{% url 'questions:logout' %}"
+          class="classq-sidebar-login"
+        >
+          로그아웃
+        </a>
+
+      {% else %}
+
+        <a
+          href="{% url 'questions:login' %}"
+          class="classq-sidebar-login"
+        >
+          로그인
+        </a>
+
+      {% endif %}
 
     </div>
 
   </aside>
 
-  {% endif %}
+ 
 
+  <!-- 메인 -->
   <main class="site-main">
 
     {% block content %}{% endblock %}
@@ -152,4 +267,3 @@
 </body>
 
 </html>
-
