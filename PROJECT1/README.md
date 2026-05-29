@@ -7,6 +7,8 @@
 python -m venv venv
 venv\Scripts\activate       # source venv/bin/activate 
 
+---------------------------------------------------------------
+
 # 2. 패키지 설치
 pip install -r requirements.txt
 
@@ -14,6 +16,8 @@ pip install -r requirements.txt
 pip install django
 pip install django-environ
 pip install pillow
+
+---------------------------------------------------------------
 
 # 3. 환경변수 설정 (manage.py 가 있는 폴더에서)
 copy .env.example .env
@@ -29,18 +33,25 @@ DATABASE_URL=sqlite:///db.sqlite3
 
 python manage.py check
 
+---------------------------------------------------------------
+
 # 4. DB 마이그레이션
-python manage.py makemigrations accounts
 python manage.py makemigrations questions
 python manage.py migrate
 
 안될때 del db.sqlite3하고 다시
 
-# 5. 초기 태그 데이터 로드
+---------------------------------------------------------------
+
+# 5. 관리자 계정 생성
+python manage.py createsuperuser
+
+---------------------------------------------------------------
+
+# 6. 초기 태그 데이터 로드
 python manage.py loaddata questions/fixtures/tags.json
 
-# 6. 관리자 계정 생성
-python manage.py createsuperuser
+---------------------------------------------------------------
 
 # 7. 개발 서버 실행
 python manage.py runserver
