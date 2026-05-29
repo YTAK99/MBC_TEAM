@@ -20,6 +20,9 @@ body {
   background: var(--classq-background);
   color: var(--classq-foreground);
   font-family: "Noto Sans KR", "DM Sans", sans-serif;
+}
+
+body:has(.classq-sidebar) {
   padding-left: var(--classq-sidebar-width);
 }
 
@@ -202,13 +205,23 @@ button {
 }
 
 .topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-left: auto;
 }
 
-.topbar-login {
+.topbar-login,
+.topbar-logout {
   color: var(--classq-accent);
   font-size: 14px;
   font-weight: 600;
+}
+
+@media (min-width: 769px) {
+  body:has(.classq-sidebar) .topbar-brand {
+    display: none;
+  }
 }
 
 .section-heading {
@@ -238,95 +251,112 @@ button {
   }
 }
 
-/* ===== Fixed Sidebar (classq_fixed 방식 적용) ===== */
+/* ===== Sidebar ===== */
 .classq-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: var(--classq-sidebar-width);
-  background: var(--classq-foreground);
-  color: var(--classq-background);
+  background: #17172f;
+  color: #f5f3ee;
   display: flex;
   flex-direction: column;
-  padding: 16px 16px 14px 16px;
-  z-index: 30;
+  justify-content: space-between;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 100;
+}
+
+.classq-sidebar-top {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .classq-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 22px 24px 12px;
   font-weight: 700;
-  padding: 10px 8px;
-  border-radius: 12px;
 }
 
-.classq-sidebar-brand:hover {
-  background: rgba(245, 243, 238, 0.08);
+.classq-sidebar-brand .brand-mark {
+  color: var(--classq-accent);
+  flex-shrink: 0;
 }
 
 .classq-sidebar-title {
-  font-size: 14px;
+  font-size: 20px;
+  font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.classq-sidebar-user {
+  padding: 0 24px 16px;
+}
+
+.classq-sidebar-user-label {
+  margin: 0 0 4px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.classq-sidebar-user-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .classq-sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px 6px 10px 6px;
+  padding: 0 16px 16px;
 }
 
 .classq-sidebar-link {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
   color: rgba(245, 243, 238, 0.85);
   font-size: 14px;
   font-weight: 600;
-  padding: 10px 12px;
-  border-radius: 12px;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.classq-sidebar-link:hover {
-  background: rgba(245, 243, 238, 0.08);
-  color: var(--classq-background);
+.classq-sidebar-link:hover,
+.classq-sidebar-link.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
 }
 
 .classq-sidebar-footer {
-  margin-top: auto;
-  padding: 12px 6px;
-  border-top: 1px solid rgba(245, 243, 238, 0.08);
-}
-
-.classq-sidebar-user {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.classq-sidebar-user-label {
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-.classq-sidebar-user-name {
-  font-size: 14px;
-  font-weight: 700;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .classq-sidebar-login {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  text-align: center;
-  padding: 10px 12px;
+  min-height: 44px;
   border-radius: 12px;
-  color: var(--classq-accent);
-  border: 1px solid rgba(255, 92, 53, 0.35);
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f3ee;
   font-size: 14px;
+  font-weight: 700;
+  transition: background-color 0.15s ease;
+}
+
+.classq-sidebar-login:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 
 @media (max-width: 1024px) {
@@ -335,8 +365,22 @@ button {
   }
 }
 
-@media (max-width: 768px) {
-  :root {
-    --classq-sidebar-width: 200px;
+@media (max-width: 640px) {
+  body:has(.classq-sidebar) {
+    padding-left: 0;
+  }
+
+  .classq-sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .classq-sidebar-top {
+    overflow: visible;
+  }
+
+  .topbar-brand {
+    display: inline-flex;
   }
 }

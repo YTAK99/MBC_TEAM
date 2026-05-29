@@ -1,34 +1,121 @@
-from django.shortcuts import render, redirect
+from urllib.parse import urlencode
+
+from django.conf import settings
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.views import redirect_to_login
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView
 
-
-from .forms import QuestionForm, SignupForm
-from .models import Tag
-
-def home(request):              # 홈 페이지
-    return render(request, "questions/home.html")
+from .forms import QuestionForm, ResponseForm, SignupForm
+from .models import Question, QuestionAgree, Response, Tag
 
 
-def board(request):             # 질문 목록 페이지
-    return render(request, "questions/board.html")
+def _login_redirect(request):
+    """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
+    return redirect_to_login(request.get_full_path())
 
-# 질문/추가답변 생성 페이지
-class AskView(LoginRequiredMixin, CreateView): # LoginRequiredMixin, CreateView는 장고의 내장 부품(views.py에서만 등장)
-# LoginRequiredMixin (로그인+필수적인+기능짜집기 부품) : 사용자가 로그인 상태인지 확인후 비회원이라면 로그인 페이지로 이동
-#                                                   회원이라면 글쓰기 화면(CreateView)로 이동 
-#()안에 있는 이유? 장고의 내장 부품을 이용해서 AskView를 만들기 위해 
+
+def home(request):
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
+        .order_by("-created_at")[:5]
+    )
+    return render(request, "questions/home.html", {
+        "questions": questions,
+        "question_count": Question.objects.count(),
+        "response_count": Response.objects.count(),
+        "tag_count": Tag.objects.count(),
+    })
+
+
+def board(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
+
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
+    )
+
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+        )
+
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    tags = Tag.objects.all()
+
+    tag_filters = []
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+
+        if tag_id in next_tag_ids:
+            next_tag_ids.remove(tag_id)
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []
+        if sort:
+            params.append(("sort", sort))
+        if query:
+            params.append(("q", query))
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "questions/board.html", {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    })
+
+
+class AskView(LoginRequiredMixin, CreateView):
     form_class = QuestionForm
-    template_name = "questions/ask.html"    # 사용자에게 보여줄 디자인은 ask.html 파일 안에서 가져와 !
-    login_url = "login" # 로그인 안된 사람이 글을 작성하려 할 때는 login으로 넘어가 !
-    
+    template_name = "questions/ask.html"
+    login_url = "login"
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["all_tags"] = Tag.objects.all()    
+        ctx["all_tags"] = Tag.objects.all()
         return ctx
-    # ctx ; context의 축약어.views.py가 ask.html에게 데이터를 보낼때 사용하는 상자 같은 의미의 단어
 
-# 등록 버튼을 누르면 글이 저장
     def form_valid(self, form):
         question = form.save(commit=False)
         question.author = self.request.user
@@ -36,13 +123,261 @@ class AskView(LoginRequiredMixin, CreateView): # LoginRequiredMixin, CreateView�
         form.save_m2m()
         return redirect("questions:detail", pk=question.pk)
 
-def detail(request, pk):        # 질문 상세 페이지
-    return render(request, "questions/detail.html", {"question_id": pk})
+
+def detail(request, pk):
+    """
+    질문 상세 페이지.
+    - GET: 질문·답변 목록·답변 폼 표시
+    - POST: 같은 URL 에서 Response 저장 (PRG 패턴으로 redirect)
+    """
+    question = get_object_or_404(
+        Question.objects.select_related("author")
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees", distinct=True)),
+        pk=pk,
+    )
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return _login_redirect(request)
+
+        if question.is_resolved:
+            return redirect("questions:detail", pk=pk)
+
+        form = ResponseForm(request.POST)
+        if form.is_valid():
+            response = form.save(commit=False)
+            response.question = question
+            response.author = request.user
+            if request.user.is_staff:
+                response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
+            else:
+                response.response_type = Response.ResponseType.FOLLOW_UP
+                question.status = Question.Status.FOLLOW_UP
+            response.save()
+            question.save(update_fields=["status"])
+            return redirect("questions:detail", pk=pk)
+    else:
+        form = ResponseForm()
+
+    responses = question.responses.select_related("author").all()
+
+    user_agreed = False
+    if request.user.is_authenticated:
+        user_agreed = QuestionAgree.objects.filter(
+            question=question,
+            user=request.user,
+        ).exists()
+
+    context = {
+        "question": question,
+        "form": form,
+        "responses": responses,
+        "user_agreed": user_agreed,
+        "agree_count": question.agree_count,
+    }
+    return render(request, "questions/detail.html", context)
 
 
-def signup(request):            # 회원가입
-    form = SignupForm()
+def resolve(request, pk):
+    """질문 작성자 본인만 상태를 RESOLVED 로 변경할 수 있다."""
+    if request.method != "POST":
+        return redirect("questions:detail", pk=pk)
+
+    question = get_object_or_404(Question, pk=pk)
+    if not request.user.is_authenticated:
+        return _login_redirect(request)
+
+    if question.author_id == request.user.id:
+        question.status = Question.Status.RESOLVED
+        question.save(update_fields=["status"])
+
+    return redirect("questions:detail", pk=pk)
+
+
+def agree_toggle(request, pk):
+    """로그인 사용자의 '도움돼요' 공감 토글."""
+    if request.method != "POST":
+        return redirect("questions:detail", pk=pk)
+
+    if not request.user.is_authenticated:
+        return _login_redirect(request)
+
+    question = get_object_or_404(Question, pk=pk)
+    agree, created = QuestionAgree.objects.get_or_create(
+        question=question,
+        user=request.user,
+    )
+    if not created:
+        agree.delete()
+
+    return redirect("questions:detail", pk=pk)
+
+
+def signup(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect("questions:home")
+    else:
+        form = SignupForm()
+
     return render(request, "registration/signup.html", {"form": form})
 
-def login(request):             # 로그인
-    return render(request, "registration/login.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect("questions:home")
+
+
+def check_username(request):
+    username = request.GET.get("username", "").strip()
+    exists = User.objects.filter(username=username).exists() if username else False
+    return JsonResponse({"exists": exists})
+
+
+def login(request):
+    next_url = request.POST.get("next") or request.GET.get("next", "")
+
+    if request.user.is_authenticated:
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+        ):
+            return redirect(next_url)
+        return redirect(settings.LOGIN_REDIRECT_URL)
+
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+            ):
+                return redirect(next_url)
+            return redirect(settings.LOGIN_REDIRECT_URL)
+    else:
+        form = AuthenticationForm(request)
+
+    return render(
+        request,
+        "registration/login.html",
+        {"form": form, "next": next_url},
+    )
+
+
+def is_teacher(user):
+    return user.is_authenticated and user.is_staff
+
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_home(request):
+    sort = request.GET.get("sort", "latest")
+
+    waiting_questions = (
+        Question.objects
+        .filter(status__in=["OPEN", "FOLLOW_UP"])
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if sort == "popular":
+        waiting_questions = waiting_questions.order_by("-agree_count", "-created_at")
+    else:
+        waiting_questions = waiting_questions.order_by("-created_at")
+
+    waiting_questions = waiting_questions[:5]
+
+    context = {
+        "waiting_questions": waiting_questions,
+        "open_count": Question.objects.filter(status="OPEN").count(),
+        "follow_up_count": Question.objects.filter(status="FOLLOW_UP").count(),
+        "answered_count": Question.objects.filter(status="ANSWERED").count(),
+        "current_sort": sort,
+    }
+
+    return render(request, "questions/teacher_home.html", context)
+
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_question_list(request):
+    sort = request.GET.get("sort", "latest")
+    selected_tag_ids = request.GET.getlist("tag")
+    query = request.GET.get("q", "")
+    status_filter = request.GET.get("status")
+
+    questions = (
+        Question.objects
+        .annotate(agree_count=Count("agrees"))
+        .prefetch_related("tags")
+    )
+
+    if status_filter in ["OPEN", "FOLLOW_UP", "ANSWERED"]:
+        questions = questions.filter(status=status_filter)
+    else:
+        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP"])
+
+    if query:
+        questions = questions.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query)
+        )
+
+    if selected_tag_ids:
+        for tag_id in selected_tag_ids:
+            questions = questions.filter(tags__id=tag_id)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    tags = Tag.objects.all()
+    tag_filters = []
+
+    for tag in tags:
+        tag_id = str(tag.id)
+        next_tag_ids = selected_tag_ids.copy()
+
+        if tag_id in next_tag_ids:
+            next_tag_ids.remove(tag_id)
+        else:
+            next_tag_ids.append(tag_id)
+
+        params = []
+        if status_filter:
+            params.append(("status", status_filter))
+        if sort:
+            params.append(("sort", sort))
+        if query:
+            params.append(("q", query))
+        for selected_id in next_tag_ids:
+            params.append(("tag", selected_id))
+
+        tag_filters.append({
+            "tag": tag,
+            "is_selected": tag_id in selected_tag_ids,
+            "url": "?" + urlencode(params),
+        })
+
+    paginator = Paginator(questions, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "questions": page_obj,
+        "page_obj": page_obj,
+        "tags": tags,
+        "tag_filters": tag_filters,
+        "selected_tag_ids": selected_tag_ids,
+        "current_sort": sort,
+        "query": query,
+    }
+
+    return render(request, "questions/teacher_board.html", context)

@@ -40,8 +40,13 @@ class Question(models.Model):   # 질문 등록 신청서 양식
     def __str__(self):  #글을 쓰면 번호(1, 2..)가 아닌 글제목으로
         return self.title
 
-    # #좋아요 개수 세기 기능
-    # @property
+    @property
+    def is_resolved(self):
+        """
+        템플릿에서 상태 비교 코드를 매번 쓰지 않도록
+        '해결됨' 여부를 불리언 값으로 제공한다.
+        """
+        return self.status == self.Status.RESOLVED
     # def agree_count(self):
     #     return self.agrees.count()
     

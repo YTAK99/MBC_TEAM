@@ -10,8 +10,8 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("title", "author", "status", "created_at")
-    list_filter = ("status", "tags")
+    list_display = ("title", "author", "is_anonymous", "status", "created_at")
+    list_filter = ("is_anonymous", "status", "tags")
     search_fields = ("title", "content")
     filter_horizontal = ("tags",)
 

@@ -72,6 +72,17 @@
   gap: 10px;
 }
 
+.home-question-card .question-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-question-card h3 a:hover {
+  color: var(--classq-accent);
+}
+
 .home-question-card h3,
 .step-card h3 {
   margin: 0;
@@ -116,4 +127,57 @@
   .step-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.section-title {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--classq-foreground);
+}
+
+.summary-card .summary-number {
+  display: inline-block;
+  font-family: "DM Mono", monospace;
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin: 8px 0;
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+/* 링크 기본색 inherit 덮어쓰기 (:link / :visited 포함) */
+.summary-card a.summary-number.summary-open,
+.summary-card a.summary-number.summary-open:link,
+.summary-card a.summary-number.summary-open:visited {
+  color: #dc2626;
+}
+
+.summary-card a.summary-number.summary-open:hover {
+  color: #b91c1c;
+  text-decoration: underline;
+}
+
+.summary-card a.summary-number.summary-followup,
+.summary-card a.summary-number.summary-followup:link,
+.summary-card a.summary-number.summary-followup:visited {
+  color: #9333ea;
+}
+
+.summary-card a.summary-number.summary-followup:hover {
+  color: #7e22ce;
+  text-decoration: underline;
+}
+
+.summary-card a.summary-number.summary-answered,
+.summary-card a.summary-number.summary-answered:link,
+.summary-card a.summary-number.summary-answered:visited {
+  color: #16a34a;
+}
+
+.summary-card a.summary-number.summary-answered:hover {
+  color: #15803d;
+  text-decoration: underline;
 }
