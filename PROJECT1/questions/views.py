@@ -26,11 +26,20 @@ def _login_redirect(request):
 
 def home(request):
     sort = request.GET.get("sort", "latest")
+    current_status = request.GET.get("status", "")
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if current_status == "NEW":
+        questions = questions.filter(status="OPEN")
+    elif current_status == "WAITING":
+        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP", "ANSWERED"])
+    elif current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+        questions = questions.filter(status=current_status)
+
     if sort == "popular":
         questions = questions.order_by("-agree_count", "-created_at")
     else:
@@ -53,6 +62,7 @@ def home(request):
         status="RESOLVED"
         ).count(),
         "current_sort": sort,
+        "current_status": current_status,
 })
 
 
@@ -77,7 +87,8 @@ def board(request):
     sort = request.GET.get("sort", "latest")
     selected_tag_ids = request.GET.getlist("tag")
     query = request.GET.get("q", "")
-    status_filter = request.GET.get("status")
+    status_filter = request.GET.get("status", "")
+    current_status = status_filter
 
     questions = (
         Question.objects
@@ -151,7 +162,7 @@ def board(request):
         "tag_filters": tag_filters,
         "selected_tag_ids": selected_tag_ids,
         "current_sort": sort,
-        "current_status": status_filter,
+        "current_status": current_status,
         "query": query,
     })
 
@@ -353,13 +364,18 @@ def is_teacher(user):
 @user_passes_test(is_teacher)
 def teacher_home(request):
     sort = request.GET.get("sort", "latest")
+    current_status = request.GET.get("status", "")
 
     waiting_questions = (
         Question.objects
-        .filter(status__in=["OPEN", "FOLLOW_UP"])
         .annotate(agree_count=Count("agrees"))
         .prefetch_related("tags")
     )
+
+    if current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+        waiting_questions = waiting_questions.filter(status=current_status)
+    else:
+        waiting_questions = waiting_questions.filter(status__in=["OPEN", "FOLLOW_UP"])
 
     if sort == "popular":
         waiting_questions = waiting_questions.order_by("-agree_count", "-created_at")
@@ -374,6 +390,7 @@ def teacher_home(request):
         "follow_up_count": Question.objects.filter(status="FOLLOW_UP").count(),
         "answered_count": Question.objects.filter(status="ANSWERED").count(),
         "current_sort": sort,
+        "current_status": current_status,
     }
 
     return render(request, "questions/teacher_home.html", context)
@@ -385,7 +402,8 @@ def teacher_question_list(request):
     sort = request.GET.get("sort", "latest")
     selected_tag_ids = request.GET.getlist("tag")
     query = request.GET.get("q", "")
-    status_filter = request.GET.get("status")
+    status_filter = request.GET.get("status", "")
+    current_status = status_filter
 
     questions = (
         Question.objects
@@ -457,6 +475,7 @@ def teacher_question_list(request):
         "tag_filters": tag_filters,
         "selected_tag_ids": selected_tag_ids,
         "current_sort": sort,
+        "current_status": current_status,
         "query": query,
     }
 

@@ -4,24 +4,42 @@
     <div class="board-heading-actions">
     <!-- 상태 필터 UI -->
   <details class="status-dropdown">
+    {% with current_status|default:"" as current_status %}
     <summary class="filter-chip">
-      전체 상태
+    {% if current_status == "OPEN" %}
+      답변대기
+    {% elif current_status == "FOLLOW_UP" %}
+      추가질문
+    {% elif current_status == "ANSWERED" %}
+      답변완료
+    {% elif current_status == "RESOLVED" %}
+      해결됨
+    {% elif current_status == "NEW" %}
+      신규 질문
+    {% elif current_status == "WAITING" %}
+      해결 대기
+    {% else %}
+      전체
+    {% endif %}
     </summary>
+    {% endwith %}
 
     <div class="status-dropdown-menu">
-      <a href="?status=OPEN&sort={{ current_sort }}">답변 대기</a>
-      <a href="?status=FOLLOW_UP&sort={{ current_sort }}">추가 질문</a>
+      <a href="?sort={{ current_sort }}">전체</a>
+
+      <a href="?status=OPEN&sort={{ current_sort }}">답변대기</a>
+      <a href="?status=FOLLOW_UP&sort={{ current_sort }}">추가질문</a>
       <a href="?status=ANSWERED&sort={{ current_sort }}">답변완료</a>
       <a href="?status=RESOLVED&sort={{ current_sort }}">해결됨</a>
     </div>
   </details>
 <!-- 정렬 UI -->
-    <a href="?sort=latest{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+    <a href="?sort=latest{% if current_status %}&status={{ current_status }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
       class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
       최신순
     </a>
 
-    <a href="?sort=popular{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+    <a href="?sort=popular{% if current_status %}&status={{ current_status }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
       class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
       공감순
     </a>
