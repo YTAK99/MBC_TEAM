@@ -251,7 +251,31 @@ def agree_toggle(request, pk):
         agree.delete()
 
     return redirect("questions:detail", pk=pk)
+# 질문 수정 기능 추가
+@login_required
+def edit(request, pk):
+    question = get_object_or_404(Question, pk=pk)
 
+    if question.author_id != request.user.id:
+        return redirect("questions:detail", pk=pk)
+
+    if question.is_resolved:
+        return redirect("questions:detail", pk=pk)
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            return redirect("questions:detail", pk=question.pk)
+    else:
+        form = QuestionForm(instance=question)
+
+    return render(request, "questions/ask.html", {
+        "form": form,
+        "all_tags": Tag.objects.all(),
+        "is_edit": True,
+        "question": question,
+    })
 
 def signup(request):
     if request.method == "POST":

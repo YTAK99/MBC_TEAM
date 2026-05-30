@@ -18,7 +18,8 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("signup/", views.signup, name="signup"),
     path("check-username/", views.check_username, name="check_username"),
-    
+    path("questions/<int:pk>/edit/", views.edit, name="edit"), # 질문 수정 페이지
+
     # 강사용 페이지 추가
     path("teacher/", views.teacher_home, name="teacher_home"),
     path("teacher/board/", views.teacher_question_list, name="teacher_board"),

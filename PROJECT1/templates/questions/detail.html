@@ -64,6 +64,7 @@
 
       {# 작성자 본인만 · 미해결일 때만 status 를 RESOLVED 로 변경 #}
       {% if user.is_authenticated and user.id == question.author_id and not question.is_resolved %}
+      <div class="question-detail-actions">
       <form method="post" action="{% url 'questions:resolve' question.pk %}">
         {% csrf_token %}
         <button type="submit" class="classq-button classq-button-secondary">
@@ -75,7 +76,13 @@
           해결됨으로 표시
         </button>
       </form>
+      <a href="{% url 'questions:edit' question.pk %}"
+       class="classq-button classq-button-primary">
+        수정하기
+      </a>
+      </div>
       {% endif %}
+      
     </div>
   </article>
 
