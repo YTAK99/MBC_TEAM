@@ -77,9 +77,12 @@ def board(request):
         .annotate(agree_count=Count("agrees"))
     )
 
+    if status_filter == "NEW":
+        questions = questions.filter(status="OPEN")
+
     if status_filter == "WAITING":
         questions = questions.filter(
-        status__in=["OPEN", "FOLLOW_UP"]
+        status__in=["OPEN", "FOLLOW_UP", "ANSWERED"]
     )
 
     elif status_filter == "RESOLVED":

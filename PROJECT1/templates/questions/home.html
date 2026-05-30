@@ -26,7 +26,7 @@
   <div class="summary-grid">
     <article class="classq-card summary-card">
       <span class="summary-label">신규 질문</span>
-      <a href="{% url 'questions:board' %}"
+      <a href="{% url 'questions:board' %}?status=NEW"
       class="summary-value summary-new">
          {{ new_count }}
       </a>      
