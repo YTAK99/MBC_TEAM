@@ -47,7 +47,7 @@
     {% include "questions/components/question_card_heading.html" with section_title="최근 질문" show_ask_button=False %}
 
     {% for question in questions %}
-      {% include "questions/components/question_card.html" %}
+      {% include "questions/components/question_card.html" with card_button_text="질문보기" card_button_style="primary" %}
     {% empty %}
       <article class="classq-card home-question-card">
         <p class="muted-text">아직 등록된 질문이 없습니다. 첫 질문을 남겨보세요.</p>
