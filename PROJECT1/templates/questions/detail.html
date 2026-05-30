@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load time_filters %}
 
 {% block title %}질문 상세 - ClassQ{% endblock %}
 {% block page_title %}질문 상세{% endblock %}
@@ -32,7 +33,7 @@
 
     <div class="detail-info">
       <span class="muted-text">{{ question.display_author }} · </span>
-      <span class="muted-text">{{ question.created_at|timesince }} 전</span>
+      <span class="muted-text">{{ question.created_at|relative_time }}</span>
     </div>
 
     {# 작성자·작성일 아래 한 줄 띄운 뒤 본문 #}
@@ -91,7 +92,7 @@
           {% if response.author.is_staff %}강사{% else %}학생{% endif %}
         </span>
         <strong>{{ response.author }}</strong>
-        <span class="response-time"> · {{ response.created_at|timesince }} 전</span>
+        <span class="response-time"> · {{ response.created_at|relative_time }}</span>
       </p>
       <p>{{ response.content }}</p>
     </article>
