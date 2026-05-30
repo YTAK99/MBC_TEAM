@@ -42,6 +42,7 @@
     <div class="detail-actions">
       {% if user.is_authenticated %}
       {# agree_toggle: 이미 눌렀으면 user_agreed 로 버튼 강조 #}
+        {% if user.id != question.author_id %}
       <form method="post" action="{% url 'questions:agree' question.pk %}">
         {% csrf_token %}
         <button type="submit" class="classq-button {% if user_agreed %}classq-button-primary{% else %}classq-button-secondary{% endif %}" style="display: inline-flex; align-items: center; gap: 6px;">
@@ -53,6 +54,7 @@
           <span>나도 궁금해요 {{ agree_count }}</span>
         </button>
       </form>
+        {% endif %}
       {% else %}
       <a href="{% url 'questions:login' %}?next={{ request.get_full_path|urlencode }}" class="classq-button classq-button-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
         <span>나도 궁금해요 {{ agree_count }}</span>
