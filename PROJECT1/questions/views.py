@@ -251,6 +251,7 @@ def agree_toggle(request, pk):
         agree.delete()
 
     return redirect("questions:detail", pk=pk)
+
 # 질문 수정 기능 추가
 @login_required
 def edit(request, pk):
