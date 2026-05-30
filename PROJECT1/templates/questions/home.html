@@ -6,6 +6,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -42,27 +43,11 @@
 </section>
 
 <section class="page-container home-section">
-  <div class="section-heading">
-    <h2>최근 질문</h2>
-    <a href="{% url 'questions:board' %}" class="classq-link">전체 보기</a>
-  </div>
-
   <div class="home-question-list">
+    {% include "questions/components/question_card_heading.html" with section_title="최근 질문" show_ask_button=False %}
+
     {% for question in questions %}
-      <article class="classq-card home-question-card">
-        <div class="question-meta">
-          {% for tag in question.tags.all %}
-            <span class="tag-badge"{% if tag.color %} style="border-color: {{ tag.color }}; color: {{ tag.color }};"{% endif %}>{{ tag.name }}</span>
-          {% empty %}
-            <span class="tag-badge">태그 없음</span>
-          {% endfor %}
-          <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
-        </div>
-        <h3>
-          <a href="{% url 'questions:detail' question.pk %}">{{ question.title }}</a>
-        </h3>
-        <p class="muted-text">{{ question.content|truncatechars:80 }}</p>
-      </article>
+      {% include "questions/components/question_card.html" %}
     {% empty %}
       <article class="classq-card home-question-card">
         <p class="muted-text">아직 등록된 질문이 없습니다. 첫 질문을 남겨보세요.</p>
