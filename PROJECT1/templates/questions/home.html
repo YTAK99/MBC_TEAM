@@ -25,19 +25,28 @@
 <section class="home-summary page-container">
   <div class="summary-grid">
     <article class="classq-card summary-card">
-      <span class="summary-label">질문</span>
-      <strong class="summary-value">{{ question_count }}</strong>
-      <p class="muted-text">등록된 질문 수</p>
+      <span class="summary-label">신규 질문</span>
+      <a href="{% url 'questions:board' %}"
+      class="summary-value summary-new">
+         {{ new_count }}
+      </a>      
+    <p class="muted-text">답변을 기다리는 중..</p>
     </article>
     <article class="classq-card summary-card">
-      <span class="summary-label">Response</span>
-      <strong class="summary-value">{{ response_count }}</strong>
-      <p class="muted-text">등록된 답변·댓글 수</p>
+      <span class="summary-label">해결 대기</span>
+      <a href="{% url 'questions:board' %}?status=WAITING"
+      class="summary-value summary-waiting">
+        {{ waiting_count }}
+      </a>    
+      <p class="muted-text">답변이 달렸지만 해결되지 않은 질문 수</p>
     </article>
     <article class="classq-card summary-card">
-      <span class="summary-label">태그</span>
-      <strong class="summary-value">{{ tag_count }}</strong>
-      <p class="muted-text">사용 중인 태그 수</p>
+      <span class="summary-label ">해결됨</span>
+      <a href="{% url 'questions:board' %}?status=RESOLVED"
+      class="summary-value summary-resolved">
+        {{ resolved_count }}
+      </a>     
+      <p class="muted-text">해결된 질문 수</p>
     </article>
   </div>
 </section>

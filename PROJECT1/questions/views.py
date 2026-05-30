@@ -33,10 +33,19 @@ def home(request):
     )
     return render(request, "questions/home.html", {
         "questions": questions,
-        "question_count": Question.objects.count(),
-        "response_count": Response.objects.count(),
-        "tag_count": Tag.objects.count(),
-    })
+        "total_question_count": Question.objects.count(),
+        "new_count": Question.objects.filter(
+        status="OPEN"
+        ).count(),
+
+        "waiting_count": Question.objects.filter(
+        status__in=["OPEN", "ANSWERED", "FOLLOW_UP"]
+        ).count(),
+
+        "resolved_count": Question.objects.filter(
+        status="RESOLVED"
+        ).count(),
+})
 
 
 def hall_of_fame(request):
@@ -60,12 +69,21 @@ def board(request):
     sort = request.GET.get("sort", "latest")
     selected_tag_ids = request.GET.getlist("tag")
     query = request.GET.get("q", "")
+    status_filter = request.GET.get("status")
 
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if status_filter == "WAITING":
+        questions = questions.filter(
+        status__in=["OPEN", "FOLLOW_UP"]
+    )
+
+    elif status_filter == "RESOLVED":
+        questions = questions.filter(status="RESOLVED")
 
     if query:
         questions = questions.filter(
