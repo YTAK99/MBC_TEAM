@@ -45,7 +45,7 @@
   <div class="home-question-list">
   {% include "questions/components/question_card_heading.html" with section_title="최근 질문" show_ask_button=False %}
   {% for question in waiting_questions %}
-    {% include "questions/components/question_card.html" with card_button_text="답변하기" card_button_style="primary" %}
+    {% include "questions/components/question_card.html" %}
   {% empty %}
   <article class="classq-card home-question-card">
     <p class="muted-text">현재 답변이 필요한 질문이 없습니다.</p>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}명예의 전당 — ClassQ{% endblock %}
+{% block page_title %}명예의 전당{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/classq-home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <section class="home-hero">
+    <p class="eyebrow">준비 중</p>
+    <h1>명예의 전당</h1>
+    <p class="home-lead muted-text">
+      질문·답변 활동이 많은 사용자 순위를 곧 공개할 예정입니다.
+    </p>
+  </section>
+
+  <section class="home-section">
+    <div class="section-heading">
+      <h2>질문왕</h2>
+      <p class="muted-text">질문을 가장 많이 작성한 사용자</p>
+    </div>
+    <div class="home-question-list">
+      {% for entry in top_questioners %}
+      <article class="classq-card home-question-card">
+        <strong>{{ forloop.counter }}위</strong>
+        <span>{{ entry.user.username }}</span>
+        <span class="muted-text">{{ entry.count }}개 질문</span>
+      </article>
+      {% empty %}
+      <article class="classq-card home-question-card">
+        <p class="muted-text">순위 데이터가 아직 없습니다.</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="section-heading">
+      <h2>답변왕</h2>
+      <p class="muted-text">답변을 가장 많이 작성한 사용자</p>
+    </div>
+    <div class="home-question-list">
+      {% for entry in top_responders %}
+      <article class="classq-card home-question-card">
+        <strong>{{ forloop.counter }}위</strong>
+        <span>{{ entry.user.username }}</span>
+        <span class="muted-text">{{ entry.count }}개 답변</span>
+      </article>
+      {% empty %}
+      <article class="classq-card home-question-card">
+        <p class="muted-text">순위 데이터가 아직 없습니다.</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

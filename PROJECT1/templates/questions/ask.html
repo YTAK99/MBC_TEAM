@@ -1,38 +1,188 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}질문 등록 - ClassQ{% endblock %}
+{% block title %}질문 등록 — ClassQ{% endblock %}
 {% block page_title %}질문 등록{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
+<style>
+/* 화면 중앙의 하얀 박스 */
+  .form-card {
+    background-color: #ffffff !important;
+    border-radius: 16px !important;
+    padding: 36px !important; 
+    box-shadow: 0 4px 20px rgba(26, 26, 46, 0.04), 0 1px 3px rgba(26, 26, 46, 0.06) !important;
+    border: 1px solid rgba(26, 26, 46, 0.08) !important;
+    margin: 0 auto !important;
+    max-width: 640px !important;
+  }
+
+  /* <질문 등록하기> 텍스타일 */
+  .form-card h1 {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #1A1A2E !important;
+    margin: 0 0 6px 0 !important;
+  }
+
+  /* <막힌 부분을 ~..> 텍스타일  */
+  .form-card > p {
+    font-size: 14px !important;
+    color: #7A7A8C !important;
+    margin: 0 0 28px 0 !important;
+  }
+
+  /* 태그 버튼들을 가로로 나열하는 정렬 */
+  .tag-flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  /* 태그 버튼위 커서가 손가락 모양으로 변경
+  .cursor-pointer {
+    cursor: pointer;
+  } */
+  
+  /* 태그 버튼들의 기본 테두리와 라운딩 */
+  .tag-pill {
+    display: block;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+    transition: all 0.2s ease;
+  }
+  
+  /* 실제 장고 체크박스는 화면에서 숨김 */
+  .sr-only-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* 하단 취소/등록 버튼이 사이좋게 반반씩 나눠 갖도록 정렬 */
+  .custom-actions-layout {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="page-container form-page">
-  <section class="classq-card form-card">
-    <h1>질문 등록</h1>
-    <p class="muted-text">제목과 내용을 입력하는 기본 폼입니다.</p>
+<div class="form-page">
+  <div class="form-card">
+    <h1>질문 등록하기</h1>
+    <p>막힌 부분을 자유롭게 적어주세요.</p>
 
     <form method="post" class="classq-form">
       {% csrf_token %}
+
       <div class="form-group">
-        <label for="{{ form.title.id_for_label }}" class="form-label">제목</label>
+        <label class="form-label" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">제목</label>
         {{ form.title }}
+        {% if form.title.errors %}
+        <p style="color: #d4183d; font-size: 12px; margin-top: 4px;">{{ form.title.errors.0 }}</p>
+        {% endif %}
       </div>
+
       <div class="form-group">
-        <label for="{{ form.content.id_for_label }}" class="form-label">내용</label>
+        <label class="classq-form label" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">내용</label>
         {{ form.content }}
+        {% if form.content.errors %}
+        <p style="color: #d4183d; font-size: 12px; margin-top: 4px;">{{ form.content.errors.0 }}</p>
+        {% endif %}
       </div>
+
+      <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+        <div>
+          <label class="form-label" style="margin: 0; font-weight: 600; font-size: 14px;">익명으로 질문하기</label>
+          <p style="margin: 2px 0 0; font-size: 13px; color: #7A7A8C;"></p>
+        </div>
+        
+        <div id="anon-toggle" onclick="toggleAnon()" class="cursor-pointer" 
+             style="width: 3rem; height: 1.75rem; background: #FF5C35; border-radius: 9999px; position: relative; transition: background 0.2s;">
+          <div id="anon-knob" 
+               style="width: 1.25rem; height: 1.25rem; background: #fff; border-radius: 50%; position: absolute; top: 0.25rem; left: 0px; transform: translateX(1.5rem); transition: transform 0.2s;">
+          </div>
+        </div>
+        <input type="hidden" id="anon-value" name="is_anonymous" value="True">
+      </div>
+
       <div class="form-group">
-        <label for="{{ form.is_anonymous.id_for_label }}" class="form-label">공개 설정</label>
-        <label class="muted-text">{{ form.is_anonymous }} 익명으로 작성하기</label>
+        <label class="form-label" style="font-size: 14px; font-weight: 600; margin-bottom: 4px; display: block;">태그는 최대 3개까지 가능합니다</label>
+        <div class="tag-flex-container" id="tag-container">
+          {% for tag in all_tags %}
+          <label class="cursor-pointer">
+            <input type="checkbox" name="tags" value="{{ tag.id }}" class="sr-only-hidden tag-checkbox"
+                   {% if tag in form.initial.tags %}checked{% endif %}>
+            <span class="tag-pill tag-label"
+                  data-color="{{ tag.color }}"
+                  style="border-color: {{ tag.color }}40; color: {{ tag.color }}; background: #fff;">
+              {{ tag.name }}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+        {% if form.tags.errors %}
+        <p style="color: #d4183d; font-size: 12px; margin-top: 4px;">{{ form.tags.errors.0 }}</p>
+        {% endif %}
       </div>
-      <div class="form-actions">
-        <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary">취소</a>
-        <button type="submit" class="classq-button classq-button-primary">등록</button>
+
+      <div class="custom-actions-layout">
+        <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary" style="flex: 1; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 14px; font-weight: 500;">취소</a>
+        <button type="submit" class="classq-button classq-button-primary" style="flex: 1; padding: 14px 0; border-radius: 12px; background: #1A1A2E; color: #F5F3EE; font-size: 14px; font-weight: 500;">질문 등록</button>
       </div>
     </form>
-  </section>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 익명 토글 스위치 핸들러
+let isAnon = true;
+function toggleAnon() {
+  isAnon = !isAnon;
+  const toggle = document.getElementById('anon-toggle');
+  const knob   = document.getElementById('anon-knob');
+  const val    = document.getElementById('anon-value');
+  toggle.style.background = isAnon ? '#FF5C35' : '#EDEAE3';
+  knob.style.transform    = isAnon ? 'translateX(1.5rem)' : 'translateX(0.25rem)';
+  val.value = isAnon ? 'True' : 'False';
+}
+
+// 태그 개수 선택 제한(3개) 및 선택 시 테두리 색상 채우기 애니메이션
+document.querySelectorAll('.tag-checkbox').forEach(cb => {
+  const label = cb.nextElementSibling;
+  const color = label.dataset.color;
+
+  cb.addEventListener('change', () => {
+    const checked = document.querySelectorAll('.tag-checkbox:checked');
+    if (checked.length > 3) { cb.checked = false; return; }
+    updateLabel(cb, label, color);
+  });
+
+  function updateLabel(cb, label, color) {
+    if (cb.checked) {
+      label.style.background   = color;
+      label.style.color        = '#fff';
+      label.style.borderColor  = color;
+    } else {
+      label.style.background   = '#fff';
+      label.style.color        = color;
+      label.style.borderColor  = color + '40';
+    }
+  }
+});
+</script>
 {% endblock %}
