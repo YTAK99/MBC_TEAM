@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load time_filters %}
+{% load role_filters %}
 
 {% block title %}질문 상세 - ClassQ{% endblock %}
 {% block page_title %}질문 상세{% endblock %}
@@ -94,9 +95,9 @@
     {% for response in responses %}
     <article class="classq-card response-card">
       <p class="response-meta-line">
-        {# 배지는 author.is_staff 기준 (Response.response_type 과 별개) #}
-        <span class="response-author-badge {% if response.author.is_staff %}response-author-badge-staff{% else %}response-author-badge-student{% endif %}">
-          {% if response.author.is_staff %}강사{% else %}학생{% endif %}
+        {# 회원가입(SignupForm→Profile.role)과 동일. is_staff(관리자 권한)와 혼동 금지 #}
+        <span class="response-author-badge {% if response.author|user_is_teacher %}response-author-badge-staff{% else %}response-author-badge-student{% endif %}">
+          {{ response.author|user_role_label }}
         </span>
         <strong>{{ response.author }}</strong>
         <span class="response-time"> · {{ response.created_at|relative_time }}</span>

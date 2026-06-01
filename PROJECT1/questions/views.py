@@ -30,6 +30,21 @@ def _login_redirect(request):
     return redirect_to_login(request.get_full_path())
 
 
+def _board_query_params(*, sort="", query="", status_filter="", selected_tag_ids=None, mine=False):
+    params = []
+    if sort:
+        params.append(("sort", sort))
+    if status_filter:
+        params.append(("status", status_filter))
+    if query:
+        params.append(("q", query))
+    if mine:
+        params.append(("mine", "1"))
+    for tag_id in selected_tag_ids or []:
+        params.append(("tag", tag_id))
+    return params
+
+
 def home(request):
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
@@ -95,12 +110,19 @@ def board(request):
     query = request.GET.get("q", "")
     status_filter = request.GET.get("status", "")
     current_status = status_filter
+    mine_requested = request.GET.get("mine") == "1"
+
+    if mine_requested and not request.user.is_authenticated:
+        return _login_redirect(request)
 
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if mine_requested:
+        questions = questions.filter(author=request.user)
 
     if status_filter == "NEW":
         questions = questions.filter(status="OPEN")
@@ -143,13 +165,13 @@ def board(request):
         else:
             next_tag_ids.append(tag_id)
 
-        params = []
-        if sort:
-            params.append(("sort", sort))
-        if query:
-            params.append(("q", query))
-        for selected_id in next_tag_ids:
-            params.append(("tag", selected_id))
+        params = _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=next_tag_ids,
+            mine=mine_requested,
+        )
 
         tag_filters.append({
             "tag": tag,
@@ -161,6 +183,16 @@ def board(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    mine_filter_url = "?" + urlencode(
+        _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=selected_tag_ids,
+            mine=not mine_requested,
+        )
+    )
+
     return render(request, "questions/board.html", {
         "questions": page_obj,
         "page_obj": page_obj,
@@ -170,6 +202,8 @@ def board(request):
         "current_sort": sort,
         "current_status": current_status,
         "query": query,
+        "mine_active": mine_requested,
+        "mine_filter_url": mine_filter_url,
     })
 
 
@@ -254,7 +288,8 @@ def detail(request, pk):
                 "답변을 입력해주세요..."
             )
 
-    responses = question.responses.select_related("author").all()
+    # 답변 작성자 배지도 Profile.role 기준이므로 profile 까지 함께 조회
+    responses = question.responses.select_related("author", "author__profile").all()
 
     user_agreed = False
     if request.user.is_authenticated:
@@ -339,9 +374,11 @@ def signup(request):
         if form.is_valid():
             user = form.save()
 
+            # 역할은 Profile.role 에만 저장 (User.is_staff 와 무관).
+            # 질문 상세 답변 배지·강사 메뉴·답변 분류도 모두 이 값을 기준으로 한다.
             Profile.objects.create(
                 user=user,
-                role=form.cleaned_data["role"]
+                role=form.cleaned_data["role"],
             )
 
             auth_login(request, user)
