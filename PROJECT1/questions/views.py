@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView
+from django.contrib import messages
 
 from .forms import QuestionForm, ResponseForm, SignupForm
 from .models import Question, QuestionAgree, Response, Tag
@@ -67,19 +68,31 @@ def home(request):
 
 
 def hall_of_fame(request):
-    """
-    명예의 전당 — 추후 구현 예정.
+    # 해결왕 순위 계산
+    top_solvers = (
+        User.objects
+        .annotate(
+            accepted_count=Count(
+                "responses",
+                filter=Q(responses__is_accepted=True),
+            )
+        )
+        .filter(accepted_count__gt=0)
+        .order_by("-accepted_count", "username")[:3]
+    )
+    # 답변왕은 답변 수로만 집계 (채택 여부는 상관 없음)
+    top_responders = (
+        User.objects
+        .annotate(response_count=Count("responses"))
+        .filter(response_count__gt=0)
+        .order_by("-response_count", "username")[:3]
+    )
 
-    top_questioners: 질문을 많이 작성한 사용자 순위
-      예) [{"user": user, "count": 12}, ...]
-    top_responders: 답변을 많이 작성한 사용자 순위
-      예) [{"user": user, "count": 8}, ...]
-    """
-    # TODO: Question·Response 를 author 기준으로 집계해 순위 데이터를 채운다.
     context = {
-        "top_questioners": [],
-        "top_responders": [],
+        "top_solvers": top_solvers,
+        "top_responders": top_responders,
     }
+
     return render(request, "questions/hall_of_fame.html", context)
 
 
@@ -170,7 +183,17 @@ def board(request):
 class AskView(LoginRequiredMixin, CreateView):
     form_class = QuestionForm
     template_name = "questions/ask.html"
-    login_url = "login"
+    login_url = "questions:login"
+
+    def dispatch(self, request, *args, **kwargs):
+        # 로그인 안 되어 있으면 메시지 표시 후 로그인 페이지 이동
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "로그인 후 질문할 수 있습니다."
+            )
+            return redirect("questions:login")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -269,6 +292,29 @@ def resolve(request, pk):
 
     return redirect("questions:detail", pk=pk)
 
+@login_required
+def accept_response(request, response_id):
+    if request.method != "POST":
+        return redirect("questions:home")
+
+    response = get_object_or_404(Response, pk=response_id)
+    question = response.question
+
+    if request.user.id != question.author_id:
+        return redirect("questions:detail", pk=question.pk)
+
+    if response.author_id == question.author_id:
+        return redirect("questions:detail", pk=question.pk)
+
+    question.responses.update(is_accepted=False)
+
+    response.is_accepted = True
+    response.save(update_fields=["is_accepted"])
+
+    question.status = Question.Status.RESOLVED
+    question.save(update_fields=["status"])
+
+    return redirect("questions:detail", pk=question.pk)
 
 def agree_toggle(request, pk):
     """로그인 사용자의 '도움돼요' 공감 토글."""
