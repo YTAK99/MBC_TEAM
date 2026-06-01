@@ -191,6 +191,12 @@
   border: 1px solid rgba(217, 119, 6, 0.32);
 }
 
+.response-author-badge-owner {
+    background: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.28);
+}
+
 .response-card p {
   margin: 0;
   line-height: 1.7;

@@ -95,10 +95,29 @@
     <article class="classq-card response-card">
       <p class="response-meta-line">
         {# 배지는 author.is_staff 기준 (Response.response_type 과 별개) #}
-        <span class="response-author-badge {% if response.author.is_staff %}response-author-badge-staff{% else %}response-author-badge-student{% endif %}">
-          {% if response.author.is_staff %}강사{% else %}학생{% endif %}
+        <span class="response-author-badge
+        {% if response.author_id == question.author_id %}
+          response-author-badge-owner
+        {% elif response.author.is_staff %}
+          response-author-badge-staff
+        {% else %}
+          response-author-badge-student
+        {% endif %}">
+          {% if response.author_id == question.author_id %}
+            작성자
+          {% elif response.author.is_staff %}
+            강사
+          {% else %}
+            학생
+          {% endif %}
         </span>
-        <strong>{{ response.author }}</strong>
+        <strong>
+          {% if response.author_id == question.author_id and question.is_anonymous %}
+             익명
+          {% else %}
+            {{ response.author }}
+          {% endif %}
+        </strong>
         <span class="response-time"> · {{ response.created_at|relative_time }}</span>
       </p>
       <p>{{ response.content }}</p>
