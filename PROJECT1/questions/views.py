@@ -198,6 +198,7 @@ def detail(request, pk):
         pk=pk,
     )
 
+    
     if request.method == "POST":
         if not request.user.is_authenticated:
             return _login_redirect(request)
@@ -210,17 +211,28 @@ def detail(request, pk):
             response = form.save(commit=False)
             response.question = question
             response.author = request.user
-            if request.user.is_staff:
+            if request.user.id == question.author_id:
+                response.response_type = Response.ResponseType.FOLLOW_UP
+                question.status = Question.Status.FOLLOW_UP
+            elif request.user.is_staff:
                 response.response_type = Response.ResponseType.ANSWER
                 question.status = Question.Status.ANSWERED
             else:
-                response.response_type = Response.ResponseType.FOLLOW_UP
-                question.status = Question.Status.FOLLOW_UP
+                response.response_type = Response.ResponseType.ANSWER
             response.save()
             question.save(update_fields=["status"])
             return redirect("questions:detail", pk=pk)
     else:
         form = ResponseForm()
+
+        if request.user.is_authenticated and request.user.id == question.author_id:
+            form.fields["content"].widget.attrs["placeholder"] = (
+                "추가로 궁금한 내용을 입력해주세요..."
+            )
+        else:
+            form.fields["content"].widget.attrs["placeholder"] = (
+                "답변을 입력해주세요..."
+            )
 
     responses = question.responses.select_related("author").all()
 
