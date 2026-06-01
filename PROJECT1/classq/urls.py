@@ -10,3 +10,4 @@ urlpatterns = [
     # 로그인/로그아웃
     path("accounts/", include("django.contrib.auth.urls")),
 ]
+handler404 = "questions.views.custom_404"

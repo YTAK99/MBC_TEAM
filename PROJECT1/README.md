@@ -96,6 +96,7 @@ python manage.py runserver
 /teacher/               강사용 홈
 /teacher/board/         강사용 질문 목록
 /admin/                 관리자 페이지
++ 답변 해결됨 추가용
 ```
 
 ## 배포 시 추가 사항

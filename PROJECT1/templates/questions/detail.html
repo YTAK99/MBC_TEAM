@@ -66,17 +66,6 @@
       {# 작성자 본인만 · 미해결일 때만 status 를 RESOLVED 로 변경 #}
       {% if user.is_authenticated and user.id == question.author_id and not question.is_resolved %}
       <div class="question-detail-actions">
-      <form method="post" action="{% url 'questions:resolve' question.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="classq-button classq-button-secondary">
-          <span class="button-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-1.1 13.2 6-6-1.4-1.4-4.6 4.6-2.3-2.3-1.4 1.4 3.7 3.7z"/>
-            </svg>
-          </span>
-          해결됨으로 표시
-        </button>
-      </form>
       <a href="{% url 'questions:edit' question.pk %}"
        class="classq-button classq-button-primary">
         수정하기
@@ -93,16 +82,41 @@
       <h2>답변 <span class="answer-count">{{ responses.count }}</span></h2>
     </div>
     {% for response in responses %}
-    <article class="classq-card response-card">
+    <article class="classq-card response-card {% if response.is_accepted %}response-card-accepted{% endif %}">
       <p class="response-meta-line">
         {# 회원가입(SignupForm→Profile.role)과 동일. is_staff(관리자 권한)와 혼동 금지 #}
         <span class="response-author-badge {% if response.author|user_is_teacher %}response-author-badge-staff{% else %}response-author-badge-student{% endif %}">
+          {% if response.author_id == question.author_id %}
+            작성자
+        {% else %}
           {{ response.author|user_role_label }}
+        {% endif %}
+</span>
         </span>
-        <strong>{{ response.author }}</strong>
+        <strong>
+          {% if response.author_id == question.author_id and question.is_anonymous %}
+             익명
+          {% else %}
+            {{ response.author }}
+          {% endif %}
+        </strong>
         <span class="response-time"> · {{ response.created_at|relative_time }}</span>
+          {% if response.is_accepted %}
+        <span class="accepted-response-badge">
+          ⭐ 해결 됐어요!
+        </span>
+        {% endif %}
       </p>
       <p>{{ response.content }}</p>
+      {% if user.is_authenticated and user.id == question.author_id and response.author_id != question.author_id and not question.is_resolved %}
+      <form method="post" action="{% url 'questions:accept_response' response.id %}" class="response-accept-form">
+      {% csrf_token %}
+      <button type="submit" class="classq-button classq-button-secondary">
+          ⭐ 해결 됐어요!
+      </button>
+      </form>
+      {% endif %}
+
     </article>
     {% empty %}
     <p class="response-empty-message">아직 답변이 없습니다. 첫 번째 답변을 남겨보세요!</p>
