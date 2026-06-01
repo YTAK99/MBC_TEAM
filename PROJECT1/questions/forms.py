@@ -56,10 +56,54 @@ class QuestionForm(forms.ModelForm):
 
 
 class SignupForm(UserCreationForm):
+    ROLE_CHOICES = [
+        ("student", "학생"),
+        ("teacher", "강사"),
+    ]
+
+    username = forms.CharField(
+        label="아이디",
+        widget=forms.TextInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "아이디 입력",
+            }
+        ),
+    )
+
+    password1 = forms.CharField(
+        label="비밀번호",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "비밀번호 입력",
+            }
+        ),
+    )
+
+    password2 = forms.CharField(
+        label="비밀번호 확인",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "비밀번호 확인",
+            }
+        ),
+    )
+
+    role = forms.ChoiceField(
+        label="역할",
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+    )
+
     class Meta:
         model = User
-        fields = ("username",)
-
+        fields = (
+            "username",
+            "password1",
+            "password2",
+        )
 
 class ResponseForm(forms.ModelForm):
     """

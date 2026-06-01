@@ -17,8 +17,13 @@ from django.views.generic import CreateView
 from django.contrib import messages
 
 from .forms import QuestionForm, ResponseForm, SignupForm
-from .models import Question, QuestionAgree, Response, Tag
-
+from .models import (
+    Question,
+    QuestionAgree,
+    Response,
+    Tag,
+    Profile,
+)
 
 def _login_redirect(request):
     """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
@@ -225,10 +230,13 @@ def detail(request, pk):
             if request.user.id == question.author_id:
                 response.response_type = Response.ResponseType.FOLLOW_UP
                 question.status = Question.Status.FOLLOW_UP
-            elif request.user.is_staff:
+            elif (
+                hasattr(request.user, "profile")
+                and request.user.profile.role == "teacher"
+            ):
                 response.response_type = Response.ResponseType.ANSWER
                 question.status = Question.Status.ANSWERED
-            else:
+            else:  # 사용자가 학생인 경우
                 response.response_type = Response.ResponseType.ANSWER
                 question.status = Question.Status.ANSWERED
             response.save()
@@ -324,18 +332,29 @@ def edit(request, pk):
         "is_edit": True,
         "question": question,
     })
-
 def signup(request):
     if request.method == "POST":
         form = SignupForm(request.POST)
+
         if form.is_valid():
             user = form.save()
+
+            Profile.objects.create(
+                user=user,
+                role=form.cleaned_data["role"]
+            )
+
             auth_login(request, user)
             return redirect("questions:home")
+
     else:
         form = SignupForm()
 
-    return render(request, "registration/signup.html", {"form": form})
+    return render(
+        request,
+        "registration/signup.html",
+        {"form": form}
+    )
 
 
 def logout_view(request):
@@ -348,45 +367,61 @@ def check_username(request):
     exists = User.objects.filter(username=username).exists() if username else False
     return JsonResponse({"exists": exists})
 
-
 def login(request):
     next_url = request.POST.get("next") or request.GET.get("next", "")
 
     if request.user.is_authenticated:
-        if next_url and url_has_allowed_host_and_scheme(
-            next_url,
-            allowed_hosts={request.get_host()},
-        ):
-            return redirect(next_url)
-        return redirect(settings.LOGIN_REDIRECT_URL)
+        if hasattr(request.user, "profile") and request.user.profile.role == "teacher":
+            return redirect("questions:teacher_home")
+        return redirect("questions:home")
 
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
+
         if form.is_valid():
-            auth_login(request, form.get_user())
+            user = form.get_user()
+
+            auth_login(request, user)
+
             if next_url and url_has_allowed_host_and_scheme(
                 next_url,
                 allowed_hosts={request.get_host()},
             ):
                 return redirect(next_url)
-            return redirect(settings.LOGIN_REDIRECT_URL)
+
+            if (
+                hasattr(user, "profile")
+                and user.profile.role == "teacher"
+            ):
+                return redirect("questions:teacher_home")
+
+            return redirect("questions:home")
+
     else:
         form = AuthenticationForm(request)
 
     return render(
         request,
         "registration/login.html",
-        {"form": form, "next": next_url},
+        {
+            "form": form,
+            "next": next_url,
+        },
     )
 
-
 def is_teacher(user):
-    return user.is_authenticated and user.is_staff
-
+    return (
+        user.is_authenticated
+        and hasattr(user, "profile")
+        and user.profile.role == "teacher"
+    )
 
 @login_required
 @user_passes_test(is_teacher)
 def teacher_home(request):
+
+    print("teacher_home 들어옴")
+
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
 
