@@ -5,6 +5,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
 from django.core.paginator import Paginator
@@ -12,6 +13,8 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.generic import CreateView
+from django.contrib import messages
 
 from .forms import QuestionForm, ResponseForm, SignupForm
 from .models import Question, QuestionAgree, Response, Tag
@@ -23,19 +26,90 @@ def _login_redirect(request):
 
 
 def home(request):
-    return render(request, "questions/home.html")
+    sort = request.GET.get("sort", "latest")
+    current_status = request.GET.get("status", "")
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
+    )
+
+    if current_status == "NEW":
+        questions = questions.filter(status="OPEN")
+    elif current_status == "WAITING":
+        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP", "ANSWERED"])
+    elif current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+        questions = questions.filter(status=current_status)
+
+    if sort == "popular":
+        questions = questions.order_by("-agree_count", "-created_at")
+    else:
+        questions = questions.order_by("-created_at")
+
+    questions = questions[:5]
+    
+    return render(request, "questions/home.html", {
+        "questions": questions,
+        "total_question_count": Question.objects.count(),
+        "new_count": Question.objects.filter(
+        status="OPEN"
+        ).count(),
+
+        "waiting_count": Question.objects.filter(
+        status__in=["OPEN", "ANSWERED", "FOLLOW_UP"]
+        ).count(),
+
+        "resolved_count": Question.objects.filter(
+        status="RESOLVED"
+        ).count(),
+        "current_sort": sort,
+        "current_status": current_status,
+})
+
+
+def hall_of_fame(request):
+    """
+    명예의 전당 — 추후 구현 예정.
+
+    top_questioners: 질문을 많이 작성한 사용자 순위
+      예) [{"user": user, "count": 12}, ...]
+    top_responders: 답변을 많이 작성한 사용자 순위
+      예) [{"user": user, "count": 8}, ...]
+    """
+    # TODO: Question·Response 를 author 기준으로 집계해 순위 데이터를 채운다.
+    context = {
+        "top_questioners": [],
+        "top_responders": [],
+    }
+    return render(request, "questions/hall_of_fame.html", context)
 
 
 def board(request):
     sort = request.GET.get("sort", "latest")
     selected_tag_ids = request.GET.getlist("tag")
     query = request.GET.get("q", "")
+    status_filter = request.GET.get("status", "")
+    current_status = status_filter
 
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if status_filter == "NEW":
+        questions = questions.filter(status="OPEN")
+
+    elif status_filter == "WAITING":
+        questions = questions.filter(
+        status__in=["OPEN", "FOLLOW_UP", "ANSWERED"]
+    )
+
+    elif status_filter in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+        questions = questions.filter(status=status_filter)
+
+    elif status_filter == "RESOLVED":
+        questions = questions.filter(status="RESOLVED")
 
     if query:
         questions = questions.filter(
@@ -89,26 +163,37 @@ def board(request):
         "tag_filters": tag_filters,
         "selected_tag_ids": selected_tag_ids,
         "current_sort": sort,
+        "current_status": current_status,
         "query": query,
     })
 
 
-def ask(request):
-    if not request.user.is_authenticated:
-        return _login_redirect(request)
+class AskView(LoginRequiredMixin, CreateView):
+    form_class = QuestionForm
+    template_name = "questions/ask.html"
+    login_url = "questions:login"
 
-    if request.method == "POST":
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.save()
-            form.save_m2m()
-            return redirect("questions:detail", pk=question.pk)
-    else:
-        form = QuestionForm()
+    def dispatch(self, request, *args, **kwargs):
+        # 로그인 안 되어 있으면 메시지 표시 후 로그인 페이지 이동
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "로그인 후 질문할 수 있습니다."
+            )
+            return redirect("questions:login")
+        return super().dispatch(request, *args, **kwargs)
 
-    return render(request, "questions/ask.html", {"form": form})
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["all_tags"] = Tag.objects.all()
+        return ctx
+
+    def form_valid(self, form):
+        question = form.save(commit=False)
+        question.author = self.request.user
+        question.save()
+        form.save_m2m()
+        return redirect("questions:detail", pk=question.pk)
 
 
 def detail(request, pk):
@@ -124,6 +209,7 @@ def detail(request, pk):
         pk=pk,
     )
 
+    
     if request.method == "POST":
         if not request.user.is_authenticated:
             return _login_redirect(request)
@@ -136,14 +222,29 @@ def detail(request, pk):
             response = form.save(commit=False)
             response.question = question
             response.author = request.user
-            if request.user.is_staff:
-                response.response_type = Response.ResponseType.ANSWER
-            else:
+            if request.user.id == question.author_id:
                 response.response_type = Response.ResponseType.FOLLOW_UP
+                question.status = Question.Status.FOLLOW_UP
+            elif request.user.is_staff:
+                response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
+            else:
+                response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
             response.save()
+            question.save(update_fields=["status"])
             return redirect("questions:detail", pk=pk)
     else:
         form = ResponseForm()
+
+        if request.user.is_authenticated and request.user.id == question.author_id:
+            form.fields["content"].widget.attrs["placeholder"] = (
+                "추가로 궁금한 내용을 입력해주세요..."
+            )
+        else:
+            form.fields["content"].widget.attrs["placeholder"] = (
+                "답변을 입력해주세요..."
+            )
 
     responses = question.responses.select_related("author").all()
 
@@ -198,6 +299,31 @@ def agree_toggle(request, pk):
 
     return redirect("questions:detail", pk=pk)
 
+# 질문 수정 기능 추가
+@login_required
+def edit(request, pk):
+    question = get_object_or_404(Question, pk=pk)
+
+    if question.author_id != request.user.id:
+        return redirect("questions:detail", pk=pk)
+
+    if question.is_resolved:
+        return redirect("questions:detail", pk=pk)
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            return redirect("questions:detail", pk=question.pk)
+    else:
+        form = QuestionForm(instance=question)
+
+    return render(request, "questions/ask.html", {
+        "form": form,
+        "all_tags": Tag.objects.all(),
+        "is_edit": True,
+        "question": question,
+    })
 
 def signup(request):
     if request.method == "POST":
@@ -210,6 +336,17 @@ def signup(request):
         form = SignupForm()
 
     return render(request, "registration/signup.html", {"form": form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("questions:home")
+
+
+def check_username(request):
+    username = request.GET.get("username", "").strip()
+    exists = User.objects.filter(username=username).exists() if username else False
+    return JsonResponse({"exists": exists})
 
 
 def login(request):
@@ -243,17 +380,6 @@ def login(request):
     )
 
 
-def logout_view(request):
-    logout(request)
-    return redirect("questions:home")
-
-
-def check_username(request):
-    username = request.GET.get("username")
-    exists = User.objects.filter(username=username).exists()
-    return JsonResponse({"exists": exists})
-
-
 def is_teacher(user):
     return user.is_authenticated and user.is_staff
 
@@ -262,13 +388,18 @@ def is_teacher(user):
 @user_passes_test(is_teacher)
 def teacher_home(request):
     sort = request.GET.get("sort", "latest")
+    current_status = request.GET.get("status", "")
 
     waiting_questions = (
         Question.objects
-        .filter(status__in=["OPEN", "FOLLOW_UP"])
         .annotate(agree_count=Count("agrees"))
         .prefetch_related("tags")
     )
+
+    if current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+        waiting_questions = waiting_questions.filter(status=current_status)
+    else:
+        waiting_questions = waiting_questions.filter(status__in=["OPEN", "FOLLOW_UP"])
 
     if sort == "popular":
         waiting_questions = waiting_questions.order_by("-agree_count", "-created_at")
@@ -283,6 +414,7 @@ def teacher_home(request):
         "follow_up_count": Question.objects.filter(status="FOLLOW_UP").count(),
         "answered_count": Question.objects.filter(status="ANSWERED").count(),
         "current_sort": sort,
+        "current_status": current_status,
     }
 
     return render(request, "questions/teacher_home.html", context)
@@ -294,7 +426,8 @@ def teacher_question_list(request):
     sort = request.GET.get("sort", "latest")
     selected_tag_ids = request.GET.getlist("tag")
     query = request.GET.get("q", "")
-    status_filter = request.GET.get("status")
+    status_filter = request.GET.get("status", "")
+    current_status = status_filter
 
     questions = (
         Question.objects
@@ -302,7 +435,12 @@ def teacher_question_list(request):
         .prefetch_related("tags")
     )
 
-    if status_filter in ["OPEN", "FOLLOW_UP", "ANSWERED"]:
+    if status_filter in [
+        "OPEN",
+        "FOLLOW_UP",
+        "ANSWERED",
+        "RESOLVED"
+    ]:
         questions = questions.filter(status=status_filter)
     else:
         questions = questions.filter(status__in=["OPEN", "FOLLOW_UP"])
@@ -361,6 +499,7 @@ def teacher_question_list(request):
         "tag_filters": tag_filters,
         "selected_tag_ids": selected_tag_ids,
         "current_sort": sort,
+        "current_status": current_status,
         "query": query,
     }
 

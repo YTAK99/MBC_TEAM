@@ -1,38 +1,121 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}질문 등록 - ClassQ{% endblock %}
+{% block title %}질문 등록 — ClassQ{% endblock %}
 {% block page_title %}질문 등록{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
+<link rel="stylesheet" href="{% static 'css/ask.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="page-container form-page">
-  <section class="classq-card form-card">
-    <h1>질문 등록</h1>
-    <p class="muted-text">제목과 내용을 입력하는 기본 폼입니다.</p>
+<div class="form-page">
+  <div class="form-card">
+  <h1>{% if is_edit %}질문 수정하기{% else %}질문 등록하기{% endif %}</h1>
+    <p class="card-description">
+      {% if is_edit %}
+        질문 내용을 수정할 수 있습니다.
+      {% else %}
+        막힌 부분을 자유롭게 적어주세요.
+      {% endif %}
+    </p>
 
     <form method="post" class="classq-form">
       {% csrf_token %}
+
       <div class="form-group">
-        <label for="{{ form.title.id_for_label }}" class="form-label">제목</label>
+        <label class="ask-field-label">제목</label>
         {{ form.title }}
+        {% if form.title.errors %}
+        <p class="ask-error-text">{{ form.title.errors.0 }}</p>
+        {% endif %}
       </div>
+
       <div class="form-group">
-        <label for="{{ form.content.id_for_label }}" class="form-label">내용</label>
+        <label class="ask-field-label">내용</label>
         {{ form.content }}
+        {% if form.content.errors %}
+        <p class="ask-error-text">{{ form.content.errors.0 }}</p>
+        {% endif %}
       </div>
+
+      <div class="form-group toggle-row">
+        <div>
+          <label class="ask-toggle-label">익명으로 질문하기</label>
+          <p class="ask-toggle-description"></p>
+        </div>
+
+        <div id="anon-toggle" onclick="toggleAnon()" class="cursor-pointer anon-toggle on">
+          <div id="anon-knob" class="anon-knob"></div>
+        </div>
+        <input type="hidden" id="anon-value" name="is_anonymous" value="True">
+      </div>
+
       <div class="form-group">
-        <label for="{{ form.is_anonymous.id_for_label }}" class="form-label">공개 설정</label>
-        <label class="muted-text">{{ form.is_anonymous }} 익명으로 작성하기</label>
+        <label class="ask-field-label ask-subtext-label">태그는 최대 3개까지 가능합니다</label>
+        <div class="tag-flex-container" id="tag-container">
+          {% for tag in all_tags %}
+          <label class="cursor-pointer">
+            <input type="checkbox" name="tags" value="{{ tag.id }}" class="sr-only-hidden tag-checkbox"
+                   {% if tag in form.initial.tags %}checked{% endif %}>
+            <span class="tag-pill tag-label"
+                  data-color="{{ tag.color }}"
+                  style="border-color: {{ tag.color }}40; color: {{ tag.color }}; background: #fff;">
+              {{ tag.name }}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+        {% if form.tags.errors %}
+        <p class="ask-error-text">{{ form.tags.errors.0 }}</p>
+        {% endif %}
       </div>
-      <div class="form-actions">
-        <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary">취소</a>
-        <button type="submit" class="classq-button classq-button-primary">등록</button>
+
+      <div class="custom-actions-layout">
+        <a href="{% if is_edit %}{% url 'questions:detail' question.pk %}{% else %}{% url 'questions:board' %}{% endif %}" class="classq-button classq-button-secondary ask-action ask-action-secondary">취소</a>
+        <button type="submit" class="classq-button classq-button-primary ask-action ask-action-primary">{% if is_edit %}질문 수정{% else %}질문 등록{% endif %}</button>
       </div>
     </form>
-  </section>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 익명 토글 스위치 핸들러
+let isAnon = true;
+function toggleAnon() {
+  isAnon = !isAnon;
+  const toggle = document.getElementById('anon-toggle');
+  const val    = document.getElementById('anon-value');
+  toggle.classList.toggle('on', isAnon);
+  toggle.classList.toggle('off', !isAnon);
+  val.value = isAnon ? 'True' : 'False';
+}
+
+// 태그 개수 선택 제한(3개) 및 선택 시 테두리 색상 채우기 애니메이션
+document.querySelectorAll('.tag-checkbox').forEach(cb => {
+  const label = cb.nextElementSibling;
+  const color = label.dataset.color;
+
+  cb.addEventListener('change', () => {
+    const checked = document.querySelectorAll('.tag-checkbox:checked');
+    if (checked.length > 3) { cb.checked = false; return; }
+    updateLabel(cb, label, color);
+  });
+
+  function updateLabel(cb, label, color) {
+    if (cb.checked) {
+      label.style.background   = color;
+      label.style.color        = '#fff';
+      label.style.borderColor  = color;
+    } else {
+      label.style.background   = '#fff';
+      label.style.color        = color;
+      label.style.borderColor  = color + '40';
+    }
+  }
+});
+</script>
 {% endblock %}

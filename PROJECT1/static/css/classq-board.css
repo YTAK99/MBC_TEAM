@@ -6,10 +6,6 @@
   margin-bottom: 16px;
 }
 
-.board-search {
-  flex: 1;
-}
-
 .board-filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -78,6 +74,50 @@
   font-size: 22px;
 }
 
+.status-dropdown {
+  position: relative;
+  margin-right: 4px;
+}
+
+.status-dropdown summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.status-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.status-dropdown summary::after {
+  content: "▾";
+  font-size: 12px;
+  line-height: 1;
+  color: currentColor;
+}
+
+.status-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 150px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 8px;
+  margin-top: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  z-index: 100;
+}
+
+.status-dropdown-menu a {
+  display: block;
+  padding: 8px;
+  text-decoration: none;
+}
+
 .board-heading-actions {
   display: flex;
   align-items: center;
@@ -92,14 +132,41 @@
 
 .question-card {
   display: flex;
+  position: relative;
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
 }
 
+/* 카드 전체가 링크일 때만 인터랙션 강조 */
+.question-card-clickable {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.question-card-clickable:hover {
+  transform: translateY(-1px);
+  border-color: rgba(26, 26, 46, 0.2);
+  box-shadow: 0 10px 18px rgba(26, 26, 46, 0.08);
+}
+
+.question-card-clickable:focus-within {
+  border-color: rgba(26, 26, 46, 0.28);
+  box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.08), 0 10px 18px rgba(26, 26, 46, 0.08);
+}
+
+.question-card-overlay-link {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 1;
+  cursor: pointer;
+}
+
 .question-card-main {
   display: grid;
   gap: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .question-meta {
@@ -129,6 +196,8 @@
   min-width: 56px;
   color: var(--classq-muted-text);
   font-size: 12px;
+  position: relative;
+  z-index: 2;
 }
 
 .question-card-side strong {
