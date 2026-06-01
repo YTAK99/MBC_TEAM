@@ -19,6 +19,10 @@ from django.contrib import messages
 from .forms import QuestionForm, ResponseForm, SignupForm
 from .models import Question, QuestionAgree, Response, Tag
 
+from django.shortcuts import render
+
+def custom_404(request, exception):
+    return render(request, "404.html", status=404)
 
 def _login_redirect(request):
     """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
