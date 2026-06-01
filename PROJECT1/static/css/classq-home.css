@@ -1,3 +1,4 @@
+/* 상단 헤드라인 구역 */
 .home-hero {
   padding: 64px 0 44px;
 }
@@ -22,22 +23,25 @@
   gap: 12px;
 }
 
+/* 통계구역 틀 */
 .home-summary {
   padding-bottom: 36px;
 }
 
-.summary-grid,
-.step-grid {
+/* 박스 3개를 가로로 정렬해 주는 틀 */
+.summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
+/* 박스 각각의 하얀색 배경과 테두리 */
 .summary-card {
   display: grid;
   gap: 8px;
 }
 
+/* 통계 숫자와 글씨 스타일 */
 .summary-label {
   color: var(--classq-muted-text);
   font-size: 13px;
@@ -49,71 +53,28 @@
   font-size: 32px;
 }
 
-.summary-card p {
-  margin: 0;
-  font-size: 14px;
+.summary-card {
+  display: flex;         /* 기존 grid 대신 flex를 쓰면 정렬하기가 훨씬 수월합니다 */
+  flex-direction: column; /* 위에서 아래로 흐르게 설정 */
+  align-items: center; /* 💡 토스처럼 모든 내용이 왼쪽 정렬되도록 고정 */
+  justify-content: flex-start;
+  
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #E5E8EB;
+  border-radius: 16px; 
 }
 
-.home-section {
-  padding-bottom: 44px;
+/* card-emoji 안의 이미지 크기 제어 */
+.card-emoji img {
+  width: 48px;          /* 💡 토스 스타일의 아담한 가로 크기 */
+  height: 48px;         /* 💡 세로 크기 */
+  object-fit: contain;  /* 이미지가 찌그러지지 않고 비율을 유지하도록 설정 */
+  margin: 0 auto 16px;  /* 이미지와 아래 텍스트 사이의 적당한 여백 */
+  display: inline-block; /* 크기 지정을 정석대로 먹이기 위한 속성 */
 }
 
-.home-section h2 {
-  margin: 0 0 16px;
-}
-
-.home-question-list {
-  display: grid;
-  gap: 12px;
-}
-
-.home-question-card {
-  display: grid;
-  gap: 10px;
-}
-
-.home-question-card .question-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.home-question-card h3 a:hover {
-  color: var(--classq-accent);
-}
-
-.home-question-card h3,
-.step-card h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.home-question-card p,
-.step-card p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.step-card {
-  display: grid;
-  gap: 12px;
-}
-
-.step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: rgba(255, 92, 53, 0.1);
-  color: var(--classq-accent);
-  font-family: "DM Mono", monospace;
-  font-weight: 700;
-}
-
+/* 화면이 작아졌을때 반응형으로 1열을 정렬해주는 구역 */
 @media (max-width: 760px) {
   .home-hero {
     padding-top: 44px;
@@ -123,8 +84,7 @@
     font-size: 34px;
   }
 
-  .summary-grid,
-  .step-grid {
+  .summary-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -70,9 +70,6 @@
         <a href="{% url 'questions:teacher_home' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'teacher_home' %} is-active{% endif %}">
           강사 홈
         </a>
-        <a href="{% url 'questions:teacher_board' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'teacher_board' %} is-active{% endif %}">
-          강사 게시판
-        </a>
         {% endif %}
       </nav>
     </div>

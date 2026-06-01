@@ -28,28 +28,28 @@ def _login_redirect(request):
 def home(request):
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
-    questions = (
-        Question.objects
-        .prefetch_related("tags")
-        .annotate(agree_count=Count("agrees"))
-    )
+#     questions = (
+#         Question.objects
+#         .prefetch_related("tags")
+#         .annotate(agree_count=Count("agrees"))
+#     )
 
-    if current_status == "NEW":
-        questions = questions.filter(status="OPEN")
-    elif current_status == "WAITING":
-        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP", "ANSWERED"])
-    elif current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
-        questions = questions.filter(status=current_status)
+#     if current_status == "NEW":
+#         questions = questions.filter(status="OPEN")
+#     elif current_status == "WAITING":
+#         questions = questions.filter(status__in=["OPEN", "FOLLOW_UP", "ANSWERED"])
+#     elif current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+#         questions = questions.filter(status=current_status)
 
-    if sort == "popular":
-        questions = questions.order_by("-agree_count", "-created_at")
-    else:
-        questions = questions.order_by("-created_at")
+#     if sort == "popular":
+#         questions = questions.order_by("-agree_count", "-created_at")
+#     else:
+#         questions = questions.order_by("-created_at")
 
-    questions = questions[:5]
+#     questions = questions[:5]
     
     return render(request, "questions/home.html", {
-        "questions": questions,
+        "questions": [],
         "total_question_count": Question.objects.count(),
         "new_count": Question.objects.filter(
         status="OPEN"
@@ -503,4 +503,4 @@ def teacher_question_list(request):
         "query": query,
     }
 
-    return render(request, "questions/teacher_board.html", context)
+    

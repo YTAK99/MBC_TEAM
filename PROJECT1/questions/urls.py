@@ -22,5 +22,4 @@ urlpatterns = [
 
     # 강사용 페이지 추가
     path("teacher/", views.teacher_home, name="teacher_home"),
-    path("teacher/board/", views.teacher_question_list, name="teacher_board"),
 ]
