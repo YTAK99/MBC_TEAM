@@ -288,7 +288,8 @@ def detail(request, pk):
                 "답변을 입력해주세요..."
             )
 
-    responses = question.responses.select_related("author").all()
+    # 답변 작성자 배지도 Profile.role 기준이므로 profile 까지 함께 조회
+    responses = question.responses.select_related("author", "author__profile").all()
 
     user_agreed = False
     if request.user.is_authenticated:
@@ -373,9 +374,11 @@ def signup(request):
         if form.is_valid():
             user = form.save()
 
+            # 역할은 Profile.role 에만 저장 (User.is_staff 와 무관).
+            # 질문 상세 답변 배지·강사 메뉴·답변 분류도 모두 이 값을 기준으로 한다.
             Profile.objects.create(
                 user=user,
-                role=form.cleaned_data["role"]
+                role=form.cleaned_data["role"],
             )
 
             auth_login(request, user)
