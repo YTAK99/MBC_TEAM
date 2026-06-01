@@ -61,7 +61,8 @@ python manage.py loaddata questions/fixtures/tags.json
 python manage.py runserver
 ```
 
-브라우저에서 http://127.0.0.1:8000 접속
+- 브라우저에서 http://127.0.0.1:8000 접속
+- css 수정 후 스타일 적용이 안될 때  =>  Ctrl + F5 로 강제 새로고침
 
 ---
 
@@ -105,8 +106,11 @@ python manage.py runserver
 4. `python manage.py collectstatic` 실행
 5. Tailwind CDN → CLI 빌드로 교체 (선택)
 
+
 ## 사용된 주요 스택과 버전
 
 Figma: UI 래퍼런스
 tailwindcss: ^4.3.0 (ask.html)
 Django: 6.0.5
+=======
+

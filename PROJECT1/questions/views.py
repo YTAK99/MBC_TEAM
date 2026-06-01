@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView
+from django.contrib import messages
 
 from .forms import QuestionForm, ResponseForm, SignupForm
 from .models import Question, QuestionAgree, Response, Tag
@@ -170,7 +171,17 @@ def board(request):
 class AskView(LoginRequiredMixin, CreateView):
     form_class = QuestionForm
     template_name = "questions/ask.html"
-    login_url = "login"
+    login_url = "questions:login"
+
+    def dispatch(self, request, *args, **kwargs):
+        # 로그인 안 되어 있으면 메시지 표시 후 로그인 페이지 이동
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "로그인 후 질문할 수 있습니다."
+            )
+            return redirect("questions:login")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -198,6 +209,7 @@ def detail(request, pk):
         pk=pk,
     )
 
+    
     if request.method == "POST":
         if not request.user.is_authenticated:
             return _login_redirect(request)
@@ -210,17 +222,29 @@ def detail(request, pk):
             response = form.save(commit=False)
             response.question = question
             response.author = request.user
-            if request.user.is_staff:
+            if request.user.id == question.author_id:
+                response.response_type = Response.ResponseType.FOLLOW_UP
+                question.status = Question.Status.FOLLOW_UP
+            elif request.user.is_staff:
                 response.response_type = Response.ResponseType.ANSWER
                 question.status = Question.Status.ANSWERED
             else:
-                response.response_type = Response.ResponseType.FOLLOW_UP
-                question.status = Question.Status.FOLLOW_UP
+                response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
             response.save()
             question.save(update_fields=["status"])
             return redirect("questions:detail", pk=pk)
     else:
         form = ResponseForm()
+
+        if request.user.is_authenticated and request.user.id == question.author_id:
+            form.fields["content"].widget.attrs["placeholder"] = (
+                "추가로 궁금한 내용을 입력해주세요..."
+            )
+        else:
+            form.fields["content"].widget.attrs["placeholder"] = (
+                "답변을 입력해주세요..."
+            )
 
     responses = question.responses.select_related("author").all()
 
