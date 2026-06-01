@@ -20,5 +20,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', include('feedback.urls')),     # 새로 만든 feedback/urls.py 를 가져오는 역할
+
+    # feedback 앱
+    # path('', include('feedback.urls')),
+
+    # Django 기본 로그인/로그아웃 기능
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
