@@ -25,3 +25,4 @@ class ResponseAdmin(admin.ModelAdmin):
 @admin.register(QuestionAgree)
 class QuestionAgreeAdmin(admin.ModelAdmin):
     list_display = ("question", "user", "created_at")
+

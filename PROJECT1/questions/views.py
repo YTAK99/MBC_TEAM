@@ -2,13 +2,18 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.generic import CreateView
 
 from .forms import QuestionForm, ResponseForm, SignupForm
 from .models import Question, QuestionAgree, Response, Tag
@@ -20,7 +25,35 @@ def _login_redirect(request):
 
 
 def home(request):
-    return render(request, "questions/home.html")
+    questions = (
+        Question.objects
+        .prefetch_related("tags")
+        .annotate(agree_count=Count("agrees"))
+        .order_by("-created_at")[:5]
+    )
+    return render(request, "questions/home.html", {
+        "questions": questions,
+        "question_count": Question.objects.count(),
+        "response_count": Response.objects.count(),
+        "tag_count": Tag.objects.count(),
+    })
+
+
+def hall_of_fame(request):
+    """
+    명예의 전당 — 추후 구현 예정.
+
+    top_questioners: 질문을 많이 작성한 사용자 순위
+      예) [{"user": user, "count": 12}, ...]
+    top_responders: 답변을 많이 작성한 사용자 순위
+      예) [{"user": user, "count": 8}, ...]
+    """
+    # TODO: Question·Response 를 author 기준으로 집계해 순위 데이터를 채운다.
+    context = {
+        "top_questioners": [],
+        "top_responders": [],
+    }
+    return render(request, "questions/hall_of_fame.html", context)
 
 
 def board(request):
@@ -90,22 +123,22 @@ def board(request):
     })
 
 
-def ask(request):
-    if not request.user.is_authenticated:
-        return _login_redirect(request)
+class AskView(LoginRequiredMixin, CreateView):
+    form_class = QuestionForm
+    template_name = "questions/ask.html"
+    login_url = "login"
 
-    if request.method == "POST":
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.save()
-            form.save_m2m()
-            return redirect("questions:detail", pk=question.pk)
-    else:
-        form = QuestionForm()
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["all_tags"] = Tag.objects.all()
+        return ctx
 
-    return render(request, "questions/ask.html", {"form": form})
+    def form_valid(self, form):
+        question = form.save(commit=False)
+        question.author = self.request.user
+        question.save()
+        form.save_m2m()
+        return redirect("questions:detail", pk=question.pk)
 
 
 def detail(request, pk):
@@ -135,9 +168,12 @@ def detail(request, pk):
             response.author = request.user
             if request.user.is_staff:
                 response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
             else:
                 response.response_type = Response.ResponseType.FOLLOW_UP
+                question.status = Question.Status.FOLLOW_UP
             response.save()
+            question.save(update_fields=["status"])
             return redirect("questions:detail", pk=pk)
     else:
         form = ResponseForm()
@@ -197,8 +233,27 @@ def agree_toggle(request, pk):
 
 
 def signup(request):
-    form = SignupForm()
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect("questions:home")
+    else:
+        form = SignupForm()
+
     return render(request, "registration/signup.html", {"form": form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("questions:home")
+
+
+def check_username(request):
+    username = request.GET.get("username", "").strip()
+    exists = User.objects.filter(username=username).exists() if username else False
+    return JsonResponse({"exists": exists})
 
 
 def login(request):

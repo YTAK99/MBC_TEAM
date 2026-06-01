@@ -219,8 +219,8 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-migrations/
 _media/
 
 # VSCode
 .vscode/
+node_modules/tailwindcss/LICENSE
