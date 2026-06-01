@@ -170,7 +170,7 @@ def board(request):
 class AskView(LoginRequiredMixin, CreateView):
     form_class = QuestionForm
     template_name = "questions/ask.html"
-    login_url = "login"
+    login_url = "questions:login"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -200,7 +200,7 @@ def detail(request, pk):
 
     if request.method == "POST":
         if not request.user.is_authenticated:
-            return _login_redirect(request)
+            return _login_redirect(request.get_full_path(), login_url="questions:login")
 
         if question.is_resolved:
             return redirect("questions:detail", pk=pk)
@@ -248,7 +248,7 @@ def resolve(request, pk):
 
     question = get_object_or_404(Question, pk=pk)
     if not request.user.is_authenticated:
-        return _login_redirect(request)
+        return _login_redirect(request.get_full_path(), login_url="questions:login")
 
     if question.author_id == request.user.id:
         question.status = Question.Status.RESOLVED
@@ -263,7 +263,7 @@ def agree_toggle(request, pk):
         return redirect("questions:detail", pk=pk)
 
     if not request.user.is_authenticated:
-        return _login_redirect(request)
+        return _login_redirect(request.get_full_path(), login_url="questions:login")
 
     question = get_object_or_404(Question, pk=pk)
     agree, created = QuestionAgree.objects.get_or_create(
