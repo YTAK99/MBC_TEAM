@@ -57,7 +57,8 @@ python manage.py loaddata questions/fixtures/tags.json
 python manage.py runserver
 ```
 
-브라우저에서 http://127.0.0.1:8000 접속
+- 브라우저에서 http://127.0.0.1:8000 접속
+- css 수정 후 스타일 적용이 안될 때  =>  Ctrl + F5 로 강제 새로고침
 
 ---
 
