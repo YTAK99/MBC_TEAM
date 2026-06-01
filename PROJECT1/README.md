@@ -1,5 +1,9 @@
 # ClassQ — Django 버전 실행 가이드
 
+## 프로젝트 간단 소개
+
+수업 중 발생한 질문을 공유하고 답변·해결 과정을 관리하는 교육용 Q&A 플랫폼
+
 ## 빠른 시작
 
 ```bash
@@ -68,9 +72,8 @@ python manage.py runserver
 
 | 파일 | 역할 |
 |------|------|
-| `accounts/models.py` | role(student/ta/instructor) 포함 CustomUser |
-| `questions/models.py` | Tag, Question, Answer, Like |
-| `questions/views.py` | Home, Board, Detail, Ask, Like(AJAX), Resolve |
+| `questions/models.py` | Tag, Question, Response, QuestionAgree |
+| `questions/views.py` | Home, Board, Detail, Ask, Agree(AJAX), Resolve |
 | `questions/forms.py` | QuestionForm, AnswerForm |
 | `templates/base.html` | 사이드바 + 탑바 공통 레이아웃 |
 
@@ -78,14 +81,20 @@ python manage.py runserver
 
 ```
 /                       홈
+/home/                  홈(중복 경로)
 /board/                 질문 목록 (검색, 태그 필터, 정렬)
-/board/<id>/            질문 상세 + 답변
+/hall-of-fame/          명예의 전당
 /ask/                   질문 등록 (로그인 필요)
-/board/<id>/like/       좋아요 토글 POST → JSON
-/board/<id>/resolve/    해결됨 표시 POST (작성자만)
-/accounts/login/        로그인
-/accounts/logout/       로그아웃
-/accounts/signup/       회원가입
+/questions/<int:pk>/            질문 상세 + 답변
+/questions/<int:pk>/edit/       질문 수정
+/questions/<int:pk>/resolve/    해결됨 표시 POST (작성자만)
+/questions/<int:pk>/agree/      공감 토글 POST
+/login/                 로그인
+/logout/                로그아웃
+/signup/                회원가입
+/check-username/        아이디 중복 확인(AJAX)
+/teacher/               강사용 홈
+/teacher/board/         강사용 질문 목록
 /admin/                 관리자 페이지
 ```
 
@@ -96,3 +105,12 @@ python manage.py runserver
 3. PostgreSQL로 전환 (`DATABASE_URL` 변경)
 4. `python manage.py collectstatic` 실행
 5. Tailwind CDN → CLI 빌드로 교체 (선택)
+
+
+## 사용된 주요 스택과 버전
+
+Figma: UI 래퍼런스
+tailwindcss: ^4.3.0 (ask.html)
+Django: 6.0.5
+=======
+

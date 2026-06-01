@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load time_filters %}
 
 {% block title %}질문 상세 - ClassQ{% endblock %}
 {% block page_title %}질문 상세{% endblock %}
@@ -32,7 +33,7 @@
 
     <div class="detail-info">
       <span class="muted-text">{{ question.display_author }} · </span>
-      <span class="muted-text">{{ question.created_at|timesince }} 전</span>
+      <span class="muted-text">{{ question.created_at|relative_time }}</span>
     </div>
 
     {# 작성자·작성일 아래 한 줄 띄운 뒤 본문 #}
@@ -42,6 +43,7 @@
     <div class="detail-actions">
       {% if user.is_authenticated %}
       {# agree_toggle: 이미 눌렀으면 user_agreed 로 버튼 강조 #}
+        {% if user.id != question.author_id %}
       <form method="post" action="{% url 'questions:agree' question.pk %}">
         {% csrf_token %}
         <button type="submit" class="classq-button {% if user_agreed %}classq-button-primary{% else %}classq-button-secondary{% endif %}" style="display: inline-flex; align-items: center; gap: 6px;">
@@ -53,6 +55,7 @@
           <span>나도 궁금해요 {{ agree_count }}</span>
         </button>
       </form>
+        {% endif %}
       {% else %}
       <a href="{% url 'questions:login' %}?next={{ request.get_full_path|urlencode }}" class="classq-button classq-button-secondary" style="display: inline-flex; align-items: center; gap: 6px;">
         <span>나도 궁금해요 {{ agree_count }}</span>
@@ -61,6 +64,7 @@
 
       {# 작성자 본인만 · 미해결일 때만 status 를 RESOLVED 로 변경 #}
       {% if user.is_authenticated and user.id == question.author_id and not question.is_resolved %}
+      <div class="question-detail-actions">
       <form method="post" action="{% url 'questions:resolve' question.pk %}">
         {% csrf_token %}
         <button type="submit" class="classq-button classq-button-secondary">
@@ -72,7 +76,13 @@
           해결됨으로 표시
         </button>
       </form>
+      <a href="{% url 'questions:edit' question.pk %}"
+       class="classq-button classq-button-primary">
+        수정하기
+      </a>
+      </div>
       {% endif %}
+      
     </div>
   </article>
 
@@ -89,7 +99,7 @@
           {% if response.author.is_staff %}강사{% else %}학생{% endif %}
         </span>
         <strong>{{ response.author }}</strong>
-        <span class="response-time"> · {{ response.created_at|timesince }} 전</span>
+        <span class="response-time"> · {{ response.created_at|relative_time }}</span>
       </p>
       <p>{{ response.content }}</p>
     </article>
