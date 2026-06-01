@@ -12,13 +12,6 @@
 <div class="auth-page">
   <section class="classq-card auth-card">
     <h1>로그인</h1>
-    <!--비로그인 상태에서 질문하기 버튼 누른 경우-->
-    {% if next and '/ask/' in next %}
-    <script>
-      alert("로그인 하셔야 질문할 수 있어요.");
-    </script>
-    {% endif %}
-
     <p class="muted-text">기본 로그인 폼 영역입니다.</p>
 
     {% if form.non_field_errors %}
