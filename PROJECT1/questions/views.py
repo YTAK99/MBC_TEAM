@@ -25,6 +25,21 @@ def _login_redirect(request):
     return redirect_to_login(request.get_full_path())
 
 
+def _board_query_params(*, sort="", query="", status_filter="", selected_tag_ids=None, mine=False):
+    params = []
+    if sort:
+        params.append(("sort", sort))
+    if status_filter:
+        params.append(("status", status_filter))
+    if query:
+        params.append(("q", query))
+    if mine:
+        params.append(("mine", "1"))
+    for tag_id in selected_tag_ids or []:
+        params.append(("tag", tag_id))
+    return params
+
+
 def home(request):
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
@@ -90,12 +105,19 @@ def board(request):
     query = request.GET.get("q", "")
     status_filter = request.GET.get("status", "")
     current_status = status_filter
+    mine_requested = request.GET.get("mine") == "1"
+
+    if mine_requested and not request.user.is_authenticated:
+        return _login_redirect(request)
 
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if mine_requested:
+        questions = questions.filter(author=request.user)
 
     if status_filter == "NEW":
         questions = questions.filter(status="OPEN")
@@ -138,13 +160,13 @@ def board(request):
         else:
             next_tag_ids.append(tag_id)
 
-        params = []
-        if sort:
-            params.append(("sort", sort))
-        if query:
-            params.append(("q", query))
-        for selected_id in next_tag_ids:
-            params.append(("tag", selected_id))
+        params = _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=next_tag_ids,
+            mine=mine_requested,
+        )
 
         tag_filters.append({
             "tag": tag,
@@ -156,6 +178,16 @@ def board(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    mine_filter_url = "?" + urlencode(
+        _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=selected_tag_ids,
+            mine=not mine_requested,
+        )
+    )
+
     return render(request, "questions/board.html", {
         "questions": page_obj,
         "page_obj": page_obj,
@@ -165,6 +197,8 @@ def board(request):
         "current_sort": sort,
         "current_status": current_status,
         "query": query,
+        "mine_active": mine_requested,
+        "mine_filter_url": mine_filter_url,
     })
 
 
