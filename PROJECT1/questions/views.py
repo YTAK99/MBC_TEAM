@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView
+from django.contrib import messages
 
 from .forms import QuestionForm, ResponseForm, SignupForm
 from .models import Question, QuestionAgree, Response, Tag
@@ -170,7 +171,17 @@ def board(request):
 class AskView(LoginRequiredMixin, CreateView):
     form_class = QuestionForm
     template_name = "questions/ask.html"
-    login_url = "login"
+    login_url = "questions:login"
+
+    def dispatch(self, request, *args, **kwargs):
+        # 로그인 안 되어 있으면 메시지 표시 후 로그인 페이지 이동
+        if not request.user.is_authenticated:
+            messages.warning(
+                request,
+                "로그인 후 질문할 수 있습니다."
+            )
+            return redirect("questions:login")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

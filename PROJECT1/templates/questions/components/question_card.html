@@ -1,5 +1,12 @@
 <!-- 질문 카드 컴포넌트 -->
-<article class="classq-card question-card">
+<article class="classq-card question-card {% if card_clickable %}question-card-clickable{% endif %}">
+  <!-- 카드 박스 내부 아무 곳이나 클릭해도 detail로 이동 -->
+  {% if card_clickable %}
+    <a href="{% url 'questions:detail' question.pk %}"
+       class="question-card-overlay-link"
+       aria-label="{{ question.title }} 상세 보기"></a>
+  {% endif %}
+
   <div class="question-card-main">
     <div class="question-meta">
       {% for tag in question.tags.all %}
@@ -11,7 +18,7 @@
         <span class="tag-badge is-empty">태그 없음</span>
       {% endfor %}
 
-      <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
+      <span class="muted-text">{{ question.created_at|timesince }} 전</span>
     </div>
 
     <h2>
