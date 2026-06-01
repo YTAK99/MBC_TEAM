@@ -219,6 +219,7 @@ def detail(request, pk):
                 question.status = Question.Status.ANSWERED
             else:
                 response.response_type = Response.ResponseType.ANSWER
+                question.status = Question.Status.ANSWERED
             response.save()
             question.save(update_fields=["status"])
             return redirect("questions:detail", pk=pk)
