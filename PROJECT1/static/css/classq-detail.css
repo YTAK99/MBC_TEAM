@@ -224,3 +224,9 @@
   font-size: 13px;
   line-height: 1.5;
 }
+
+.question-detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}

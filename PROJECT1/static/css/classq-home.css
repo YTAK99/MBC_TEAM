@@ -137,10 +137,8 @@
   color: var(--classq-foreground);
 }
 
-.summary-card .summary-number {
+.summary-card a.summary-value {
   display: inline-block;
-  font-family: "DM Mono", monospace;
-  font-size: 2.2rem;
   font-weight: 800;
   line-height: 1;
   margin: 8px 0;
@@ -148,36 +146,42 @@
   transition: color 0.15s ease, opacity 0.15s ease;
 }
 
-/* 링크 기본색 inherit 덮어쓰기 (:link / :visited 포함) */
-.summary-card a.summary-number.summary-open,
-.summary-card a.summary-number.summary-open:link,
-.summary-card a.summary-number.summary-open:visited {
+.summary-card a.summary-value:link,
+.summary-card a.summary-value:visited {
+  text-decoration: none;
+}
+
+.summary-card a.summary-value:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.summary-open,
+.summary-open:link,
+.summary-open:visited {
   color: #dc2626;
 }
 
-.summary-card a.summary-number.summary-open:hover {
-  color: #b91c1c;
-  text-decoration: underline;
+.summary-followup,
+.summary-followup:link,
+.summary-followup:visited {
+  color: #1100ff;
 }
 
-.summary-card a.summary-number.summary-followup,
-.summary-card a.summary-number.summary-followup:link,
-.summary-card a.summary-number.summary-followup:visited {
-  color: #9333ea;
-}
-
-.summary-card a.summary-number.summary-followup:hover {
-  color: #7e22ce;
-  text-decoration: underline;
-}
-
-.summary-card a.summary-number.summary-answered,
-.summary-card a.summary-number.summary-answered:link,
-.summary-card a.summary-number.summary-answered:visited {
+.summary-answered,
+.summary-answered:link,
+.summary-answered:visited {
   color: #16a34a;
 }
 
-.summary-card a.summary-number.summary-answered:hover {
-  color: #15803d;
-  text-decoration: underline;
+.summary-new {
+  color: #dc2626;
+}
+
+.summary-waiting {
+  color: #1100ff;
+}
+
+.summary-resolved {
+  color: #16a34a;
 }
