@@ -6,6 +6,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -24,45 +25,38 @@
 <section class="home-summary page-container">
   <div class="summary-grid">
     <article class="classq-card summary-card">
-      <span class="summary-label">질문</span>
-      <strong class="summary-value">{{ question_count }}</strong>
-      <p class="muted-text">등록된 질문 수</p>
+      <span class="summary-label">신규 질문</span>
+      <a href="{% url 'questions:board' %}?status=NEW"
+      class="summary-value summary-new">
+         {{ new_count }}
+      </a>      
+    <p class="muted-text">답변을 기다리는 중..</p>
     </article>
     <article class="classq-card summary-card">
-      <span class="summary-label">Response</span>
-      <strong class="summary-value">{{ response_count }}</strong>
-      <p class="muted-text">등록된 답변·댓글 수</p>
+      <span class="summary-label">해결 대기</span>
+      <a href="{% url 'questions:board' %}?status=WAITING"
+      class="summary-value summary-waiting">
+        {{ waiting_count }}
+      </a>    
+      <p class="muted-text">해결되지 않은 질문 수</p>
     </article>
     <article class="classq-card summary-card">
-      <span class="summary-label">태그</span>
-      <strong class="summary-value">{{ tag_count }}</strong>
-      <p class="muted-text">사용 중인 태그 수</p>
+      <span class="summary-label ">해결됨</span>
+      <a href="{% url 'questions:board' %}?status=RESOLVED"
+      class="summary-value summary-resolved">
+        {{ resolved_count }}
+      </a>     
+      <p class="muted-text">해결된 질문 수</p>
     </article>
   </div>
 </section>
 
 <section class="page-container home-section">
-  <div class="section-heading">
-    <h2>최근 질문</h2>
-    <a href="{% url 'questions:board' %}" class="classq-link">전체 보기</a>
-  </div>
-
   <div class="home-question-list">
+    {% include "questions/components/question_card_heading.html" with section_title="최근 질문" show_ask_button=False %}
+
     {% for question in questions %}
-      <article class="classq-card home-question-card">
-        <div class="question-meta">
-          {% for tag in question.tags.all %}
-            <span class="tag-badge"{% if tag.color %} style="border-color: {{ tag.color }}; color: {{ tag.color }};"{% endif %}>{{ tag.name }}</span>
-          {% empty %}
-            <span class="tag-badge">태그 없음</span>
-          {% endfor %}
-          <span class="muted-text">{{ question.created_at|date:"Y-m-d H:i" }}</span>
-        </div>
-        <h3>
-          <a href="{% url 'questions:detail' question.pk %}">{{ question.title }}</a>
-        </h3>
-        <p class="muted-text">{{ question.content|truncatechars:80 }}</p>
-      </article>
+      {% include "questions/components/question_card.html" with card_button_text="질문보기" card_button_style="primary" %}
     {% empty %}
       <article class="classq-card home-question-card">
         <p class="muted-text">아직 등록된 질문이 없습니다. 첫 질문을 남겨보세요.</p>

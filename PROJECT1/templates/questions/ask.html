@@ -81,8 +81,14 @@
 {% block content %}
 <div class="form-page">
   <div class="form-card">
-    <h1>질문 등록하기</h1>
-    <p>막힌 부분을 자유롭게 적어주세요.</p>
+  <h1>{% if is_edit %}질문 수정하기{% else %}질문 등록하기{% endif %}</h1>
+    <p>
+      {% if is_edit %}
+        질문 내용을 수정할 수 있습니다.
+      {% else %}
+        막힌 부분을 자유롭게 적어주세요.
+      {% endif %}
+    </p>
 
     <form method="post" class="classq-form">
       {% csrf_token %}
@@ -139,8 +145,8 @@
       </div>
 
       <div class="custom-actions-layout">
-        <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary" style="flex: 1; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 14px; font-weight: 500;">취소</a>
-        <button type="submit" class="classq-button classq-button-primary" style="flex: 1; padding: 14px 0; border-radius: 12px; background: #1A1A2E; color: #F5F3EE; font-size: 14px; font-weight: 500;">질문 등록</button>
+        <a href="{% if is_edit %}{% url 'questions:detail' question.pk %}{% else %}{% url 'questions:board' %}{% endif %}" class="classq-button classq-button-secondary" style="flex: 1; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 14px; font-weight: 500;">취소</a>
+        <button type="submit" class="classq-button classq-button-primary" style="flex: 1; padding: 14px 0; border-radius: 12px; background: #1A1A2E; color: #F5F3EE; font-size: 14px; font-weight: 500;">{% if is_edit %}질문 수정{% else %}질문 등록{% endif %}</button>
       </div>
     </form>
   </div>
