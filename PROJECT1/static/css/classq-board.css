@@ -76,15 +76,26 @@
 
 .status-dropdown {
   position: relative;
+  margin-right: 4px;
 }
 
 .status-dropdown summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
   list-style: none;
 }
 
 .status-dropdown summary::-webkit-details-marker {
   display: none;
+}
+
+.status-dropdown summary::after {
+  content: "▾";
+  font-size: 12px;
+  line-height: 1;
+  color: currentColor;
 }
 
 .status-dropdown-menu {
