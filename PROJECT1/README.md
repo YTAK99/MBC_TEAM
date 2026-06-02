@@ -71,8 +71,9 @@ python manage.py runserver
 0-1. 일단 jwt대신 Pyjwt 를 설치해야 해서 : pip uninstall jwt
 0-2. pip install PyJWT      (requirement.txt에 업데이트 해놨습니다)
 
-1. SITES -> SITES 로 들어가서 example.com -> 127.0.0.1:8000 으로 수정한다.
-2. Social Accounts -> Social Applications 로 들어가서 아래 내용을 추가해준다.
+1. 127.0.0.1:8000/admin 으로 접속한다.
+2. SITES -> SITES 로 들어가서 example.com -> 127.0.0.1:8000 으로 수정한다.
+3. Social Accounts -> Social Applications 로 들어가서 아래 내용을 추가해준다.
   - Provider : Google
   - Name : google
   - Client id : 클라이언트 ID 입력
