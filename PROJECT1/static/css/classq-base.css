@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "mt_font";
+  src: url('./font/mt_font.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --classq-background: #f5f3ee;
   --classq-foreground: #1a1a2e;
@@ -19,7 +26,7 @@ body {
   min-height: 100vh;
   background: var(--classq-background);
   color: var(--classq-foreground);
-  font-family: "Noto Sans KR", "DM Sans", sans-serif;
+  font-family: "my_font", sans-serif !important;
 }
 
 body:has(.classq-sidebar) {

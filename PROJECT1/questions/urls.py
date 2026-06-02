@@ -23,7 +23,6 @@ urlpatterns = [
 
     # 강사용 페이지 추가
     path("teacher/", views.teacher_home, name="teacher_home"),
-    path("teacher/board/", views.teacher_question_list, name="teacher_board"),
     # 답변 수락 액션 추가
     path(
     "responses/<int:response_id>/accept/", views.accept_response, name="accept_response",)
