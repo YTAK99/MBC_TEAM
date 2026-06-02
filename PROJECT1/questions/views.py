@@ -551,8 +551,6 @@ def is_teacher(user):
 @user_passes_test(is_teacher)
 def teacher_home(request):
 
-    print("teacher_home 들어옴")
-
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
 
@@ -586,86 +584,4 @@ def teacher_home(request):
     return render(request, "questions/teacher_home.html", context)
 
 
-@login_required
-@user_passes_test(is_teacher)
-def teacher_question_list(request):
-    sort = request.GET.get("sort", "latest")
-    selected_tag_ids = request.GET.getlist("tag")
-    query = request.GET.get("q", "")
-    status_filter = request.GET.get("status", "")
-    current_status = status_filter
-
-    questions = (
-        Question.objects
-        .annotate(agree_count=Count("agrees"))
-        .prefetch_related("tags")
-    )
-
-    if status_filter in [
-        "OPEN",
-        "FOLLOW_UP",
-        "ANSWERED",
-        "RESOLVED"
-    ]:
-        questions = questions.filter(status=status_filter)
-    else:
-        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP"])
-
-    if query:
-        questions = questions.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query)
-        )
-
-    if selected_tag_ids:
-        for tag_id in selected_tag_ids:
-            questions = questions.filter(tags__id=tag_id)
-
-    if sort == "popular":
-        questions = questions.order_by("-agree_count", "-created_at")
-    else:
-        questions = questions.order_by("-created_at")
-
-    tags = Tag.objects.all()
-    tag_filters = []
-
-    for tag in tags:
-        tag_id = str(tag.id)
-        next_tag_ids = selected_tag_ids.copy()
-
-        if tag_id in next_tag_ids:
-            next_tag_ids.remove(tag_id)
-        else:
-            next_tag_ids.append(tag_id)
-
-        params = []
-        if status_filter:
-            params.append(("status", status_filter))
-        if sort:
-            params.append(("sort", sort))
-        if query:
-            params.append(("q", query))
-        for selected_id in next_tag_ids:
-            params.append(("tag", selected_id))
-
-        tag_filters.append({
-            "tag": tag,
-            "is_selected": tag_id in selected_tag_ids,
-            "url": "?" + urlencode(params),
-        })
-
-    paginator = Paginator(questions, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "questions": page_obj,
-        "page_obj": page_obj,
-        "tags": tags,
-        "tag_filters": tag_filters,
-        "selected_tag_ids": selected_tag_ids,
-        "current_sort": sort,
-        "current_status": current_status,
-        "query": query,
-    }
 
