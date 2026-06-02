@@ -17,12 +17,38 @@ from django.views.generic import CreateView
 from django.contrib import messages
 
 from .forms import QuestionForm, ResponseForm, SignupForm
+from .models import (
+    Question,
+    QuestionAgree,
+    Response,
+    Tag,
+    Profile,
+)
 from .models import Question, QuestionAgree, Response, Tag
 
+from django.shortcuts import render
+
+def custom_404(request, exception):
+    return render(request, "404.html", status=404)
 
 def _login_redirect(request):
     """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
     return redirect_to_login(request.get_full_path())
+
+
+def _board_query_params(*, sort="", query="", status_filter="", selected_tag_ids=None, mine=False):
+    params = []
+    if sort:
+        params.append(("sort", sort))
+    if status_filter:
+        params.append(("status", status_filter))
+    if query:
+        params.append(("q", query))
+    if mine:
+        params.append(("mine", "1"))
+    for tag_id in selected_tag_ids or []:
+        params.append(("tag", tag_id))
+    return params
 
 
 def home(request):
@@ -68,19 +94,31 @@ def home(request):
 
 
 def hall_of_fame(request):
-    """
-    명예의 전당 — 추후 구현 예정.
+    # 해결왕 순위 계산
+    top_solvers = (
+        User.objects
+        .annotate(
+            accepted_count=Count(
+                "responses",
+                filter=Q(responses__is_accepted=True),
+            )
+        )
+        .filter(accepted_count__gt=0)
+        .order_by("-accepted_count", "username")[:3]
+    )
+    # 답변왕은 답변 수로만 집계 (채택 여부는 상관 없음)
+    top_responders = (
+        User.objects
+        .annotate(response_count=Count("responses"))
+        .filter(response_count__gt=0)
+        .order_by("-response_count", "username")[:3]
+    )
 
-    top_questioners: 질문을 많이 작성한 사용자 순위
-      예) [{"user": user, "count": 12}, ...]
-    top_responders: 답변을 많이 작성한 사용자 순위
-      예) [{"user": user, "count": 8}, ...]
-    """
-    # TODO: Question·Response 를 author 기준으로 집계해 순위 데이터를 채운다.
     context = {
-        "top_questioners": [],
-        "top_responders": [],
+        "top_solvers": top_solvers,
+        "top_responders": top_responders,
     }
+
     return render(request, "questions/hall_of_fame.html", context)
 
 
@@ -90,12 +128,19 @@ def board(request):
     query = request.GET.get("q", "")
     status_filter = request.GET.get("status", "")
     current_status = status_filter
+    mine_requested = request.GET.get("mine") == "1"
+
+    if mine_requested and not request.user.is_authenticated:
+        return _login_redirect(request)
 
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if mine_requested:
+        questions = questions.filter(author=request.user)
 
     if status_filter == "NEW":
         questions = questions.filter(status="OPEN")
@@ -138,13 +183,13 @@ def board(request):
         else:
             next_tag_ids.append(tag_id)
 
-        params = []
-        if sort:
-            params.append(("sort", sort))
-        if query:
-            params.append(("q", query))
-        for selected_id in next_tag_ids:
-            params.append(("tag", selected_id))
+        params = _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=next_tag_ids,
+            mine=mine_requested,
+        )
 
         tag_filters.append({
             "tag": tag,
@@ -156,6 +201,16 @@ def board(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    mine_filter_url = "?" + urlencode(
+        _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=selected_tag_ids,
+            mine=not mine_requested,
+        )
+    )
+
     return render(request, "questions/board.html", {
         "questions": page_obj,
         "page_obj": page_obj,
@@ -165,6 +220,8 @@ def board(request):
         "current_sort": sort,
         "current_status": current_status,
         "query": query,
+        "mine_active": mine_requested,
+        "mine_filter_url": mine_filter_url,
     })
 
 
@@ -225,10 +282,13 @@ def detail(request, pk):
             if request.user.id == question.author_id:
                 response.response_type = Response.ResponseType.FOLLOW_UP
                 question.status = Question.Status.FOLLOW_UP
-            elif request.user.is_staff:
+            elif (
+                hasattr(request.user, "profile")
+                and request.user.profile.role == "teacher"
+            ):
                 response.response_type = Response.ResponseType.ANSWER
                 question.status = Question.Status.ANSWERED
-            else:
+            else:  # 사용자가 학생인 경우
                 response.response_type = Response.ResponseType.ANSWER
                 question.status = Question.Status.ANSWERED
             response.save()
@@ -246,7 +306,8 @@ def detail(request, pk):
                 "답변을 입력해주세요..."
             )
 
-    responses = question.responses.select_related("author").all()
+    # 답변 작성자 배지도 Profile.role 기준이므로 profile 까지 함께 조회
+    responses = question.responses.select_related("author", "author__profile").all()
 
     user_agreed = False
     if request.user.is_authenticated:
@@ -280,6 +341,29 @@ def resolve(request, pk):
 
     return redirect("questions:detail", pk=pk)
 
+@login_required
+def accept_response(request, response_id):
+    if request.method != "POST":
+        return redirect("questions:home")
+
+    response = get_object_or_404(Response, pk=response_id)
+    question = response.question
+
+    if request.user.id != question.author_id:
+        return redirect("questions:detail", pk=question.pk)
+
+    if response.author_id == question.author_id:
+        return redirect("questions:detail", pk=question.pk)
+
+    question.responses.update(is_accepted=False)
+
+    response.is_accepted = True
+    response.save(update_fields=["is_accepted"])
+
+    question.status = Question.Status.RESOLVED
+    question.save(update_fields=["status"])
+
+    return redirect("questions:detail", pk=question.pk)
 
 def agree_toggle(request, pk):
     """로그인 사용자의 '도움돼요' 공감 토글."""
@@ -324,18 +408,31 @@ def edit(request, pk):
         "is_edit": True,
         "question": question,
     })
-
 def signup(request):
     if request.method == "POST":
         form = SignupForm(request.POST)
+
         if form.is_valid():
             user = form.save()
+
+            # 역할은 Profile.role 에만 저장 (User.is_staff 와 무관).
+            # 질문 상세 답변 배지·강사 메뉴·답변 분류도 모두 이 값을 기준으로 한다.
+            Profile.objects.create(
+                user=user,
+                role=form.cleaned_data["role"],
+            )
+
             auth_login(request, user)
             return redirect("questions:home")
+
     else:
         form = SignupForm()
 
-    return render(request, "registration/signup.html", {"form": form})
+    return render(
+        request,
+        "registration/signup.html",
+        {"form": form}
+    )
 
 
 def logout_view(request):
@@ -348,45 +445,61 @@ def check_username(request):
     exists = User.objects.filter(username=username).exists() if username else False
     return JsonResponse({"exists": exists})
 
-
 def login(request):
     next_url = request.POST.get("next") or request.GET.get("next", "")
 
     if request.user.is_authenticated:
-        if next_url and url_has_allowed_host_and_scheme(
-            next_url,
-            allowed_hosts={request.get_host()},
-        ):
-            return redirect(next_url)
-        return redirect(settings.LOGIN_REDIRECT_URL)
+        if hasattr(request.user, "profile") and request.user.profile.role == "teacher":
+            return redirect("questions:teacher_home")
+        return redirect("questions:home")
 
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
+
         if form.is_valid():
-            auth_login(request, form.get_user())
+            user = form.get_user()
+
+            auth_login(request, user)
+
             if next_url and url_has_allowed_host_and_scheme(
                 next_url,
                 allowed_hosts={request.get_host()},
             ):
                 return redirect(next_url)
-            return redirect(settings.LOGIN_REDIRECT_URL)
+
+            if (
+                hasattr(user, "profile")
+                and user.profile.role == "teacher"
+            ):
+                return redirect("questions:teacher_home")
+
+            return redirect("questions:home")
+
     else:
         form = AuthenticationForm(request)
 
     return render(
         request,
         "registration/login.html",
-        {"form": form, "next": next_url},
+        {
+            "form": form,
+            "next": next_url,
+        },
     )
 
-
 def is_teacher(user):
-    return user.is_authenticated and user.is_staff
-
+    return (
+        user.is_authenticated
+        and hasattr(user, "profile")
+        and user.profile.role == "teacher"
+    )
 
 @login_required
 @user_passes_test(is_teacher)
 def teacher_home(request):
+
+    print("teacher_home 들어옴")
+
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
 
@@ -503,4 +616,3 @@ def teacher_question_list(request):
         "query": query,
     }
 
-    

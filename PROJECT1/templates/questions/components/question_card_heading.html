@@ -1,52 +1,52 @@
-<!-- 정렬 UI -->
-  <div class="board-heading">
-    <h1>{{ section_title|default:"질문 목록" }}</h1>
-    <div class="board-heading-actions">
-    <!-- 상태 필터 UI -->
-  <details class="status-dropdown">
-    {% with current_status|default:"" as current_status %}
-    <summary class="filter-chip">
-    {% if current_status == "OPEN" %}
-      답변대기
-    {% elif current_status == "FOLLOW_UP" %}
-      추가질문
-    {% elif current_status == "ANSWERED" %}
-      답변완료
-    {% elif current_status == "RESOLVED" %}
-      해결됨
-    {% elif current_status == "NEW" %}
-      신규 질문
-    {% elif current_status == "WAITING" %}
-      해결 대기
-    {% else %}
-      전체
-    {% endif %}
-    </summary>
-    {% endwith %}
+<div class="board-heading">
+  <h1>{{ section_title|default:"질문 목록" }}</h1>
+  <div class="board-heading-actions">
+    <details class="status-dropdown">
+      {% with current_status|default:"" as current_status %}
+      <summary class="filter-chip">
+      {% if current_status == "OPEN" %}
+        답변대기
+      {% elif current_status == "FOLLOW_UP" %}
+        추가질문
+      {% elif current_status == "ANSWERED" %}
+        답변완료
+      {% elif current_status == "RESOLVED" %}
+        해결됨
+      {% elif current_status == "NEW" %}
+        신규 질문
+      {% elif current_status == "WAITING" %}
+        해결 대기
+      {% else %}
+        전체
+      {% endif %}
+      </summary>
+      {% endwith %}
 
-    <div class="status-dropdown-menu">
-      <a href="?sort={{ current_sort }}">전체</a>
+      <div class="status-dropdown-menu">
+        <a href="?sort={{ current_sort }}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}">전체</a>
+        <a href="?status=OPEN&sort={{ current_sort }}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}">답변대기</a>
+        <a href="?status=FOLLOW_UP&sort={{ current_sort }}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}">추가질문</a>
+        <a href="?status=ANSWERED&sort={{ current_sort }}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}">답변완료</a>
+        <a href="?status=RESOLVED&sort={{ current_sort }}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}">해결됨</a>
+      </div>
+    </details>
 
-      <a href="?status=OPEN&sort={{ current_sort }}">답변대기</a>
-      <a href="?status=FOLLOW_UP&sort={{ current_sort }}">추가질문</a>
-      <a href="?status=ANSWERED&sort={{ current_sort }}">답변완료</a>
-      <a href="?status=RESOLVED&sort={{ current_sort }}">해결됨</a>
-    </div>
-  </details>
-<!-- 정렬 UI -->
-    <a href="?sort=latest{% if current_status %}&status={{ current_status }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
-      class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
+    <a href="?sort=latest{% if current_status %}&status={{ current_status }}{% endif %}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+       class="filter-chip {% if current_sort == 'latest' %}is-active{% endif %}">
       최신순
     </a>
 
-    <a href="?sort=popular{% if current_status %}&status={{ current_status }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
-      class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
+    <a href="?sort=popular{% if current_status %}&status={{ current_status }}{% endif %}{% if mine_active %}&mine=1{% endif %}{% if query %}&q={{ query }}{% endif %}{% for tag_id in selected_tag_ids %}&tag={{ tag_id }}{% endfor %}"
+       class="filter-chip {% if current_sort == 'popular' %}is-active{% endif %}">
       공감순
     </a>
+
     {% if show_ask_button %}
-    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">
-    나도 질문하기
-  </a>
+    <a href="{{ mine_filter_url }}"
+       class="classq-button classq-button-accent {% if mine_active %}is-active{% endif %}"
+       aria-pressed="{% if mine_active %}true{% else %}false{% endif %}">
+      내 질문
+    </a>
     {% endif %}
-    </div>
   </div>
+</div>

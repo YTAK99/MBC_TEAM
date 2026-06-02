@@ -5,57 +5,81 @@
 {% block page_title %}명예의 전당{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/classq-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-hall-of-fame.css' %}">
 {% endblock %}
 
 {% block content %}
+
 <div class="page-container">
+
   <section class="home-hero">
-    <p class="eyebrow">준비 중</p>
-    <h1>명예의 전당</h1>
-    <p class="home-lead muted-text">
-      질문·답변 활동이 많은 사용자 순위를 곧 공개할 예정입니다.
-    </p>
+    <h1>명예의 전당✨ </h1>
+
+{% if not top_solvers and not top_responders %}
+<p class="home-lead muted-text">
+  질문·답변 활동이 많은 사용자 순위를 곧 공개할 예정입니다.
+</p>
+{% else %}
+<p class="home-lead muted-text">
+  ClassQ 커뮤니티에 기여한 사용자들을 소개합니다.
+</p>
+{% endif %}
+
   </section>
 
-  <section class="home-section">
-    <div class="section-heading">
-      <h2>질문왕</h2>
-      <p class="muted-text">질문을 가장 많이 작성한 사용자</p>
+  <section class="hof-grid">
+  <article class="hof-panel hof-panel-solver">
+    <div class="hof-panel-head">
+      <div class="hof-icon hof-icon-gold">🏆</div>
+      <div>
+        <h2>해결왕</h2>
+        <p>가장 많은 답변이 채택된 사용자</p>
+      </div>
     </div>
-    <div class="home-question-list">
-      {% for entry in top_questioners %}
-      <article class="classq-card home-question-card">
-        <strong>{{ forloop.counter }}위</strong>
-        <span>{{ entry.user.username }}</span>
-        <span class="muted-text">{{ entry.count }}개 질문</span>
-      </article>
-      {% empty %}
-      <article class="classq-card home-question-card">
-        <p class="muted-text">순위 데이터가 아직 없습니다.</p>
-      </article>
-      {% endfor %}
-    </div>
-  </section>
 
-  <section class="home-section">
-    <div class="section-heading">
-      <h2>답변왕</h2>
-      <p class="muted-text">답변을 가장 많이 작성한 사용자</p>
-    </div>
-    <div class="home-question-list">
-      {% for entry in top_responders %}
-      <article class="classq-card home-question-card">
-        <strong>{{ forloop.counter }}위</strong>
-        <span>{{ entry.user.username }}</span>
-        <span class="muted-text">{{ entry.count }}개 답변</span>
-      </article>
+    <div class="hof-list">
+      {% for user in top_solvers %}
+      <div class="hof-rank-card {% if forloop.counter == 1 %}hof-rank-card-gold{% endif %}">
+        <span class="hof-rank">
+        {% if forloop.counter == 1 %}🥇
+        {% elif forloop.counter == 2 %}🥈
+        {% elif forloop.counter == 3 %}🥉
+        {% else %}🏅
+        {% endif %}
+        </span>
+        <strong>{{ user.username }}</strong>
+        <span>⭐x {{ user.accepted_count }}</span>
+      </div>
       {% empty %}
-      <article class="classq-card home-question-card">
-        <p class="muted-text">순위 데이터가 아직 없습니다.</p>
-      </article>
+      <p class="muted-text">아직 채택된 답변이 없습니다.</p>
       {% endfor %}
     </div>
-  </section>
+  </article>
+
+  <article class="hof-panel hof-panel-responder">
+    <div class="hof-panel-head">
+      <div class="hof-icon hof-icon-purple">💬</div>
+      <div>
+        <h2>답변왕</h2>
+        <p>답변을 가장 많이 작성한 사용자</p>
+      </div>
+    </div>
+
+    <div class="hof-list">
+      {% for user in top_responders %}
+      <div class="hof-rank-row">
+        <span class="hof-rank">
+          {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
+        </span>
+        <strong>{{ user.username }}</strong>
+        <span>{{ user.response_count }}개 답변</span>
+      </div>
+      {% empty %}
+      <p class="muted-text">아직 등록된 답변이 없습니다.</p>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+
 </div>
 {% endblock %}

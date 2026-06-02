@@ -10,7 +10,7 @@
   --classq-foreground: #1a1a2e;
   --classq-card: #ffffff;
   --classq-muted: #edeae3;
-  --classq-muted-text: #7a7a8c;
+  --classq-muted-text: hwb(240 48% 45%);
   --classq-accent: #ff5c35;
   --classq-border: rgba(26, 26, 46, 0.1);
   --classq-radius: 16px;
