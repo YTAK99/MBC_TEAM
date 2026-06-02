@@ -1,4 +1,8 @@
-.board-page {
+body {
+  font-family: "esamanru Light", sans-serif !important;
+}
+
+board-page {
   padding: 28px 0 56px;
 }
 

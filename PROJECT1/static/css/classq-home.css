@@ -1,3 +1,15 @@
+@font-face {
+  font-family: "esamanru Light";
+  src: url('./font/esamanru Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "esamanru Light", sans-serif !important;
+}
+
+
 /* 상단 헤드라인 구역 */
 .home-hero {
   padding: 64px 0 44px;
@@ -49,7 +61,7 @@
 }
 
 .summary-value {
-  font-family: "DM Mono", monospace;
+  font-family: "esamanru Light"; sans-serif;
   font-size: 32px;
 }
 
@@ -145,3 +157,41 @@
 .summary-resolved {
   color: #16a34a;
 }
+
+/* CTA 버튼을  */
+.cta-container {
+  display: flex;
+  justify-content: center;
+  margin: 36px 0;
+}
+
+/* CTA버튼 스타일 */
+.classq-button-cta {
+  background-color: var(--classq-accent) !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding: 14px 32px !important;  /* 버튼을 큼직하게 찰떡같이 만듦 */
+  border-radius: 30px !important;
+  box-shadow: 0 4px 14px rgba(255, 92, 53, 0.3);
+  text-decoration: none;
+  
+  display: inline-flex;
+  aligin-items: center;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, backgroundcolor 0.2s ease !important; 
+}
+
+.classq-button-cta .cta-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.classq-button-cta:hover {
+  transform: translateY(-2px); /* 버튼이 살짝 위로 떠오름 */
+  box-shadow: 0 6px 20px rgba(255, 92, 53, 0.4);
+  background-color: #ff451a !important;
+  opacity: 0.95;
+}
+
