@@ -1,12 +1,12 @@
 @font-face {
-  font-family: "esamanru Light";
-  src: url('./font/esamanru Light.ttf') format('truetype');
+  font-family: "my_font";
+  src: url('./font/mt_font.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-  font-family: "esamanru Light", sans-serif !important;
+  font-family: "my_font", sans-serif !important;
 }
 
 
@@ -61,7 +61,7 @@ body {
 }
 
 .summary-value {
-  font-family: "esamanru Light"; sans-serif;
+  font-family: "my_font" sans-serif;
   font-size: 32px;
 }
 
@@ -79,8 +79,8 @@ body {
 
 /* card-emoji 안의 이미지 크기 제어 */
 .card-emoji img {
-  width: 48px;          /* 💡 토스 스타일의 아담한 가로 크기 */
-  height: 48px;         /* 💡 세로 크기 */
+  width: 48px;         
+  height: 48px;         
   object-fit: contain;  /* 이미지가 찌그러지지 않고 비율을 유지하도록 설정 */
   margin: 0 auto 16px;  /* 이미지와 아래 텍스트 사이의 적당한 여백 */
   display: inline-block; /* 크기 지정을 정석대로 먹이기 위한 속성 */

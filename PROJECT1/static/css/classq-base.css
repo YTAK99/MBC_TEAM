@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "esamanru Light";
-  src: url('./font/esamanru Light.ttf') format('truetype');
+  font-family: "mt_font";
+  src: url('./font/mt_font.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -26,7 +26,7 @@ body {
   min-height: 100vh;
   background: var(--classq-background);
   color: var(--classq-foreground);
-  font-family: "esamanru Light", sans-serif !important;
+  font-family: "my_font", sans-serif !important;
 }
 
 body:has(.classq-sidebar) {

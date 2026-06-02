@@ -1,8 +1,8 @@
 body {
-  font-family: "esamanru Light", sans-serif !important;
+  font-family: "my_font", sans-serif !important;
 }
 
-board-page {
+.board-page {
   padding: 28px 0 56px;
 }
 
