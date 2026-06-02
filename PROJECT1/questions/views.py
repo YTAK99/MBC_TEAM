@@ -247,6 +247,15 @@ class AskView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["all_tags"] = Tag.objects.all()
+        # 검증 실패로 폼을 다시 보여줄 때 사용자가 방금 고른 태그를 유지한다.
+        if self.request.method == "POST":
+            ctx["selected_tag_ids"] = [
+                int(tag_id)
+                for tag_id in self.request.POST.getlist("tags")
+                if tag_id.isdigit()
+            ]
+        else:
+            ctx["selected_tag_ids"] = []
         return ctx
 
     def form_valid(self, form):
@@ -400,15 +409,26 @@ def edit(request, pk):
 
     if request.method == "POST":
         form = QuestionForm(request.POST, instance=question)
+        # 수정 저장 실패 시에도 사용자가 선택한 태그 상태를 그대로 복원한다.
+        selected_tag_ids = [
+            int(tag_id)
+            for tag_id in request.POST.getlist("tags")
+            if tag_id.isdigit()
+        ]
         if form.is_valid():
             form.save()
             return redirect("questions:detail", pk=question.pk)
     else:
         form = QuestionForm(instance=question)
+        # 수정 페이지 첫 진입 시 기존 질문에 연결된 태그를 미리 선택 상태로 전달한다.
+        selected_tag_ids = list(
+            question.tags.values_list("id", flat=True)
+        )
 
     return render(request, "questions/ask.html", {
         "form": form,
         "all_tags": Tag.objects.all(),
+        "selected_tag_ids": selected_tag_ids,
         "is_edit": True,
         "question": question,
     })
