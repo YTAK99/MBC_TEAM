@@ -36,6 +36,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "questions.middleware.RoleSelectionRequiredMiddleware",
 
     # allauth 필수 미들웨어
     "allauth.account.middleware.AccountMiddleware",

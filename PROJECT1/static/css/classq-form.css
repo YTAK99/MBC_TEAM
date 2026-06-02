@@ -137,6 +137,11 @@
   gap: 10px;
 }
 
+/* 역할 선택 전용 페이지는 버튼이 2개라 2열로 배치 */
+.select-role-selector {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 
 /* 역할 선택 버튼 */
 .role-option {

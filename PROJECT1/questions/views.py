@@ -24,12 +24,16 @@ from .models import (
     Tag,
     Profile,
 )
-from .models import Question, QuestionAgree, Response, Tag
-
-from django.shortcuts import render
 
 def custom_404(request, exception):
     return render(request, "404.html", status=404)
+
+
+def _redirect_by_role(user):
+    # 역할에 따라 로그인 후 첫 화면을 분기한다.
+    if hasattr(user, "profile") and user.profile.role == "teacher":
+        return redirect("questions:teacher_home")
+    return redirect("questions:home")
 
 def _login_redirect(request):
     """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
@@ -415,15 +419,20 @@ def signup(request):
         if form.is_valid():
             user = form.save()
 
-            # 역할은 Profile.role 에만 저장 (User.is_staff 와 무관).
-            # 질문 상세 답변 배지·강사 메뉴·답변 분류도 모두 이 값을 기준으로 한다.
-            Profile.objects.create(
+            # 중복 프로필 생성을 막기 위해 get_or_create를 사용한다.
+            # (관리자/스크립트 등으로 Profile이 이미 생긴 경우 대비)
+            Profile.objects.get_or_create(
                 user=user,
-                role=form.cleaned_data["role"],
+                defaults={"role": form.cleaned_data["role"]},
             )
 
-            auth_login(request, user)
-            return redirect("questions:home")
+            auth_login(
+                request,
+                user,
+                # auth backend가 2개라 backend를 명시해야 ValueError를 피할 수 있다.
+                backend="django.contrib.auth.backends.ModelBackend",
+            )
+            return _redirect_by_role(user)
 
     else:
         form = SignupForm()
@@ -449,9 +458,11 @@ def login(request):
     next_url = request.POST.get("next") or request.GET.get("next", "")
 
     if request.user.is_authenticated:
-        if hasattr(request.user, "profile") and request.user.profile.role == "teacher":
-            return redirect("questions:teacher_home")
-        return redirect("questions:home")
+        # 일반 로그인/구글 로그인을 포함해, 로그인된 사용자는
+        # Profile 유무로 "역할 선택 완료" 상태를 판단한다.
+        if not hasattr(request.user, "profile"):
+            return redirect("questions:select_role")
+        return _redirect_by_role(request.user)
 
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -486,6 +497,28 @@ def login(request):
             "next": next_url,
         },
     )
+
+
+@login_required
+def select_role(request):
+    # 첫 로그인(프로필 미생성) 사용자만 역할 선택을 수행한다.
+    if hasattr(request.user, "profile"):
+        return _redirect_by_role(request.user)
+
+    error = ""
+    if request.method == "POST":
+        selected_role = request.POST.get("role")
+        if selected_role not in {"student", "teacher"}:
+            error = "역할을 선택해주세요."
+        else:
+            # 동시 요청 등 예외 상황에서도 중복 생성되지 않게 보호한다.
+            Profile.objects.get_or_create(
+                user=request.user,
+                defaults={"role": selected_role},
+            )
+            return _redirect_by_role(request.user)
+
+    return render(request, "registration/select_role.html", {"error": error})
 
 def is_teacher(user):
     return (
