@@ -15,6 +15,7 @@ urlpatterns = [
     path("questions/<int:pk>/resolve/", views.resolve, name="resolve"),     # POST: 해결됨 처리
     path("questions/<int:pk>/agree/", views.agree_toggle, name="agree"),    # POST: 공감 토글
     path("login/", views.login, name="login"),
+    path("select-role/", views.select_role, name="select_role"),
     path("logout/", views.logout_view, name="logout"),
     path("signup/", views.signup, name="signup"),
     path("check-username/", views.check_username, name="check_username"),
@@ -22,5 +23,7 @@ urlpatterns = [
 
     # 강사용 페이지 추가
     path("teacher/", views.teacher_home, name="teacher_home"),
-    path("teacher/board/", views.teacher_question_list, name="teacher_board"),
+    # 답변 수락 액션 추가
+    path(
+    "responses/<int:response_id>/accept/", views.accept_response, name="accept_response",)
 ]

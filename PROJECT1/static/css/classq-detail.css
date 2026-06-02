@@ -191,6 +191,12 @@
   border: 1px solid rgba(217, 119, 6, 0.32);
 }
 
+.response-author-badge-owner {
+    background: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.28);
+}
+
 .response-card p {
   margin: 0;
   line-height: 1.7;
@@ -229,4 +235,28 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+}
+
+.response-card-accepted {
+  border: 2px solid #facc15;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 70%);
+  box-shadow: 0 10px 28px rgba(250, 204, 21, 0.18);
+}
+
+.response-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.accepted-response-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 800;
 }

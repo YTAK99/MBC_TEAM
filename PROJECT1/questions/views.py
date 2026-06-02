@@ -25,36 +25,61 @@ from .models import (
     Profile,
 )
 
+def custom_404(request, exception):
+    return render(request, "404.html", status=404)
+
+
+def _redirect_by_role(user):
+    # 역할에 따라 로그인 후 첫 화면을 분기한다.
+    if hasattr(user, "profile") and user.profile.role == "teacher":
+        return redirect("questions:teacher_home")
+    return redirect("questions:home")
+
 def _login_redirect(request):
     """로그인 후 원래 페이지로 돌아가도록 next 에 현재 URL 을 담아 리다이렉트."""
     return redirect_to_login(request.get_full_path())
 
 
+def _board_query_params(*, sort="", query="", status_filter="", selected_tag_ids=None, mine=False):
+    params = []
+    if sort:
+        params.append(("sort", sort))
+    if status_filter:
+        params.append(("status", status_filter))
+    if query:
+        params.append(("q", query))
+    if mine:
+        params.append(("mine", "1"))
+    for tag_id in selected_tag_ids or []:
+        params.append(("tag", tag_id))
+    return params
+
+
 def home(request):
     sort = request.GET.get("sort", "latest")
     current_status = request.GET.get("status", "")
-    questions = (
-        Question.objects
-        .prefetch_related("tags")
-        .annotate(agree_count=Count("agrees"))
-    )
+#     questions = (
+#         Question.objects
+#         .prefetch_related("tags")
+#         .annotate(agree_count=Count("agrees"))
+#     )
 
-    if current_status == "NEW":
-        questions = questions.filter(status="OPEN")
-    elif current_status == "WAITING":
-        questions = questions.filter(status__in=["OPEN", "FOLLOW_UP", "ANSWERED"])
-    elif current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
-        questions = questions.filter(status=current_status)
+#     if current_status == "NEW":
+#         questions = questions.filter(status="OPEN")
+#     elif current_status == "WAITING":
+#         questions = questions.filter(status__in=["OPEN", "FOLLOW_UP", "ANSWERED"])
+#     elif current_status in ["OPEN", "FOLLOW_UP", "ANSWERED", "RESOLVED"]:
+#         questions = questions.filter(status=current_status)
 
-    if sort == "popular":
-        questions = questions.order_by("-agree_count", "-created_at")
-    else:
-        questions = questions.order_by("-created_at")
+#     if sort == "popular":
+#         questions = questions.order_by("-agree_count", "-created_at")
+#     else:
+#         questions = questions.order_by("-created_at")
 
-    questions = questions[:5]
+#     questions = questions[:5]
     
     return render(request, "questions/home.html", {
-        "questions": questions,
+        "questions": [],
         "total_question_count": Question.objects.count(),
         "new_count": Question.objects.filter(
         status="OPEN"
@@ -73,19 +98,31 @@ def home(request):
 
 
 def hall_of_fame(request):
-    """
-    명예의 전당 — 추후 구현 예정.
+    # 해결왕 순위 계산
+    top_solvers = (
+        User.objects
+        .annotate(
+            accepted_count=Count(
+                "responses",
+                filter=Q(responses__is_accepted=True),
+            )
+        )
+        .filter(accepted_count__gt=0)
+        .order_by("-accepted_count", "username")[:3]
+    )
+    # 답변왕은 답변 수로만 집계 (채택 여부는 상관 없음)
+    top_responders = (
+        User.objects
+        .annotate(response_count=Count("responses"))
+        .filter(response_count__gt=0)
+        .order_by("-response_count", "username")[:3]
+    )
 
-    top_questioners: 질문을 많이 작성한 사용자 순위
-      예) [{"user": user, "count": 12}, ...]
-    top_responders: 답변을 많이 작성한 사용자 순위
-      예) [{"user": user, "count": 8}, ...]
-    """
-    # TODO: Question·Response 를 author 기준으로 집계해 순위 데이터를 채운다.
     context = {
-        "top_questioners": [],
-        "top_responders": [],
+        "top_solvers": top_solvers,
+        "top_responders": top_responders,
     }
+
     return render(request, "questions/hall_of_fame.html", context)
 
 
@@ -95,12 +132,19 @@ def board(request):
     query = request.GET.get("q", "")
     status_filter = request.GET.get("status", "")
     current_status = status_filter
+    mine_requested = request.GET.get("mine") == "1"
+
+    if mine_requested and not request.user.is_authenticated:
+        return _login_redirect(request)
 
     questions = (
         Question.objects
         .prefetch_related("tags")
         .annotate(agree_count=Count("agrees"))
     )
+
+    if mine_requested:
+        questions = questions.filter(author=request.user)
 
     if status_filter == "NEW":
         questions = questions.filter(status="OPEN")
@@ -143,13 +187,13 @@ def board(request):
         else:
             next_tag_ids.append(tag_id)
 
-        params = []
-        if sort:
-            params.append(("sort", sort))
-        if query:
-            params.append(("q", query))
-        for selected_id in next_tag_ids:
-            params.append(("tag", selected_id))
+        params = _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=next_tag_ids,
+            mine=mine_requested,
+        )
 
         tag_filters.append({
             "tag": tag,
@@ -161,6 +205,16 @@ def board(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    mine_filter_url = "?" + urlencode(
+        _board_query_params(
+            sort=sort,
+            query=query,
+            status_filter=status_filter,
+            selected_tag_ids=selected_tag_ids,
+            mine=not mine_requested,
+        )
+    )
+
     return render(request, "questions/board.html", {
         "questions": page_obj,
         "page_obj": page_obj,
@@ -170,6 +224,8 @@ def board(request):
         "current_sort": sort,
         "current_status": current_status,
         "query": query,
+        "mine_active": mine_requested,
+        "mine_filter_url": mine_filter_url,
     })
 
 
@@ -191,6 +247,15 @@ class AskView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["all_tags"] = Tag.objects.all()
+        # 검증 실패로 폼을 다시 보여줄 때 사용자가 방금 고른 태그를 유지한다.
+        if self.request.method == "POST":
+            ctx["selected_tag_ids"] = [
+                int(tag_id)
+                for tag_id in self.request.POST.getlist("tags")
+                if tag_id.isdigit()
+            ]
+        else:
+            ctx["selected_tag_ids"] = []
         return ctx
 
     def form_valid(self, form):
@@ -254,7 +319,8 @@ def detail(request, pk):
                 "답변을 입력해주세요..."
             )
 
-    responses = question.responses.select_related("author").all()
+    # 답변 작성자 배지도 Profile.role 기준이므로 profile 까지 함께 조회
+    responses = question.responses.select_related("author", "author__profile").all()
 
     user_agreed = False
     if request.user.is_authenticated:
@@ -288,6 +354,29 @@ def resolve(request, pk):
 
     return redirect("questions:detail", pk=pk)
 
+@login_required
+def accept_response(request, response_id):
+    if request.method != "POST":
+        return redirect("questions:home")
+
+    response = get_object_or_404(Response, pk=response_id)
+    question = response.question
+
+    if request.user.id != question.author_id:
+        return redirect("questions:detail", pk=question.pk)
+
+    if response.author_id == question.author_id:
+        return redirect("questions:detail", pk=question.pk)
+
+    question.responses.update(is_accepted=False)
+
+    response.is_accepted = True
+    response.save(update_fields=["is_accepted"])
+
+    question.status = Question.Status.RESOLVED
+    question.save(update_fields=["status"])
+
+    return redirect("questions:detail", pk=question.pk)
 
 def agree_toggle(request, pk):
     """로그인 사용자의 '도움돼요' 공감 토글."""
@@ -320,15 +409,26 @@ def edit(request, pk):
 
     if request.method == "POST":
         form = QuestionForm(request.POST, instance=question)
+        # 수정 저장 실패 시에도 사용자가 선택한 태그 상태를 그대로 복원한다.
+        selected_tag_ids = [
+            int(tag_id)
+            for tag_id in request.POST.getlist("tags")
+            if tag_id.isdigit()
+        ]
         if form.is_valid():
             form.save()
             return redirect("questions:detail", pk=question.pk)
     else:
         form = QuestionForm(instance=question)
+        # 수정 페이지 첫 진입 시 기존 질문에 연결된 태그를 미리 선택 상태로 전달한다.
+        selected_tag_ids = list(
+            question.tags.values_list("id", flat=True)
+        )
 
     return render(request, "questions/ask.html", {
         "form": form,
         "all_tags": Tag.objects.all(),
+        "selected_tag_ids": selected_tag_ids,
         "is_edit": True,
         "question": question,
     })
@@ -339,13 +439,20 @@ def signup(request):
         if form.is_valid():
             user = form.save()
 
-            Profile.objects.create(
+            # 중복 프로필 생성을 막기 위해 get_or_create를 사용한다.
+            # (관리자/스크립트 등으로 Profile이 이미 생긴 경우 대비)
+            Profile.objects.get_or_create(
                 user=user,
-                role=form.cleaned_data["role"]
+                defaults={"role": form.cleaned_data["role"]},
             )
 
-            auth_login(request, user)
-            return redirect("questions:home")
+            auth_login(
+                request,
+                user,
+                # auth backend가 2개라 backend를 명시해야 ValueError를 피할 수 있다.
+                backend="django.contrib.auth.backends.ModelBackend",
+            )
+            return _redirect_by_role(user)
 
     else:
         form = SignupForm()
@@ -371,9 +478,11 @@ def login(request):
     next_url = request.POST.get("next") or request.GET.get("next", "")
 
     if request.user.is_authenticated:
-        if hasattr(request.user, "profile") and request.user.profile.role == "teacher":
-            return redirect("questions:teacher_home")
-        return redirect("questions:home")
+        # 일반 로그인/구글 로그인을 포함해, 로그인된 사용자는
+        # Profile 유무로 "역할 선택 완료" 상태를 판단한다.
+        if not hasattr(request.user, "profile"):
+            return redirect("questions:select_role")
+        return _redirect_by_role(request.user)
 
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -408,6 +517,28 @@ def login(request):
             "next": next_url,
         },
     )
+
+
+@login_required
+def select_role(request):
+    # 첫 로그인(프로필 미생성) 사용자만 역할 선택을 수행한다.
+    if hasattr(request.user, "profile"):
+        return _redirect_by_role(request.user)
+
+    error = ""
+    if request.method == "POST":
+        selected_role = request.POST.get("role")
+        if selected_role not in {"student", "teacher"}:
+            error = "역할을 선택해주세요."
+        else:
+            # 동시 요청 등 예외 상황에서도 중복 생성되지 않게 보호한다.
+            Profile.objects.get_or_create(
+                user=request.user,
+                defaults={"role": selected_role},
+            )
+            return _redirect_by_role(request.user)
+
+    return render(request, "registration/select_role.html", {"error": error})
 
 def is_teacher(user):
     return (
@@ -538,4 +669,3 @@ def teacher_question_list(request):
         "query": query,
     }
 
-    return render(request, "questions/teacher_board.html", context)

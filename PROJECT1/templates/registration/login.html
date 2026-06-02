@@ -3,6 +3,8 @@
 <!-- static 파일 사용 -->
 {% load static %}
 
+{% load socialaccount %}
+
 
 <!-- 브라우저 탭 제목 -->
 {% block title %}
@@ -133,7 +135,7 @@
 
 <!-- 구글 로그인 버튼 -->
 <a
-  href="#"
+  href="{% provider_login_url 'google' %}"
   class="classq-button google-login-button form-wide-button"
 >
   <img

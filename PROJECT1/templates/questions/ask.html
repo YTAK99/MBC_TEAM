@@ -6,7 +6,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
-<link rel="stylesheet" href="{% static 'css/ask.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-ask.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -58,7 +58,8 @@
           {% for tag in all_tags %}
           <label class="cursor-pointer">
             <input type="checkbox" name="tags" value="{{ tag.id }}" class="sr-only-hidden tag-checkbox"
-                   {% if tag in form.initial.tags %}checked{% endif %}>
+                   {# 서버에서 전달한 selected_tag_ids 기준으로 체크 상태를 안정적으로 복원한다. #}
+                   {% if tag.id in selected_tag_ids %}checked{% endif %}>
             <span class="tag-pill tag-label"
                   data-color="{{ tag.color }}"
                   style="border-color: {{ tag.color }}40; color: {{ tag.color }}; background: #fff;">
@@ -116,6 +117,9 @@ document.querySelectorAll('.tag-checkbox').forEach(cb => {
       label.style.borderColor  = color + '40';
     }
   }
+
+  // 수정 페이지 첫 렌더링 시 기존 선택 태그도 즉시 활성 스타일을 적용한다.
+  updateLabel(cb, label, color);
 });
 </script>
 {% endblock %}

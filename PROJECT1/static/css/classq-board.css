@@ -1,3 +1,7 @@
+body {
+  font-family: "my_font", sans-serif !important;
+}
+
 .board-page {
   padding: 28px 0 56px;
 }
@@ -123,6 +127,25 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.classq-button-accent {
+  background: var(--classq-accent);
+  border-color: var(--classq-accent);
+  color: #ffffff;
+}
+
+.classq-button-accent:hover {
+  background: #e6532f;
+  border-color: #e6532f;
+  color: #ffffff;
+}
+
+.classq-button-accent.is-active {
+  background: #ffffff;
+  border-color: var(--classq-accent);
+  color: var(--classq-accent);
+  box-shadow: inset 0 0 0 1px rgba(255, 92, 53, 0.2);
 }
 
 .question-list {

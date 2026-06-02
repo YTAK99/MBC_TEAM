@@ -16,27 +16,26 @@
   <p class="home-lead muted-text">
     ClassQ는 수업 중 생긴 질문을 게시판 형태로 모아두기 위한 기본 화면입니다.
   </p>
-  <div class="hero-actions">
-    <a href="{% url 'questions:teacher_board' %}" class="classq-button classq-button-secondary">전체 게시판</a>
-  </div>
 </section>
 <!-- 요약 카드 섹션 -->
 <section class="home-summary page-container">
   <div class="summary-grid">
     <article class="classq-card summary-card">
       <span class="summary-label">답변이 필요한 질문</span>
-      <a href="{% url 'questions:teacher_board' %}?status=OPEN" class="summary-value summary-open">{{ open_count }}</a>
-      <p class="muted-text">Open 수 표시 영역</p>
+      <a href="{% url 'questions:board' %}?status=OPEN" class="summary-value summary-open">{{ open_count }}</a>
+      <p class="muted-text">답변을 기다리는 중...</p>
     </article>
+
     <article class="classq-card summary-card">
       <span class="summary-label">추가 질문</span>
-      <a href="{% url 'questions:teacher_board' %}?status=FOLLOW_UP" class="summary-value summary-followup">{{ follow_up_count }}</a>
-      <p class="muted-text">학생의 후속 Response 수 표시 영역</p>
+      <a href="{% url 'questions:board' %}?status=FOLLOW_UP" class="summary-value summary-followup">{{ follow_up_count }}</a>
+      <p class="muted-text">해결되지 않은 질문 수</p>
     </article>
+
     <article class="classq-card summary-card">
       <span class="summary-label">답변 완료된 질문</span>
-      <a href="{% url 'questions:teacher_board' %}?status=ANSWERED" class="summary-value summary-answered">{{ answered_count }}</a>
-      <p class="muted-text">ANSWERED 표시 영역</p>
+      <a href="{% url 'questions:board' %}?status=ANSWERED" class="summary-value summary-answered">{{ answered_count }}</a>
+      <p class="muted-text">해결된 질문 수</p>
     </article>
   </div>
 </section>
@@ -51,24 +50,6 @@
     <p class="muted-text">현재 답변이 필요한 질문이 없습니다.</p>
   </article>
   {% endfor %}
-  </div>
-</section>
-<!-- 하단부 설명 -->
-<section class="page-container home-section">
-  <h2>사용 흐름</h2>
-  <div class="step-grid">
-    <article class="classq-card step-card">
-      <span class="step-number">1</span>
-      <h3>상태별 질문 확인</h3>
-    </article>
-    <article class="classq-card step-card">
-      <span class="step-number">2</span>
-      <h3>답변 작성</h3>
-    </article>
-    <article class="classq-card step-card">
-      <span class="step-number">3</span>
-      <h3>Response 연결</h3>
-    </article>
   </div>
 </section>
 {% endblock %}

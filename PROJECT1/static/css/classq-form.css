@@ -137,6 +137,11 @@
   gap: 10px;
 }
 
+/* 역할 선택 전용 페이지는 버튼이 2개라 2열로 배치 */
+.select-role-selector {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 
 /* 역할 선택 버튼 */
 .role-option {
@@ -151,7 +156,7 @@
 
   gap: 8px;
 
-  min-height: 52px;
+  min-height: 49px;
 
   border: 1px solid var(--classq-border);
 
@@ -201,6 +206,21 @@
   font-size: 13px;
 
   font-weight: 500;
+}
+
+
+/* =========================
+   필드 보조 안내 (회원가입 비밀번호 조건 등)
+========================= */
+.form-hint {
+
+  /* p 기본 margin(약 16px)을 없애 입력칸과 간격을 좁힘 */
+  margin: 2px 0 0;
+
+  /* 본문(14px)보다 한 단계 작게 */
+  font-size: 12px;
+
+  line-height: 1.45;
 }
 
 

@@ -47,7 +47,9 @@
     <!-- 질문이 하나도 없는 경우 -->
     {% empty %}
     <div class="classq-card question-card">
-      <p class="muted-text">아직 등록된 질문이 없습니다.</p>
+      <p class="muted-text">
+        {% if mine_active %}작성한 질문이 없습니다.{% else %}아직 등록된 질문이 없습니다.{% endif %}
+      </p>
     </div>
     {% endfor %}
   </section>
@@ -56,7 +58,7 @@
   <nav class="pagination-row" aria-label="질문 페이지 이동">
     {% if page_obj.has_previous %}
       <a class="filter-chip"
-         href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+         href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if mine_active %}&mine=1{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
         이전
       </a>
     {% endif %}
@@ -66,7 +68,7 @@
 
     {% if page_obj.has_next %}
       <a class="filter-chip"
-         href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+         href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if mine_active %}&mine=1{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
         다음
       </a>
     {% endif %}
