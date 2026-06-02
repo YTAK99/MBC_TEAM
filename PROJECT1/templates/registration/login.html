@@ -3,6 +3,8 @@
 <!-- static 파일 사용 -->
 {% load static %}
 
+{% load socialaccount %}
+
 
 <!-- 브라우저 탭 제목 -->
 {% block title %}
@@ -123,19 +125,26 @@
 
       </div>
 
+<!-- 로그인 버튼 -->
+<button
+  type="submit"
+  class="classq-button classq-button-primary form-wide-button"
+>
+  로그인
+</button>
 
-      <!-- 로그인 버튼 -->
-      <button
-        type="submit"
-        class="classq-button classq-button-primary form-wide-button"
-      >
-
-        로그인
-
-      </button>
-
-    </form>
-
+<!-- 구글 로그인 버튼 -->
+<a
+  href="{% provider_login_url 'google' %}"
+  class="classq-button google-login-button form-wide-button"
+>
+  <img
+    src="{% static 'images/google.svg' %}"
+    alt="Google"
+    class="google-icon"
+  >
+  구글로 로그인
+</a>
 
     <!-- 회원가입 이동 -->
     <p class="auth-switch muted-text">
