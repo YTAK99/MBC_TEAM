@@ -1,13 +1,33 @@
 @font-face {
-  font-family: "MapoBackpacking";
-  src: url('./font/MapoBackpacking.ttf') format('truetype');
+  font-family: "CookieRun Regular";
+  src: url("../font/CookieRun_Regular.ttf") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "KyoboHandwriting";
+  src: url("../font/KyoboHandwriting2025lyb.ttf") format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-  font-family: "MapoBackpacking", sans-serif !important;
+  font-family: "CookieRun Regular", sans-serif !important;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+body {
+  font-family: "CookieRun Regular", sans-serif !important;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 
 /* 상단 헤드라인 구역 */
 .home-hero {
@@ -68,7 +88,7 @@ body {
 }
 
 .summary-value {
-  font-family: "MapoBackpacking", sans-serif !important;
+  font-family: "CookieRun Regular", sans-serif !important;
   font-size: 32px;
 }
 
@@ -188,4 +208,10 @@ body {
   box-shadow: 0 6px 20px rgba(255, 92, 53, 0.4);
   background-color: #ff451a !important;
   opacity: 0.95;
+}
+
+.summary-card, 
+.summary-card *,
+.summary-card p.muted-text {
+  font-family: "KyoboHandwriting", sans-serif !important;
 }

@@ -7,7 +7,18 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
 {% endblock %}
-   
+  
+<style>
+  input::placeholder,
+  input {
+    font-family: "KyoboHandwriting", sans-serif !important;
+  }
+  /* 대신 알약 태그와 다른 글씨들은 원래대로 쿠키런체로 채워지도록 방어 */
+  .board-page, .board-filter-row, .tag-badge {
+    font-family: "CookieRun Regular", sans-serif !important;
+  }
+</style>
+
 {% block content %}
 <div class="page-container page-container-narrow board-page">
    <!-- 검색어 입력 필드 추가 -->
