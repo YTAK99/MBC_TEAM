@@ -10,6 +10,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/classq-base.css' %}">
 
+  <style>
+    @font-face {
+      font-family: "CookieRun Regular";
+      /* 💡 장고 static 문법으로 폰트 절대 경로를 고정합니다 */
+      src: url("{% static 'font/CookieRun_Regular.ttf' %}") format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  
+    /* 💡 별표(*)와 body를 이용해 사이트 내부의 '모든 글자'에 쿠키런 폰트를 강제 주입합니다 */
+    *, body, h1, h2, h3, h4, h5, h6, p, span, a, input, button, textarea {
+      font-family: "CookieRun Regular", sans-serif !important;
+    }
+  </style>
+
+
+
   {% block extra_head %}{% endblock %}
 </head>
 <body>
