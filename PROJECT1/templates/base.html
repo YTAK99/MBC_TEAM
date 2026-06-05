@@ -9,59 +9,93 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/classq-base.css' %}">
+
+  <style>
+    @font-face {
+      font-family: "베라R";
+      /* 💡 장고 static 문법으로 폰트 절대 경로를 고정합니다 */
+      src: url("{% static 'font/베라R.otf' %}") format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  
+    *, body, h1, h2, h3, h4, h5, h6, p, span, a, input, button, textarea {
+      font-family: "베라R", sans-serif !important;
+    }
+  </style>
   {% block extra_head %}{% endblock %}
 </head>
+
 <body>
   <aside class="classq-sidebar" aria-label="사이드바 메뉴">
-    <a href="{% url 'questions:home' %}" class="classq-sidebar-brand">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5C35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        <path d="M8 10h.01"></path>
-        <path d="M12 10h.01"></path>
-        <path d="M16 10h.01"></path>
-      </svg>
-      <span class="classq-sidebar-title">ClassQ</span>
-    </a>
-
-    <nav class="classq-sidebar-nav" aria-label="사이드바 네비게이션">
-      <a href="{% url 'questions:home' %}" class="classq-sidebar-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+    <div class="classq-sidebar-top">
+      <a href="{% url 'questions:home' %}" class="classq-sidebar-brand">
+        <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M8 10h.01"></path>
+          <path d="M12 10h.01"></path>
+          <path d="M16 10h.01"></path>
         </svg>
-        메인
+        <span class="classq-sidebar-title">ClassQ</span>
       </a>
 
-      <a href="{% url 'questions:board' %}" class="classq-sidebar-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-        </svg>
-        질문 게시판
-      </a>
+      <div class="classq-sidebar-user">
+        {% if user.is_authenticated %}
+          <p class="classq-sidebar-user-label">로그인됨</p>
+          <p class="classq-sidebar-user-name">{{ user.username }}</p>
+        {% else %}
+          <p class="classq-sidebar-user-label">비회원 상태</p>
+        {% endif %}
+      </div>
 
-      <a href="{% url 'questions:ask' %}" class="classq-sidebar-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M5 12h14"></path>
-          <path d="M12 5v14"></path>
-        </svg>
-        질문하기
-      </a>
+      <nav class="classq-sidebar-nav" aria-label="사이드바 네비게이션">
+        <a href="{% url 'questions:home' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'home_page' %} is-active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          </svg>
+          메인
+        </a>
 
-      <a href="{% url 'questions:board' %}?sort=likes" class="classq-sidebar-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-          <polyline points="16 7 22 7 22 13"></polyline>
-        </svg>
-        인기 질문
-      </a>
-    </nav>
+        <a href="{% url 'questions:board' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'board' %} is-active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          질문 게시판
+        </a>
+
+        <a href="{% url 'questions:ask' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'ask' %} is-active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="M12 5v14"></path>
+          </svg>
+          질문하기
+        </a>
+
+        <a href="{% url 'questions:hall_of_fame' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'hall_of_fame' %} is-active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+            <polyline points="16 7 22 7 22 13"></polyline>
+          </svg>
+          명예의 전당
+        </a>
+
+        {% if user.is_authenticated and user.profile.role == "teacher" %}
+        <a href="{% url 'questions:teacher_home' %}" class="classq-sidebar-link{% if request.resolver_match.url_name == 'teacher_home' %} is-active{% endif %}">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true" style="opacity: 0.85;">
+            <path d="M192 80a56 56 0 1 0 0-112 56 56 0 1 0 0 112zM176 512l0-160c0-8.8 7.2-16 16-16s16 7.2 16 16l0 160c0 17.7 14.3 32 32 32s32-14.3 32-32l0-336 128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-16 0 0-48 192 0 0 192-192 0 0-32-64 0 0 48c0 26.5 21.5 48 48 48l224 0c26.5 0 48-21.5 48-48l0-224c0-26.5-21.5-48-48-48L368 0c-26.5 0-48 21.5-48 48l0 64-122.7 0c-45.6 0-88.5 21.6-115.6 58.2L14.3 260.9c-10.5 14.2-7.6 34.2 6.6 44.8s34.2 7.6 44.8-6.6L112 236.7 112 512c0 17.7 14.3 32 32 32s32-14.3 32-32z"/>
+          </svg>
+          
+          강사 홈
+        </a>
+        {% endif %}
+      </nav>
+    </div>
 
     <div class="classq-sidebar-footer">
       {% if user.is_authenticated %}
-        <div class="classq-sidebar-user">
-          <p class="classq-sidebar-user-label">로그인됨</p>
-          <p class="classq-sidebar-user-name">{{ user.username }}</p>
-        </div>
+        <a href="{% url 'questions:logout' %}" class="classq-sidebar-login">로그아웃</a>
       {% else %}
         <a href="{% url 'questions:login' %}" class="classq-sidebar-login">로그인</a>
       {% endif %}
@@ -70,7 +104,7 @@
 
   <header class="topbar">
     <a href="{% url 'questions:home' %}" class="topbar-brand">
-      <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         <path d="M8 10h.01"></path>
         <path d="M12 10h.01"></path>
@@ -78,20 +112,51 @@
       </svg>
       <span>ClassQ</span>
     </a>
-    <span class="page-name">/ {% block page_title %}{% endblock %}</span>
+    <span class="page-name">{% block page_title %}{% endblock %}</span>
     <div class="topbar-actions">
+      <label class="dark-toggle" id="darkToggle" title="다크모드 전환" aria-label="다크모드 전환">
+        <input type="checkbox" id="darkModeInput">
+        <span class="dark-toggle-track"></span>
+        <span class="dark-toggle-thumb"></span>
+      </label>
       {% if user.is_authenticated %}
-      <span class="muted-text">{{ user.username }}</span>
+        <span class="muted-text">{{ user.username }}</span>
+        <a href="{% url 'questions:logout' %}" class="topbar-logout">로그아웃</a>
       {% else %}
-      <a href="{% url 'questions:login' %}" class="topbar-login">로그인</a>
+        <a href="{% url 'questions:login' %}" class="topbar-login">로그인</a>
       {% endif %}
     </div>
   </header>
 
   <main class="site-main">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-warning">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+    
     {% block content %}{% endblock %}
   </main>
 
   {% block extra_js %}{% endblock %}
+
+  <script>
+    (function () {
+      var input = document.getElementById('darkModeInput');
+      var saved = localStorage.getItem('classq-dark') === 'true';
+      if (saved) {
+        document.documentElement.classList.add('dark-mode');
+        if (input) input.checked = true;
+      }
+      if (input) {
+        input.addEventListener('change', function () {
+          document.documentElement.classList.toggle('dark-mode', this.checked);
+          localStorage.setItem('classq-dark', this.checked);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

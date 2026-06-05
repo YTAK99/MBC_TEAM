@@ -1,0 +1,47 @@
+{% load time_filters %}
+<!-- 질문 카드 컴포넌트 -->
+<article class="classq-card question-card {% if card_clickable %}question-card-clickable{% endif %}">
+  <!-- 카드 박스 내부 아무 곳이나 클릭해도 detail로 이동 -->
+  {% if card_clickable %}
+    <a href="{% url 'questions:detail' question.pk %}"
+       class="question-card-overlay-link"
+       aria-label="{{ question.title }} 상세 보기"></a>
+  {% endif %}
+
+  <div class="question-card-main">
+    <div class="question-meta">
+      {% for tag in question.tags.all %}
+        <span class="tag-badge"
+              style="background-color: {{ tag.color }};">
+          {{ tag.name }}
+        </span>
+      {% empty %}
+        <span class="tag-badge is-empty">태그 없음</span>
+      {% endfor %}
+
+      <span class="muted-text">{{ question.created_at|relative_time }}</span>
+    </div>
+
+    <h2>
+      <a href="{% url 'questions:detail' question.pk %}">
+        {{ question.title }}
+      </a>
+    </h2>
+
+    <p class="muted-text">{{ question.content|truncatechars:50 }}</p>
+  </div>
+
+  <div class="question-card-side">
+    <span class="status-badge status-{{ question.status|lower }}">
+      {{ question.get_status_display }}
+    </span>
+
+    <strong>{{ question.agree_count }}명이 궁금해요</strong>
+    {% if card_button_text %}
+  <a href="{% url 'questions:detail' question.pk %}"
+     class="classq-button classq-button-{{ card_button_style|default:'secondary' }}">
+    {{ card_button_text }}
+  </a>
+{% endif %}
+  </div>
+</article>

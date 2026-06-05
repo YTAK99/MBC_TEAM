@@ -1,39 +1,262 @@
 {% extends "base.html" %}
+
+<!-- static 파일 사용 -->
 {% load static %}
 
-{% block title %}회원가입 - ClassQ{% endblock %}
-{% block page_title %}회원가입{% endblock %}
 
+<!-- 브라우저 탭 제목 -->
+{% block title %}
+
+회원가입 - ClassQ
+
+{% endblock title %}
+
+
+<!-- 페이지 이름 -->
+{% block page_title %}
+
+회원가입
+
+{% endblock page_title %}
+
+
+<!-- 추가 CSS 연결 -->
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/classq-form.css' %}">
-{% endblock %}
 
+<link
+  rel="stylesheet"
+  href="{% static 'css/classq-form.css' %}"
+>
+
+{% endblock extra_head %}
+
+
+<!-- 메인 화면 -->
 {% block content %}
-<div class="auth-page">
-  <section class="classq-card auth-card">
-    <h1>회원가입</h1>
-    <p class="muted-text">Django 기본 학습용 회원가입 폼 영역입니다.</p>
 
-    <form method="post" class="classq-form">
+<div class="auth-page">
+
+  <!-- 회원가입 카드 -->
+  <section class="classq-card auth-card">
+
+    <!-- 제목 -->
+    <h1>
+      회원가입
+    </h1>
+
+    <!-- 회원가입 폼 -->
+    <form
+      method="post"
+      class="classq-form"
+    >
+
+      <!-- CSRF 보안 토큰 -->
       {% csrf_token %}
-      <div class="form-group">
-        <label for="id_username" class="form-label">아이디</label>
-        <input id="id_username" name="username" type="text" class="input-field" autocomplete="username">
+
+      <!-- 에러 메시지 출력 -->
+      {% if form.errors %}
+
+      <div class="error-text">
+
+        <!-- 각 필드 에러 -->
+        {% for field in form %}
+
+          {% for error in field.errors %}
+
+            <p>{{ error }}</p>
+
+          {% endfor %}
+
+        {% endfor %}
+
+        <!-- 공통 에러 -->
+        {% for error in form.non_field_errors %}
+
+          <p>{{ error }}</p>
+
+        {% endfor %}
+
       </div>
+
+      {% endif %}
+
+
+      <!-- 아이디 입력 -->
       <div class="form-group">
-        <label for="id_password1" class="form-label">비밀번호</label>
-        <input id="id_password1" name="password1" type="password" class="input-field" autocomplete="new-password">
+
+        <label
+          for="id_username"
+          class="form-label"
+        >
+          아이디
+        </label>
+
+        <!-- username 폼 출력 -->
+        {{ form.username }}
+
+        <!-- 아이디 중복 메시지 -->
+        <p id="username-message"></p>
+
       </div>
+
+
+      <!-- 비밀번호 입력 -->
       <div class="form-group">
-        <label for="id_password2" class="form-label">비밀번호 확인</label>
-        <input id="id_password2" name="password2" type="password" class="input-field" autocomplete="new-password">
+
+        <label
+          for="id_password1"
+          class="form-label"
+        >
+          비밀번호
+        </label>
+
+        <!-- password1 폼 출력 -->
+        {{ form.password1 }}
+
+        <!-- 비밀번호 조건 안내: 입력칸과 간격·글자 크기는 .form-hint (classq-form.css) -->
+        <p class="muted-text form-hint">
+          &nbsp 영문 대소문자, 숫자를 포함한 8자 이상
+        </p>
+
       </div>
-      <button type="submit" class="classq-button classq-button-primary form-wide-button">가입</button>
+
+
+      <!-- 비밀번호 확인 -->
+      <div class="form-group">
+
+        <label
+          for="id_password2"
+          class="form-label"
+        >
+          비밀번호 확인
+        </label>
+
+        <!-- password2 폼 출력 -->
+        {{ form.password2 }}
+
+      </div>
+
+
+      <!-- 역할 선택 -->
+      <div class="form-group">
+
+        <label class="form-label">
+
+          역할 선택
+
+        </label>
+
+        <div class="role-selector">
+
+          <!-- 역할 목록 반복 -->
+          {% for radio in form.role %}
+
+          <label class="role-option">
+
+            <!-- 라디오 버튼 -->
+            {{ radio.tag }}
+
+            <!-- 역할 이름 -->
+            <span>
+
+              {{ radio.choice_label }}
+
+            </span>
+
+          </label>
+
+          {% endfor %}
+
+        </div>
+
+      </div>
+
+
+      <!-- 회원가입 버튼 -->
+      <button
+        type="submit"
+        class="classq-button classq-button-primary form-wide-button"
+      >
+
+        회원가입
+
+      </button>
+
     </form>
 
+
+    <!-- 로그인 이동 -->
     <p class="auth-switch muted-text">
-      이미 계정이 있다면 <a href="{% url 'questions:login' %}" class="classq-link">로그인</a>
+
+      이미 계정이 있다면
+
+      <a
+        href="{% url 'questions:login' %}"
+        class="classq-link"
+      >
+
+        로그인
+
+      </a>
+
     </p>
+
   </section>
+
 </div>
-{% endblock %}
+
+
+<!-- 아이디 중복 확인 스크립트 -->
+<script>
+
+const usernameInput =
+    document.getElementById("id_username");
+
+// 메시지 출력 영역
+const message =
+    document.getElementById("username-message");
+
+
+// 아이디 입력 시 실행
+usernameInput.addEventListener("input", async () => {
+
+    // 입력값 가져오기
+    const username = usernameInput.value;
+
+    // 2글자 미만이면 메시지 제거
+    if (username.length < 2) {
+
+        message.textContent = "";
+
+        return;
+    }
+
+    // 서버에 중복 확인 요청
+    const response = await fetch(
+        `/check-username/?username=${username}`
+    );
+
+    // JSON 데이터 변환
+    const data = await response.json();
+
+    // 이미 존재하는 아이디
+    if (data.exists) {
+
+        message.textContent =
+            "이미 사용 중인 아이디입니다.";
+
+        message.style.color = "#d4183d";
+
+    } else {
+
+        // 사용 가능한 아이디
+        message.textContent =
+            "사용 가능한 아이디입니다.";
+
+        message.style.color = "green";
+    }
+});
+
+</script>
+
+{% endblock content %}

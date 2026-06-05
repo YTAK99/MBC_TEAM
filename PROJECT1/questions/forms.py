@@ -2,31 +2,124 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from .models import Question, Response
 
-class QuestionForm(forms.Form):
-    title = forms.CharField(
-        label="제목",
-        max_length=100,
-        widget=forms.TextInput(
-            attrs={
-                "class": "input-field",
-                "placeholder": "질문 제목을 입력하세요",
-            }
-        ),
-    )
-    content = forms.CharField(
-        label="내용",
-        widget=forms.Textarea(
-            attrs={
-                "class": "input-field form-textarea",
-                "placeholder": "질문 내용을 입력하세요",
-                "rows": 6,
-            }
-        ),
-    )
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question    #질문 작성 화면 양식은 models.py에서 가져온 class Question 기반으로 뼈대를 잡는것
+        fields = ("title", "content", "tags", "is_anonymous")   #튜플형태/ class Question에 있는 것들 중 화면에서 나타나 입력받을 칸을 4개만 골라줌(나머지는 화면에 나타나지X)
+
+        # 입력/버튼 상자들의 이름표 
+        labels = {
+            "title": "제목",
+            "content": "내용",
+            "tags": "태그 (최대 3개까지 가능합니다)",
+            "is_anonymous": "익명으로 올리기",
+        }
+        # 입력 상자의 모양과 스타일 ;코드구조: "칸이름": 상자의 종류(옵션들)
+        widgets = {
+            "title": forms.TextInput(
+                attrs={
+                    "placeholder": "제목은 간결하게 입력해주세요",
+                    "class": "input-field",
+                    "style": (
+                        "width: 100%; background-color: #F5F3EE; border: none; "
+                        "border-radius: 12px; padding: 14px 16px; font-size: 14px; outline: none;"
+                    ),
+                }
+            ),
+            #내용(content) 창 꾸미기
+            "content": forms.Textarea(  # 여러줄을 쓸 수 있는 커다란 글상자 <textarea> 만들기
+                attrs={
+                    "placeholder": "어떤부분이 어려운지 구체적으로 설명해주세요",
+                    "rows": 5,
+                    "class": "input-field resize-none",    # 사용자가 임의로 입력상자의 크기를 조정할수없게 고정  
+                    "style": (
+                        "width: 100%; background-color: #F5F3EE; border: none; "
+                        "border-radius: 12px; padding: 14px 16px; font-size: 14px; "
+                        "outline: none; resize: none;"
+                    ),
+                }
+            ),
+            "tags": forms.CheckboxSelectMultiple(),     #태그(tags) 창 꾸미기
+            "is_anonymous": forms.CheckboxInput(        #익명으로 올리기 버튼(is_anonymous)
+                attrs={"class": "form-check-input"}
+            ),
+        }
+
+    def clean_tags(self):
+        tags = self.cleaned_data.get("tags")
+        if tags and tags.count() > 3:
+            raise forms.ValidationError("태그는 최대 3개까지 선택할 수 있습니다.")
+        return tags
 
 
 class SignupForm(UserCreationForm):
+    ROLE_CHOICES = [
+        ("student", "학생"),
+        ("teacher", "강사"),
+    ]
+
+    username = forms.CharField(
+        label="아이디",
+        widget=forms.TextInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "아이디 입력",
+            }
+        ),
+    )
+
+    password1 = forms.CharField(
+        label="비밀번호",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "비밀번호 입력",
+            }
+        ),
+    )
+
+    password2 = forms.CharField(
+        label="비밀번호 확인",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "input-field",
+                "placeholder": "비밀번호 확인",
+            }
+        ),
+    )
+
+    role = forms.ChoiceField(
+        label="역할",
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+    )
+
     class Meta:
         model = User
-        fields = ("username",)
+        fields = (
+            "username",
+            "password1",
+            "password2",
+        )
+
+class ResponseForm(forms.ModelForm):
+    """
+    질문 상세 페이지 하단 '답변 남기기' 폼.
+    question/author/response_type 은 views.detail POST 처리에서 저장한다.
+    """
+
+    class Meta:
+        model = Response
+        fields = ["content"]
+        widgets = {
+            "content": forms.Textarea(
+                attrs={
+                    "class": "input-field form-textarea",
+                    "rows": 3,
+                    "placeholder": "답변을 입력해주세요...",
+                }
+            )
+        }

@@ -5,63 +5,76 @@
 {% block page_title %}질문 게시판{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-board.css' %}?v=4.0">
+
+<style>
+  .tag-badge, 
+  .filter-chip, 
+  .tag-pill, 
+  .tag-label {
+    font-family: "KyoboHandwriting", sans-serif !important;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="page-container page-container-narrow board-page">
-  <div class="board-toolbar">
-    <form method="get" class="board-search">
-      <label for="question-search" class="screen-reader-text">질문 검색</label>
-      <input id="question-search" name="q" type="search" class="input-field" placeholder="질문 검색">
-    </form>
-    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">질문하기</a>
-  </div>
-
-  <div class="board-filter-row">
-    <a href="{% url 'questions:board' %}" class="filter-chip is-active">전체</a>
-    <span class="filter-chip">태그</span>
-    <span class="filter-chip">수업</span>
-    <span class="filter-chip">과제</span>
-  </div>
-
-  <div class="board-heading">
-    <h1>질문 목록</h1>
-    <span class="muted-text">정렬과 검색 기능은 추후 구현 예정</span>
-  </div>
-
-  <section class="question-list" aria-label="질문 목록">
-    {# 추후 구현: {% for question in questions %} 반복문으로 실제 질문을 출력한다. #}
-    {# 추후 구현: QuestionAgree 수는 question.agrees.count 기준으로 표시한다. #}
-    <article class="classq-card question-card">
-      <div class="question-card-main">
-        <div class="question-meta">
-          <span class="tag-badge">예시</span>
-          <span class="muted-text">익명 학생</span>
-        </div>
-        <h2><a href="{% url 'questions:detail' 1 %}">질문 제목이 들어갈 자리입니다</a></h2>
-        <p class="muted-text">질문 내용 일부를 보여주는 영역입니다.</p>
-      </div>
-      <div class="question-card-side">
-        <span>Response</span>
-        <strong>-</strong>
-      </div>
-    </article>
-
-    <article class="classq-card question-card">
-      <div class="question-card-main">
-        <div class="question-meta">
-          <span class="tag-badge">수업</span>
-          <span class="muted-text">익명</span>
-        </div>
-        <h2><a href="{% url 'questions:detail' 2 %}">두 번째 질문 카드 자리</a></h2>
-        <p class="muted-text">현재 카드는 데이터베이스와 연결되지 않은 HTML 예시입니다.</p>
-      </div>
-      <div class="question-card-side">
-        <span>Response</span>
-        <strong>-</strong>
-      </div>
-    </article>
+   <div class="board-toolbar">
+  <form method="get" class="board-search">
+    <label for="question-search" class="screen-reader-text">질문 검색</label>
+    <input id="question-search" name="q" type="search" class="input-field" placeholder="제목이나 내용을 입력해주세요" value="{{ query }}">
+    <button type="submit" class="classq-button classq-button-primary">검색</button>
+  </form>
+</div>
+<div class="board-filter-row">              
+  
+  {% for item in tag_filters %}
+  <a href="{{ item.url }}"
+     class="filter-chip {% if item.is_selected %}is-active{% endif %}"
+     style="
+       border-color: {{ item.tag.color }};
+       {% if item.is_selected %}
+         background-color: {{ item.tag.color }};
+         color: #ffffff;
+       {% else %}
+         color: {{ item.tag.color }};
+       {% endif %}
+     ">
+    {{ item.tag.name }}
+  </a>
+{% endfor %}
+</div>
+{% include "questions/components/question_card_heading.html" with section_title="질문 목록" show_ask_button=True %}  
+ <section class="question-list" aria-label="질문 목록">
+    {% for question in questions %}
+       {% include "questions/components/question_card.html" with card_clickable=True %}
+    {% empty %}
+    <div class="classq-card question-card">
+      <p class="muted-text">
+        {% if mine_active %}작성한 질문이 없습니다.{% else %}아직 등록된 질문이 없습니다.{% endif %}
+      </p>
+    </div>
+    {% endfor %}
   </section>
+  {% if page_obj.has_other_pages %}
+  <nav class="pagination-row" aria-label="질문 페이지 이동">
+    {% if page_obj.has_previous %}
+      <a class="filter-chip"
+         href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if mine_active %}&mine=1{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+        이전
+      </a>
+    {% endif %}
+    <span class="pagination-current">
+      {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+      <a class="filter-chip"
+         href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if mine_active %}&mine=1{% endif %}{% if selected_tag_ids %}&tag={{ selected_tag_ids|join:'&tag=' }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+        다음
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}
 </div>
 {% endblock %}

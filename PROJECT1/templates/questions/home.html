@@ -6,80 +6,61 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/classq-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="home-hero page-container">
-  <p class="eyebrow">익명 질문 게시판</p>
-  <h1>수업 중 막힌 부분을 질문하는 공간</h1>
+  
+  <h1>더 편하게, 정확하게 질문하세요</h1>
   <p class="home-lead muted-text">
-    ClassQ는 수업 중 생긴 질문을 게시판 형태로 모아두기 위한 기본 화면입니다.
+    우리들만의 학습도우미 classQ 를 소개합니다!
   </p>
-  <div class="hero-actions">
-    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-primary">질문 등록</a>
-    <a href="{% url 'questions:board' %}" class="classq-button classq-button-secondary">게시판 보기</a>
-  </div>
 </section>
 
-<section class="home-summary page-container">
+<!--하얀 박스 3-->
+<section class="home-summary page-container"> 
   <div class="summary-grid">
-    <article class="classq-card summary-card">
-      <span class="summary-label">질문</span>
-      <strong class="summary-value">-</strong>
-      <p class="muted-text">질문 수 표시 영역</p>
+
+    <article class="classq-card summary-card"> 
+      <div class="card-emoji">
+        <img src="{% static 'images/anonymous.png' %}" alt="익명보장"></div>
+      <span class="summary-label">익명 질문 보장</span>
+    <p class="muted-text">질문이 부끄러워도 괜찮아요. 익명 버튼을 누르면 마음 편히 질문을 작성할 수 있습니다.</p>
     </article>
+    
     <article class="classq-card summary-card">
-      <span class="summary-label">Response</span>
-      <strong class="summary-value">-</strong>
-      <p class="muted-text">Response 수 표시 영역</p>
+      <div class="card-emoji">
+        <img src="{% static 'images/tag.png' %}" alt="기술 태그">
+      </div>
+      <span class="summary-label">기술 태그 분류</span>
+      <p class="muted-text">#Java, #Python 등 태그를 선택해 궁금한 부분만 쏙쏙 골라봅니다. </p>
     </article>
+    
+    
     <article class="classq-card summary-card">
-      <span class="summary-label">태그</span>
-      <strong class="summary-value">-</strong>
-      <p class="muted-text">태그 수 표시 영역</p>
+      <div class="card-emoji">
+        <img src="{% static 'images/status.png' %}" alt="상태 관리">
+      </div>
+      <span class="summary-label ">확실한 상태 관리</span>
+      
+      <p class="muted-text">답변 대기부터 해결됨까지 내 질문의 처리 상태를 명확하게 보여줍니다. </p>
     </article>
   </div>
 </section>
 
-<section class="page-container home-section">
-  <div class="section-heading">
-    <h2>최근 질문</h2>
-    <a href="{% url 'questions:board' %}" class="classq-link">전체 보기</a>
-  </div>
+<div class="cta-container">
+  {% if user.is_authenticated %}
+    <a href="{% url 'questions:ask' %}" class="classq-button classq-button-cta">
+        <img src="{% static 'images/start_question.png' %}" class="cta-icon alt="질문 아이콘">
+        <span>나도 질문 하러 가기</span>
+    </a>
+  {% else %}
+    <a href="{% url 'questions:login' %}" class="classq-button classq-button-cta">
+        <img src="{% static 'images/start_question.png' %}" class="cta-icon" alt="로그인 아이콘">
+        <span>나도 질문하러 가기</span>
+    </a>
+  {% endif %}
+</div>
 
-  <div class="home-question-list">
-    {# 추후 구현: {% for question in questions %} 구조로 실제 질문 목록을 연결한다. #}
-    <article class="classq-card home-question-card">
-      <span class="tag-badge">예시 태그</span>
-      <h3>질문 제목이 들어갈 자리입니다</h3>
-      <p class="muted-text">질문 내용 요약이나 작성 시간은 이후 팀원이 직접 연결합니다.</p>
-    </article>
-    <article class="classq-card home-question-card">
-      <span class="tag-badge">수업</span>
-      <h3>두 번째 질문 카드 자리</h3>
-      <p class="muted-text">현재는 HTML/CSS 템플릿만 남겨둔 상태입니다.</p>
-    </article>
-  </div>
-</section>
-
-<section class="page-container home-section">
-  <h2>사용 흐름</h2>
-  <div class="step-grid">
-    <article class="classq-card step-card">
-      <span class="step-number">1</span>
-      <h3>질문 작성</h3>
-      <p class="muted-text">제목과 내용을 입력하는 화면을 준비합니다.</p>
-    </article>
-    <article class="classq-card step-card">
-      <span class="step-number">2</span>
-      <h3>게시판 확인</h3>
-      <p class="muted-text">질문 목록을 확인하는 화면을 준비합니다.</p>
-    </article>
-    <article class="classq-card step-card">
-      <span class="step-number">3</span>
-      <h3>Response 연결</h3>
-      <p class="muted-text">후속 글 기능은 이후 직접 구현합니다.</p>
-    </article>
-  </div>
-</section>
 {% endblock %}

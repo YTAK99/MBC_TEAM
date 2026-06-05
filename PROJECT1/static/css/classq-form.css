@@ -1,63 +1,304 @@
 .form-page {
+
+  /* 위 / 아래 여백 */
   padding: 36px 0 64px;
 }
 
+
+/* =========================
+   폼 카드
+========================= */
 .form-card {
+
+  /* 최대 너비 */
   max-width: 680px;
+
+  /* 가운데 정렬 */
   margin: 0 auto;
 }
 
+
+/* =========================
+   제목 스타일
+========================= */
 .form-card h1,
 .auth-card h1 {
+
   margin: 0 0 8px;
+
   font-size: 24px;
 }
 
+
+/* 설명 문구 */
 .form-card > p,
 .auth-card > p {
+
   margin: 0 0 24px;
+
   font-size: 14px;
+
   line-height: 1.65;
 }
 
+
+/* =========================
+   폼 전체
+========================= */
 .classq-form {
+
   display: grid;
+
   gap: 18px;
 }
 
+
+/* =========================
+   버튼 영역
+========================= */
 .form-actions {
+
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
+
   padding-top: 4px;
 }
 
+
+/* =========================
+   로그인 / 회원가입 페이지
+========================= */
 .auth-page {
+
   display: grid;
+
+  /* 가운데 정렬 */
   place-items: start center;
+
   padding: 56px 20px;
 }
 
+
+/* 로그인 / 회원가입 카드 */
 .auth-card {
+
   width: min(100%, 420px);
 }
 
+
+/* 가로 꽉 채우는 버튼 */
 .form-wide-button {
   width: 100%;
 }
 
+
+/* 로그인 / 회원가입 이동 문구 */
 .auth-switch {
-  margin: 20px 0 0;
+
+  margin: 5px 0 0;
+
   text-align: center;
+
   font-size: 14px;
+
 }
 
+
+/* =========================
+   모바일 대응
+========================= */
 @media (max-width: 520px) {
+
+  /* 버튼 세로 정렬 */
   .form-actions {
     flex-direction: column-reverse;
   }
 
+  /* 버튼 전체 너비 */
   .form-actions .classq-button {
     width: 100%;
   }
+}
+
+
+/* =========================
+   역할 선택 영역
+========================= */
+.role-selector {
+
+  display: grid;
+
+  /* 3칸 */
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+/* 역할 선택 전용 페이지는 버튼이 2개라 2열로 배치 */
+.select-role-selector {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+
+/* 역할 선택 버튼 */
+.role-option {
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 49px;
+
+  border: 1px solid var(--classq-border);
+
+  border-radius: 14px;
+
+  background: #fff;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+
+/* 역할 버튼 hover */
+.role-option:hover {
+
+  border-color: rgba(255, 92, 53, 0.35);
+
+  background: rgba(255, 92, 53, 0.04);
+}
+
+
+/* 라디오 버튼 색상 */
+.role-option input[type="radio"] {
+
+  accent-color: var(--classq-accent);
+}
+
+
+/* 선택된 역할 버튼 */
+.role-option:has(input:checked) {
+
+  border-color: var(--classq-accent);
+
+  background: rgba(255, 92, 53, 0.08);
+}
+
+
+/* 아이디 중복 메시지 */
+#username-message {
+
+  margin: 4px 2px 0;
+
+  font-size: 13px;
+
+  font-weight: 500;
+}
+
+
+/* =========================
+   필드 보조 안내 (회원가입 비밀번호 조건 등)
+========================= */
+.form-hint {
+
+  /* p 기본 margin(약 16px)을 없애 입력칸과 간격을 좁힘 */
+  margin: 2px 0 0;
+
+  /* 본문(14px)보다 한 단계 작게 */
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+
+/* 로그인 / 회원가입 카드 안쪽 여백 */
+.auth-card {
+  padding: 32px;
+}
+
+
+/* 제목 가운데 정렬 */
+.auth-card h1 {
+
+  text-align: center;
+
+  margin-bottom: 24px;
+}
+
+
+/* 폼 요소 간격 */
+.classq-form {
+  gap: 20px;
+}
+
+/* 구글 아이콘 크기*/
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.google-login-button {
+  border: 2px solid #1a1a2e;
+  gap: 12px;
+  min-height: 48px;
+}
+
+.google-login-button:hover {
+  background: #f5f5f5;
+}
+
+/* ===== 다크모드: classq-form.css ===== */
+html.dark-mode .form-card,
+html.dark-mode .auth-card {
+  background: #1c1c30;
+  border-color: rgba(237, 234, 227, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .form-card h1,
+html.dark-mode .auth-card h1 {
+  color: #edeae3;
+}
+
+html.dark-mode .form-card > p,
+html.dark-mode .auth-card > p {
+  color: rgba(237, 234, 227, 0.6);
+}
+
+html.dark-mode .role-option {
+  background: #252538;
+  border-color: rgba(237, 234, 227, 0.12);
+  color: #edeae3;
+}
+
+html.dark-mode .role-option:hover {
+  border-color: rgba(255, 92, 53, 0.5);
+  background: rgba(255, 92, 53, 0.08);
+}
+
+html.dark-mode .role-option:has(input:checked) {
+  border-color: var(--classq-accent);
+  background: rgba(255, 92, 53, 0.12);
+}
+
+html.dark-mode .google-login-button {
+  border-color: rgba(237, 234, 227, 0.3);
+  color: #edeae3;
+}
+
+html.dark-mode .google-login-button:hover {
+  background: #252538;
 }

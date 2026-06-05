@@ -1,11 +1,17 @@
 # ClassQ — Django 버전 실행 가이드
 
+## 프로젝트 간단 소개
+
+수업 중 발생한 질문을 공유하고 답변·해결 과정을 관리하는 교육용 Q&A 플랫폼
+
 ## 빠른 시작
 
 ```bash
 # 1. 가상환경 생성 & 활성화
 python -m venv venv
 venv\Scripts\activate       # source venv/bin/activate 
+
+---------------------------------------------------------------
 
 # 2. 패키지 설치
 pip install -r requirements.txt
@@ -14,6 +20,8 @@ pip install -r requirements.txt
 pip install django
 pip install django-environ
 pip install pillow
+
+---------------------------------------------------------------
 
 # 3. 환경변수 설정 (manage.py 가 있는 폴더에서)
 copy .env.example .env
@@ -29,26 +37,56 @@ DATABASE_URL=sqlite:///db.sqlite3
 
 python manage.py check
 
+---------------------------------------------------------------
+
 # 4. DB 마이그레이션
-python manage.py makemigrations accounts
 python manage.py makemigrations questions
 python manage.py migrate
 
 안될때 del db.sqlite3하고 다시
 
-# 5. 초기 태그 데이터 로드
+---------------------------------------------------------------
+
+# 5. 관리자 계정 생성
+python manage.py createsuperuser
+
+---------------------------------------------------------------
+
+# 6. 초기 태그 데이터 로드
 python manage.py loaddata questions/fixtures/tags.json
 
-# 6. 관리자 계정 생성
-python manage.py createsuperuser
+# 6.5. 시연 데이터 로드
+(faker 모듈 설치 안했다면) pip install faker
+python manage.py seed
+
+(데이터 초기화 하고 싶다면) python manage.py flush
+
+---------------------------------------------------------------
 
 # 7. 개발 서버 실행
 python manage.py runserver
 ```
 
-브라우저에서 http://127.0.0.1:8000 접속
+- 브라우저에서 http://127.0.0.1:8000 접속
+- css 수정 후 스타일 적용이 안될 때  =>  Ctrl + F5 로 강제 새로고침
 
----
+---------------------------------------------------------------------------------------------------------------------
+
+# 구글 로그인 연동 방법
+
+0-1. 일단 jwt대신 Pyjwt 를 설치해야 해서 : pip uninstall jwt
+0-2. pip install PyJWT      (requirement.txt에 업데이트 해놨습니다)
+
+1. 127.0.0.1:8000/admin 으로 접속한다.
+2. SITES -> SITES 로 들어가서 example.com -> 127.0.0.1:8000 으로 수정한다.
+3. Social Accounts -> Social Applications 로 들어가서 아래 내용을 추가해준다.
+  - Provider : Google
+  - Name : google
+  - Client id : 클라이언트 ID 입력
+  - Secret key : 클라이언트 PW 입력
+  - Sites 에서 127.0.0.1:8000 선택해서 오른쪽으로 이동
+
+---------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -56,9 +94,8 @@ python manage.py runserver
 
 | 파일 | 역할 |
 |------|------|
-| `accounts/models.py` | role(student/ta/instructor) 포함 CustomUser |
-| `questions/models.py` | Tag, Question, Answer, Like |
-| `questions/views.py` | Home, Board, Detail, Ask, Like(AJAX), Resolve |
+| `questions/models.py` | Tag, Question, Response, QuestionAgree |
+| `questions/views.py` | Home, Board, Detail, Ask, Agree(AJAX), Resolve |
 | `questions/forms.py` | QuestionForm, AnswerForm |
 | `templates/base.html` | 사이드바 + 탑바 공통 레이아웃 |
 
@@ -66,15 +103,22 @@ python manage.py runserver
 
 ```
 /                       홈
+/home/                  홈(중복 경로)
 /board/                 질문 목록 (검색, 태그 필터, 정렬)
-/board/<id>/            질문 상세 + 답변
+/hall-of-fame/          명예의 전당
 /ask/                   질문 등록 (로그인 필요)
-/board/<id>/like/       좋아요 토글 POST → JSON
-/board/<id>/resolve/    해결됨 표시 POST (작성자만)
-/accounts/login/        로그인
-/accounts/logout/       로그아웃
-/accounts/signup/       회원가입
+/questions/<int:pk>/            질문 상세 + 답변
+/questions/<int:pk>/edit/       질문 수정
+/questions/<int:pk>/resolve/    해결됨 표시 POST (작성자만)
+/questions/<int:pk>/agree/      공감 토글 POST
+/login/                 로그인
+/logout/                로그아웃
+/signup/                회원가입
+/check-username/        아이디 중복 확인(AJAX)
+/teacher/               강사용 홈
+/teacher/board/         강사용 질문 목록
 /admin/                 관리자 페이지
++ 답변 해결됨 추가용
 ```
 
 ## 배포 시 추가 사항
@@ -84,3 +128,12 @@ python manage.py runserver
 3. PostgreSQL로 전환 (`DATABASE_URL` 변경)
 4. `python manage.py collectstatic` 실행
 5. Tailwind CDN → CLI 빌드로 교체 (선택)
+
+
+## 사용된 주요 스택과 버전
+
+Figma: UI 래퍼런스
+tailwindcss: ^4.3.0 (ask.html)
+Django: 6.0.5
+=======
+

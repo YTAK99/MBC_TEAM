@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+역할 선택 - ClassQ
+{% endblock %}
+
+{% block page_title %}
+역할 선택
+{% endblock %}
+
+{% block extra_head %}
+<link
+  rel="stylesheet"
+  href="{% static 'css/classq-form.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <section class="classq-card auth-card">
+    <h1>처음 로그인하셨네요</h1>
+    <p class="muted-text">한 번만 역할을 선택하면 다음부터는 바로 로그인됩니다.</p>
+
+    {% if error %}
+    <p class="error-text">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" class="classq-form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label">역할 선택</label>
+        <div class="role-selector select-role-selector">
+          <label class="role-option">
+            <input type="radio" name="role" value="student" required>
+            <span>학생</span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="role" value="teacher" required>
+            <span>강사</span>
+          </label>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="classq-button classq-button-primary form-wide-button"
+      >
+        선택 완료
+      </button>
+    </form>
+  </section>
+</div>
+{% endblock %}

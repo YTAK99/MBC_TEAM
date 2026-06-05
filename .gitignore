@@ -60,6 +60,8 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+db.sqlite3.bak-20260527-151330
+db.sqlite3.bak-single-questions-20260527-153255
 
 # Flask stuff:
 instance/
@@ -217,8 +219,8 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-migrations/
 _media/
 
 # VSCode
 .vscode/
+node_modules/tailwindcss/LICENSE

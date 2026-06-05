@@ -1,3 +1,26 @@
+@font-face {
+  font-family: "베라R";
+  src: url("../font/베라R.otf") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "베라R";
+  src: url("../font/베라R.otf") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 1. 홈 화면 전체 기본 폰트 설정 */
+body {
+  font-family: "베라R", sans-serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 상단 헤드라인 구역 */
 .home-hero {
   padding: 64px 0 44px;
 }
@@ -5,14 +28,14 @@
 .home-hero h1 {
   max-width: 720px;
   margin: 18px 0 16px;
-  font-size: 44px;
+  font-size: 51px;
   line-height: 1.18;
 }
 
 .home-lead {
   max-width: 620px;
   margin: 0 0 28px;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.7;
 }
 
@@ -22,22 +45,32 @@
   gap: 12px;
 }
 
+/* 통계구역 틀 */
 .home-summary {
   padding-bottom: 36px;
 }
 
-.summary-grid,
-.step-grid {
+/* 박스 3개를 가로로 정렬해 주는 틀 */
+.summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
+/* 박스 각각의 하얀색 배경과 테두리 */
 .summary-card {
-  display: grid;
+  display: flex;         
+  flex-direction: column; 
+  align-items: center;    /* 모든 내용이 가운데 정렬되도록 고정 */
+  justify-content: flex-start;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #E5E8EB;
+  border-radius: 16px; 
   gap: 8px;
 }
 
+/* 익명질문 보장, 기술태그 분류, 확실한 상태 관리 */
 .summary-label {
   color: var(--classq-muted-text);
   font-size: 13px;
@@ -45,64 +78,20 @@
 }
 
 .summary-value {
-  font-family: "DM Mono", monospace;
+  font-family: "베라R", sans-serif !important;
   font-size: 32px;
 }
 
-.summary-card p {
-  margin: 0;
-  font-size: 14px;
+/* card-emoji 안의 이미지 크기 제어 */
+.card-emoji img {
+  width: 48px;         
+  height: 48px;         
+  object-fit: contain;  
+  margin: 0 auto 16px;  
+  display: inline-block; 
 }
 
-.home-section {
-  padding-bottom: 44px;
-}
-
-.home-section h2 {
-  margin: 0 0 16px;
-}
-
-.home-question-list {
-  display: grid;
-  gap: 12px;
-}
-
-.home-question-card {
-  display: grid;
-  gap: 10px;
-}
-
-.home-question-card h3,
-.step-card h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.home-question-card p,
-.step-card p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.step-card {
-  display: grid;
-  gap: 12px;
-}
-
-.step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: rgba(255, 92, 53, 0.1);
-  color: var(--classq-accent);
-  font-family: "DM Mono", monospace;
-  font-weight: 700;
-}
-
+/* 화면이 작아졌을때 반응형으로 1열을 정렬해주는 구역 */
 @media (max-width: 760px) {
   .home-hero {
     padding-top: 44px;
@@ -112,8 +101,101 @@
     font-size: 34px;
   }
 
-  .summary-grid,
-  .step-grid {
+  .summary-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.section-title {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--classq-foreground);
+}
+
+.summary-card a.summary-value {
+  display: inline-block;
+  font-weight: 800;
+  line-height: 1;
+  margin: 8px 0;
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.summary-card a.summary-value:link,
+.summary-card a.summary-value:visited {
+  text-decoration: none;
+}
+
+.summary-card a.summary-value:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.summary-open,
+.summary-open:link,
+.summary-open:visited {
+  color: #dc2626;
+}
+
+.summary-followup,
+.summary-followup:link,
+.summary-followup:visited {
+  color: #1100ff;
+}
+
+.summary-answered,
+.summary-answered:link,
+.summary-answered:visited {
+  color: #16a34a;
+}
+
+.summary-new {
+  color: #dc2626;
+}
+
+.summary-waiting {
+  color: #1100ff;
+}
+
+.summary-resolved {
+  color: #16a34a;
+}
+
+/* CTA 버튼 컨테이너 */
+.cta-container {
+  display: flex;
+  justify-content: center;
+  margin: 36px 0;
+}
+
+/* CTA버튼 스타일 */
+.classq-button-cta {
+  background-color: var(--classq-accent) !important;
+  color: #ffffff !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  padding: 16px 36px !important;  
+  border-radius: 30px !important;
+  box-shadow: 0 4px 14px rgba(255, 92, 53, 0.3);
+  text-decoration: none;
+  
+  display: inline-flex;
+  align-items: center; 
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+
+.classq-button-cta .cta-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.classq-button-cta:hover {
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(255, 92, 53, 0.4);
+  background-color: #ff451a !important;
+  opacity: 0.95;
 }
