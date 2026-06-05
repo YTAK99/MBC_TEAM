@@ -182,3 +182,61 @@
     font-family: "베라R", sans-serif !important;
     font-weight: normal !important;
   }
+
+/* ===== 다크모드: classq-ask.css ===== */
+html.dark-mode .form-card {
+  background: #1c1c30;
+  border-color: rgba(237, 234, 227, 0.1);
+}
+
+html.dark-mode .form-card h1 {
+  color: #edeae3;
+}
+
+html.dark-mode .form-card .card-description {
+  color: rgba(237, 234, 227, 0.55);
+}
+
+html.dark-mode .ask-field-label {
+  color: #edeae3;
+}
+
+html.dark-mode .ask-toggle-label {
+  color: #edeae3;
+}
+
+html.dark-mode .ask-toggle-description {
+  color: rgba(237, 234, 227, 0.5);
+}
+
+html.dark-mode .tag-pill {
+  background: #252538 !important;
+  color: inherit !important;
+}
+
+html.dark-mode .form-card input,
+html.dark-mode .form-card textarea,
+html.dark-mode .form-card .input-field {
+  background: #252538 !important;
+  color: #edeae3 !important;
+  border-color: rgba(237, 234, 227, 0.15) !important;
+}
+
+html.dark-mode .form-card input::placeholder,
+html.dark-mode .form-card textarea::placeholder {
+  color: rgba(237, 234, 227, 0.35) !important;
+}
+
+html.dark-mode .ask-action-primary {
+  background: #edeae3;
+  color: #1a1a2e;
+}
+
+html.dark-mode .ask-action-secondary {
+  border-color: rgba(237, 234, 227, 0.2);
+  color: #edeae3;
+}
+
+html.dark-mode .ask-action-secondary:hover {
+  background: #252538;
+}

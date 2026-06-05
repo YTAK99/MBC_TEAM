@@ -148,3 +148,58 @@
   height: 1px;                                      /* 가로 선의 두께 */
   background: #e5e7eb;                              /* 옅은 회색 선 색상 */
 }
+
+/* ===== 다크모드: classq-hall-of-fame.css ===== */
+html.dark-mode .hof-panel {
+  background: #1c1c30;
+  border-color: rgba(237, 234, 227, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .hof-panel-head {
+  border-bottom-color: rgba(237, 234, 227, 0.12);
+}
+
+html.dark-mode .hof-panel-head div h2 {
+  color: #edeae3;
+}
+
+html.dark-mode .hof-panel-head div p {
+  color: rgba(237, 234, 227, 0.65) !important;
+}
+
+html.dark-mode .hof-icon-gold {
+  background: rgba(254, 243, 199, 0.15);
+}
+
+html.dark-mode .hof-icon-purple {
+  background: rgba(237, 233, 254, 0.12);
+}
+
+html.dark-mode .hof-rank-card {
+  color: #edeae3;
+}
+
+html.dark-mode .hof-rank-card strong,
+html.dark-mode .hof-rank-row strong {
+  color: #edeae3;
+}
+
+html.dark-mode .hof-rank-card span,
+html.dark-mode .hof-rank-row span {
+  color: rgba(237, 234, 227, 0.8);
+}
+
+html.dark-mode .hof-rank-card-gold {
+  background: rgba(255, 251, 235, 0.08);
+  border-color: rgba(253, 230, 138, 0.25);
+}
+
+html.dark-mode .hof-rank-row:first-child {
+  background: rgba(245, 243, 255, 0.08);
+}
+
+html.dark-mode .hof-rank-card + .hof-rank-card::before,
+html.dark-mode .hof-rank-row + .hof-rank-row::before {
+  background: rgba(237, 234, 227, 0.1);
+}

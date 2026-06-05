@@ -259,3 +259,46 @@
 .google-login-button:hover {
   background: #f5f5f5;
 }
+
+/* ===== 다크모드: classq-form.css ===== */
+html.dark-mode .form-card,
+html.dark-mode .auth-card {
+  background: #1c1c30;
+  border-color: rgba(237, 234, 227, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .form-card h1,
+html.dark-mode .auth-card h1 {
+  color: #edeae3;
+}
+
+html.dark-mode .form-card > p,
+html.dark-mode .auth-card > p {
+  color: rgba(237, 234, 227, 0.6);
+}
+
+html.dark-mode .role-option {
+  background: #252538;
+  border-color: rgba(237, 234, 227, 0.12);
+  color: #edeae3;
+}
+
+html.dark-mode .role-option:hover {
+  border-color: rgba(255, 92, 53, 0.5);
+  background: rgba(255, 92, 53, 0.08);
+}
+
+html.dark-mode .role-option:has(input:checked) {
+  border-color: var(--classq-accent);
+  background: rgba(255, 92, 53, 0.12);
+}
+
+html.dark-mode .google-login-button {
+  border-color: rgba(237, 234, 227, 0.3);
+  color: #edeae3;
+}
+
+html.dark-mode .google-login-button:hover {
+  background: #252538;
+}

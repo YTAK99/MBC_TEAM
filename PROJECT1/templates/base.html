@@ -114,6 +114,11 @@
     </a>
     <span class="page-name">{% block page_title %}{% endblock %}</span>
     <div class="topbar-actions">
+      <label class="dark-toggle" id="darkToggle" title="다크모드 전환" aria-label="다크모드 전환">
+        <input type="checkbox" id="darkModeInput">
+        <span class="dark-toggle-track"></span>
+        <span class="dark-toggle-thumb"></span>
+      </label>
       {% if user.is_authenticated %}
         <span class="muted-text">{{ user.username }}</span>
         <a href="{% url 'questions:logout' %}" class="topbar-logout">로그아웃</a>
@@ -136,5 +141,22 @@
   </main>
 
   {% block extra_js %}{% endblock %}
+
+  <script>
+    (function () {
+      var input = document.getElementById('darkModeInput');
+      var saved = localStorage.getItem('classq-dark') === 'true';
+      if (saved) {
+        document.documentElement.classList.add('dark-mode');
+        if (input) input.checked = true;
+      }
+      if (input) {
+        input.addEventListener('change', function () {
+          document.documentElement.classList.toggle('dark-mode', this.checked);
+          localStorage.setItem('classq-dark', this.checked);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
