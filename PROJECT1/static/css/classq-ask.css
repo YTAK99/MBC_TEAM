@@ -2,8 +2,8 @@
    교보 손글씨 폰트 등록 (이 파일 안에서 쓸 수 있도록 먼저 정의합니다)
    ========================================================================== */
    @font-face {
-    font-family: "KyoboHandwriting";
-    src: url("../font/KyoboHandwriting2025lyb.ttf") format('truetype');
+    font-family: "베라R";
+    src: url("../font/베라R.otf") format('truetype');
     font-weight: normal;
     font-style: normal;
   }
@@ -170,7 +170,7 @@
   .form-card textarea::placeholder,
   input,
   textarea {
-    font-family: "KyoboHandwriting", sans-serif !important;
+    font-family: "베라R", sans-serif !important;
     font-weight: normal !important;
   }
   
@@ -179,6 +179,6 @@
   .tag-pill *,
   .tag-flex-container label,
   .tag-flex-container span {
-    font-family: "CookieRun Regular", sans-serif !important;
+    font-family: "베라R", sans-serif !important;
     font-weight: normal !important;
   }

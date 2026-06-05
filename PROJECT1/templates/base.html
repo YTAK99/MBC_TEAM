@@ -12,23 +12,20 @@
 
   <style>
     @font-face {
-      font-family: "CookieRun Regular";
+      font-family: "베라R";
       /* 💡 장고 static 문법으로 폰트 절대 경로를 고정합니다 */
-      src: url("{% static 'font/CookieRun_Regular.ttf' %}") format('truetype');
+      src: url("{% static 'font/베라R.otf' %}") format('truetype');
       font-weight: normal;
       font-style: normal;
     }
   
-    /* 💡 별표(*)와 body를 이용해 사이트 내부의 '모든 글자'에 쿠키런 폰트를 강제 주입합니다 */
     *, body, h1, h2, h3, h4, h5, h6, p, span, a, input, button, textarea {
-      font-family: "CookieRun Regular", sans-serif !important;
+      font-family: "베라R", sans-serif !important;
     }
   </style>
-
-
-
   {% block extra_head %}{% endblock %}
 </head>
+
 <body>
   <aside class="classq-sidebar" aria-label="사이드바 메뉴">
     <div class="classq-sidebar-top">
