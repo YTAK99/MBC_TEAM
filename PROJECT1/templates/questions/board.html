@@ -5,34 +5,29 @@
 {% block page_title %}질문 게시판{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/classq-board.css' %}">
-{% endblock %}
-  
+<link rel="stylesheet" href="{% static 'css/classq-board.css' %}?v=4.0">
+
 <style>
-  input::placeholder,
-  input {
+  .tag-badge, 
+  .filter-chip, 
+  .tag-pill, 
+  .tag-label {
     font-family: "KyoboHandwriting", sans-serif !important;
   }
-  /* 대신 알약 태그와 다른 글씨들은 원래대로 쿠키런체로 채워지도록 방어 */
-  .board-page, .board-filter-row, .tag-badge {
-    font-family: "CookieRun Regular", sans-serif !important;
-  }
 </style>
+{% endblock %}
 
 {% block content %}
 <div class="page-container page-container-narrow board-page">
-   <!-- 검색어 입력 필드 추가 -->
-  <div class="board-toolbar">
+   <div class="board-toolbar">
   <form method="get" class="board-search">
     <label for="question-search" class="screen-reader-text">질문 검색</label>
     <input id="question-search" name="q" type="search" class="input-field" placeholder="제목이나 내용을 입력해주세요" value="{{ query }}">
     <button type="submit" class="classq-button classq-button-primary">검색</button>
   </form>
 </div>
-<!-- 정렬과 태그 필터를 위한 UI 추가 -->
-  <div class="board-filter-row">              
+<div class="board-filter-row">              
   
-  <!-- 태그 필터 UI -->
   {% for item in tag_filters %}
   <a href="{{ item.url }}"
      class="filter-chip {% if item.is_selected %}is-active{% endif %}"
@@ -49,13 +44,10 @@
   </a>
 {% endfor %}
 </div>
-<!-- 정렬 UI -->
 {% include "questions/components/question_card_heading.html" with section_title="질문 목록" show_ask_button=True %}  
- <!-- 질문 목록 섹션 -->
-  <section class="question-list" aria-label="질문 목록">
+ <section class="question-list" aria-label="질문 목록">
     {% for question in questions %}
        {% include "questions/components/question_card.html" with card_clickable=True %}
-    <!-- 질문이 하나도 없는 경우 -->
     {% empty %}
     <div class="classq-card question-card">
       <p class="muted-text">
@@ -64,7 +56,6 @@
     </div>
     {% endfor %}
   </section>
-  <!-- 페이지네이션 UI -->
   {% if page_obj.has_other_pages %}
   <nav class="pagination-row" aria-label="질문 페이지 이동">
     {% if page_obj.has_previous %}

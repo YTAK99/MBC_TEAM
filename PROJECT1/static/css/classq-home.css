@@ -1,33 +1,24 @@
 @font-face {
-  font-family: "CookieRun Regular";
-  src: url("../font/CookieRun_Regular.ttf") format('truetype');
+  font-family: "베라R";
+  src: url("../font/베라R.otf") format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "KyoboHandwriting";
-  src: url("../font/KyoboHandwriting2025lyb.ttf") format('truetype');
+  font-family: "베라R";
+  src: url("../font/베라R.otf") format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
+/* 1. 홈 화면 전체 기본 폰트 설정 */
 body {
-  font-family: "CookieRun Regular", sans-serif !important;
-
+  font-family: "베라R", sans-serif !important;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-body {
-  font-family: "CookieRun Regular", sans-serif !important;
-
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 
 /* 상단 헤드라인 구역 */
 .home-hero {
@@ -37,14 +28,14 @@ body {
 .home-hero h1 {
   max-width: 720px;
   margin: 18px 0 16px;
-  font-size: 44px;
+  font-size: 51px;
   line-height: 1.18;
 }
 
 .home-lead {
   max-width: 620px;
   margin: 0 0 28px;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.7;
 }
 
@@ -70,9 +61,8 @@ body {
 .summary-card {
   display: flex;         
   flex-direction: column; 
-  align-items: center;    /*모든 내용이 가운데 정렬되도록 고정 */
+  align-items: center;    /* 모든 내용이 가운데 정렬되도록 고정 */
   justify-content: flex-start;
-  
   padding: 24px;
   background: #ffffff;
   border: 1px solid #E5E8EB;
@@ -80,7 +70,7 @@ body {
   gap: 8px;
 }
 
-/* 통계 숫자와 글씨 스타일 */
+/* 익명질문 보장, 기술태그 분류, 확실한 상태 관리 */
 .summary-label {
   color: var(--classq-muted-text);
   font-size: 13px;
@@ -88,7 +78,7 @@ body {
 }
 
 .summary-value {
-  font-family: "CookieRun Regular", sans-serif !important;
+  font-family: "베라R", sans-serif !important;
   font-size: 32px;
 }
 
@@ -184,9 +174,9 @@ body {
 .classq-button-cta {
   background-color: var(--classq-accent) !important;
   color: #ffffff !important;
-  font-size: 16px !important;
+  font-size: 18px !important;
   font-weight: 700 !important;
-  padding: 14px 32px !important;  
+  padding: 16px 36px !important;  
   border-radius: 30px !important;
   box-shadow: 0 4px 14px rgba(255, 92, 53, 0.3);
   text-decoration: none;
@@ -194,7 +184,7 @@ body {
   display: inline-flex;
   align-items: center; 
   gap: 10px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important; /* 🟢 오타 수정 (backgroundcolor -> background-color) */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
 }
 
 .classq-button-cta .cta-icon {
@@ -208,10 +198,4 @@ body {
   box-shadow: 0 6px 20px rgba(255, 92, 53, 0.4);
   background-color: #ff451a !important;
   opacity: 0.95;
-}
-
-.summary-card, 
-.summary-card *,
-.summary-card p.muted-text {
-  font-family: "KyoboHandwriting", sans-serif !important;
 }
