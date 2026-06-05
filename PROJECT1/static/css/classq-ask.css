@@ -1,151 +1,242 @@
-body {
-  font-family: "esamanru Light", sans-serif !important;
+/* ==========================================================================
+   교보 손글씨 폰트 등록 (이 파일 안에서 쓸 수 있도록 먼저 정의합니다)
+   ========================================================================== */
+   @font-face {
+    font-family: "베라R";
+    src: url("../font/베라R.otf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  /* ==========================================================================
+     기존 질문 등록 페이지 전용 스타일
+     ========================================================================== */
+  .form-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 36px;
+    box-shadow: 0 4px 20px rgba(26, 26, 46, 0.04), 0 1px 3px rgba(26, 26, 46, 0.06);
+    border: 1px solid rgba(26, 26, 46, 0.08);
+    margin: 0 auto;
+    max-width: 640px;
+  }
+  
+  .form-card h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A1A2E;
+    margin: 0 0 6px 0;
+  }
+  
+  .form-card .card-description {
+    font-size: 14px;
+    color: #7A7A8C;
+    margin: 0 0 28px 0;
+  }
+  
+  .ask-field-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .ask-subtext-label {
+    margin-bottom: 4px;
+  }
+  
+  .ask-toggle-label {
+    margin: 0;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .ask-toggle-description {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #7A7A8C;
+  }
+  
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+  }
+  
+  .anon-toggle {
+    width: 3rem;
+    height: 1.75rem;
+    background: #FF5C35;
+    border-radius: 9999px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  
+  .anon-toggle.off {
+    background: #EDEAE3;
+  }
+  
+  .anon-knob {
+    width: 1.25rem;
+    height: 1.25rem;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    transform: translateX(0);
+    transition: transform 0.2s;
+  }
+  
+  .anon-toggle.on .anon-knob {
+    transform: translateX(1.5rem);
+  }
+  
+  .tag-flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  
+  .tag-pill {
+    display: block;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+    transition: all 0.2s ease;
+    background: #fff;
+  }
+  
+  .sr-only-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  .custom-actions-layout {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .ask-action {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .ask-action-primary {
+    background: #1A1A2E;
+    color: #F5F3EE;
+  }
+  
+  .ask-action-secondary {
+    color: inherit;
+  }
+  
+  .ask-error-text {
+    color: #d4183d;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  /* ==========================================================================
+     🔥 [유지 및 수정 적용 구역] 
+     ========================================================================== */
+  
+  /* 1. 회색 박스 입력창 내부 글씨 및 플레이스홀더(힌트문구)는 교보문고체 유지 */
+  .form-card input,
+  .form-card textarea,
+  .form-card .input-field,
+  .form-card .form-textarea,
+  .form-card input::placeholder,
+  .form-card textarea::placeholder,
+  input,
+  textarea {
+    font-family: "베라R", sans-serif !important;
+    font-weight: normal !important;
+  }
+  
+  /* 2. 하단 무지개 알약 태그들의 글씨만 오직 쿠키런체로 변경 */
+  .tag-pill,
+  .tag-pill *,
+  .tag-flex-container label,
+  .tag-flex-container span {
+    font-family: "베라R", sans-serif !important;
+    font-weight: normal !important;
+  }
+
+/* ===== 다크모드: classq-ask.css ===== */
+html.dark-mode .form-card {
+  background: #1c1c30;
+  border-color: rgba(237, 234, 227, 0.1);
 }
 
-
-/* 질문 등록 페이지 전용 스타일 */
-.form-card {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 36px;
-  box-shadow: 0 4px 20px rgba(26, 26, 46, 0.04), 0 1px 3px rgba(26, 26, 46, 0.06);
-  border: 1px solid rgba(26, 26, 46, 0.08);
-  margin: 0 auto;
-  max-width: 640px;
+html.dark-mode .form-card h1 {
+  color: #edeae3;
 }
 
-.form-card h1 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1A1A2E;
-  margin: 0 0 6px 0;
+html.dark-mode .form-card .card-description {
+  color: rgba(237, 234, 227, 0.55);
 }
 
-.form-card .card-description {
-  font-size: 14px;
-  color: #7A7A8C;
-  margin: 0 0 28px 0;
+html.dark-mode .ask-field-label {
+  color: #edeae3;
 }
 
-.ask-field-label {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  display: block;
+html.dark-mode .ask-toggle-label {
+  color: #edeae3;
 }
 
-.ask-subtext-label {
-  margin-bottom: 4px;
+html.dark-mode .ask-toggle-description {
+  color: rgba(237, 234, 227, 0.5);
 }
 
-.ask-toggle-label {
-  margin: 0;
-  font-weight: 600;
-  font-size: 14px;
+html.dark-mode .tag-pill {
+  background: #252538 !important;
+  color: inherit !important;
 }
 
-.ask-toggle-description {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: #7A7A8C;
+html.dark-mode .form-card input,
+html.dark-mode .form-card textarea,
+html.dark-mode .form-card .input-field {
+  background: #252538 !important;
+  color: #edeae3 !important;
+  border-color: rgba(237, 234, 227, 0.15) !important;
 }
 
-.toggle-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
+html.dark-mode .form-card input::placeholder,
+html.dark-mode .form-card textarea::placeholder {
+  color: rgba(237, 234, 227, 0.35) !important;
 }
 
-.anon-toggle {
-  width: 3rem;
-  height: 1.75rem;
-  background: #FF5C35;
-  border-radius: 9999px;
-  position: relative;
-  transition: background 0.2s;
+html.dark-mode .ask-action-primary {
+  background: #edeae3;
+  color: #1a1a2e;
 }
 
-.anon-toggle.off {
-  background: #EDEAE3;
+html.dark-mode .ask-action-secondary {
+  border-color: rgba(237, 234, 227, 0.2);
+  color: #edeae3;
 }
 
-.anon-knob {
-  width: 1.25rem;
-  height: 1.25rem;
-  background: #fff;
-  border-radius: 50%;
-  position: absolute;
-  top: 0.25rem;
-  left: 0.25rem;
-  transform: translateX(0);
-  transition: transform 0.2s;
-}
-
-.anon-toggle.on .anon-knob {
-  transform: translateX(1.5rem);
-}
-
-.tag-flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-.tag-pill {
-  display: block;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid;
-  transition: all 0.2s ease;
-  background: #fff;
-}
-
-.sr-only-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.custom-actions-layout {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.ask-action {
-  flex: 1;
-  text-align: center;
-  padding: 14px 0;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ask-action-primary {
-  background: #1A1A2E;
-  color: #F5F3EE;
-}
-
-.ask-action-secondary {
-  color: inherit;
-}
-
-.ask-error-text {
-  color: #d4183d;
-  font-size: 12px;
-  margin-top: 4px;
+html.dark-mode .ask-action-secondary:hover {
+  background: #252538;
 }

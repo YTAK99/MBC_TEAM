@@ -260,3 +260,95 @@
   font-size: 12px;
   font-weight: 800;
 }
+
+/* ===== 다크모드: classq-detail.css ===== */
+html.dark-mode .detail-body {
+  color: rgba(237, 234, 227, 0.9);
+}
+
+html.dark-mode .detail-question h1 {
+  color: #edeae3;
+}
+
+html.dark-mode .detail-question .muted-text {
+  color: rgba(237, 234, 227, 0.55);
+}
+
+html.dark-mode .detail-actions {
+  border-top-color: rgba(237, 234, 227, 0.12);
+}
+
+html.dark-mode .response-form-card {
+  background: #1c1c30;
+}
+
+html.dark-mode .response-form-card textarea {
+  background: #252538;
+  color: #edeae3;
+  border-color: rgba(237, 234, 227, 0.12);
+}
+
+html.dark-mode .response-form-card h2 {
+  color: #edeae3;
+}
+
+html.dark-mode .response-card p {
+  color: rgba(237, 234, 227, 0.85);
+}
+
+html.dark-mode .response-meta-line strong {
+  color: #edeae3;
+}
+
+html.dark-mode .response-time {
+  color: rgba(237, 234, 227, 0.45);
+}
+
+html.dark-mode .response-empty-message {
+  color: rgba(237, 234, 227, 0.5);
+}
+
+html.dark-mode .response-card-accepted {
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.08) 0%, #1c1c30 70%);
+  border-color: rgba(250, 204, 21, 0.4);
+  box-shadow: 0 10px 28px rgba(250, 204, 21, 0.08);
+}
+
+html.dark-mode .accepted-response-badge {
+  background: rgba(254, 243, 199, 0.12);
+  color: #fcd34d;
+}
+
+html.dark-mode .question-status-box {
+  background: #252538;
+  border-color: rgba(237, 234, 227, 0.15);
+  color: rgba(237, 234, 227, 0.8);
+}
+
+html.dark-mode .question-status-box--open {
+  color: #93c5fd;
+  background: rgba(29, 78, 216, 0.15);
+  border-color: rgba(147, 197, 253, 0.3);
+}
+
+html.dark-mode .question-status-box--answered {
+  color: #6ee7b7;
+  background: rgba(4, 120, 87, 0.15);
+  border-color: rgba(110, 231, 183, 0.3);
+}
+
+html.dark-mode .question-status-box--follow_up {
+  color: #fcd34d;
+  background: rgba(180, 83, 9, 0.15);
+  border-color: rgba(252, 211, 77, 0.3);
+}
+
+html.dark-mode .question-status-box--resolved {
+  color: #86efac;
+  background: rgba(4, 120, 87, 0.12);
+  border-color: rgba(134, 239, 172, 0.3);
+}
+
+html.dark-mode .detail-tag {
+  background: color-mix(in srgb, var(--tag-color) 20%, #1c1c30);
+}

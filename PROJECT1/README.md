@@ -55,6 +55,12 @@ python manage.py createsuperuser
 # 6. 초기 태그 데이터 로드
 python manage.py loaddata questions/fixtures/tags.json
 
+# 6.5. 시연 데이터 로드
+(faker 모듈 설치 안했다면) pip install faker
+python manage.py seed
+
+(데이터 초기화 하고 싶다면) python manage.py flush
+
 ---------------------------------------------------------------
 
 # 7. 개발 서버 실행
