@@ -110,10 +110,15 @@ def hall_of_fame(request):
         .filter(accepted_count__gt=0)
         .order_by("-accepted_count", "username")[:3]
     )
-    # 답변왕은 답변 수로만 집계 (채택 여부는 상관 없음)
+    # 답변왕은 실제 답변만 집계 (작성자의 추가질문은 제외)
     top_responders = (
         User.objects
-        .annotate(response_count=Count("responses"))
+        .annotate(
+            response_count=Count(
+                "responses",
+                filter=Q(responses__response_type=Response.ResponseType.ANSWER),
+            )
+        )
         .filter(response_count__gt=0)
         .order_by("-response_count", "username")[:3]
     )
