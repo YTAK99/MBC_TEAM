@@ -427,18 +427,18 @@ button {
   content: "☀️";
   position: absolute;
   left: 5px;
-  top: 6px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 11px;
-  line-height: 1;
 }
 
 .dark-toggle-track::after {
   content: "🌙";
   position: absolute;
   right: 5px;
-  top: 6px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 11px;
-  line-height: 1;
 }
 
 .dark-toggle-thumb {
