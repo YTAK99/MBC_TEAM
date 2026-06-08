@@ -420,6 +420,25 @@ button {
   border-radius: 13px;
   background: #c7c7cc;
   transition: background 0.28s ease;
+  overflow: hidden;
+}
+
+.dark-toggle-track::before {
+  content: "☀️";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.dark-toggle-track::after {
+  content: "🌙";
+  position: absolute;
+  right: 5px;
+  top: 6px;
+  font-size: 11px;
+  line-height: 1;
 }
 
 .dark-toggle-thumb {
